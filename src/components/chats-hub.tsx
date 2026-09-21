@@ -29,6 +29,18 @@ function timeLabel(value: string) {
   return new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function Avatar({ member, label, online }: { member: Member | null; label: string; online: boolean }) {
+  return (
+    <span
+      className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${online ? "bg-emerald-100 text-emerald-700 ring-2 ring-emerald-500 ring-offset-1" : "bg-slate-100 text-slate-600 ring-2 ring-slate-300 ring-offset-1"}`}
+      aria-label={`${label} · ${online ? "Online" : "Offline"}`}
+      title={`${label} · ${online ? "Online" : "Offline"}`}
+    >
+      {initials(member?.name || member?.email || label)}
+    </span>
+  );
+}
+
 export function ChatsHub() {
   const [mode, setMode] = useState<"personal" | "group">("personal");
   const [members, setMembers] = useState<Member[]>([]);
@@ -72,19 +84,6 @@ export function ChatsHub() {
     return conversation.chat_participants
       .map((participant) => memberById.get(participant.user_id))
       .find((member) => member && member.user_id !== currentUserId) ?? null;
-  }
-
-  function Avatar({ member, label }: { member: Member | null; label: string }) {
-    const online = Boolean(member && onlineUserIds.has(member.user_id));
-    return (
-      <span
-        className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${online ? "bg-emerald-100 text-emerald-700 ring-2 ring-emerald-500 ring-offset-1" : "bg-slate-100 text-slate-600 ring-2 ring-slate-300 ring-offset-1"}`}
-        aria-label={`${label} · ${online ? "Online" : "Offline"}`}
-        title={`${label} · ${online ? "Online" : "Offline"}`}
-      >
-        {initials(member?.name || member?.email || label)}
-      </span>
-    );
   }
 
   async function load() {
@@ -261,7 +260,7 @@ export function ChatsHub() {
             <div className="p-6 text-center text-sm text-slate-500">No {mode} chats yet.</div>
           ) : visibleConversations.map((conversation) => (
             <button key={conversation.id} onClick={() => setSelectedId(conversation.id)} className={`mb-1 flex w-full items-center gap-3 rounded-xl p-3 text-left ${selectedId === conversation.id ? "bg-emerald-50" : "hover:bg-slate-50"}`}>
-              <Avatar member={otherMember(conversation)} label={conversationName(conversation)} />
+              <Avatar member={otherMember(conversation)} label={conversationName(conversation)} online={Boolean(otherMember(conversation) && onlineUserIds.has(otherMember(conversation)!.user_id))} />
               <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-slate-900">{conversationName(conversation)}</span><span className="block truncate text-xs text-slate-400">{conversation.kind === "group" ? `${conversation.chat_participants.length} members` : "Personal"}</span></span>
             </button>
           ))}
@@ -273,7 +272,7 @@ export function ChatsHub() {
           <>
             <header className="flex items-center gap-3 border-b border-slate-200 px-4 py-3">
               <button onClick={() => setSelectedId(null)} className="rounded-lg px-2 py-1 text-lg text-slate-500 hover:bg-slate-100 lg:hidden" aria-label="Back to chats">←</button>
-              <Avatar member={otherMember(selected)} label={conversationName(selected)} />
+              <Avatar member={otherMember(selected)} label={conversationName(selected)} online={Boolean(otherMember(selected) && onlineUserIds.has(otherMember(selected)!.user_id))} />
               <div className="min-w-0 flex-1"><h2 className="truncate text-sm font-semibold text-slate-900">{conversationName(selected)}</h2><p className="text-xs text-slate-400">{selected.kind === "group" ? "Group chat" : "Personal chat"}</p></div>
               <button onClick={() => setShowMessages((value) => !value)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Messages</button>
             </header>

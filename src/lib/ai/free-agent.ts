@@ -51,7 +51,7 @@ export async function runFreeGrowthAgent(opts: {
   const steps: FreeAgentStep[] = [];
   for (const requested of requestedTools(opts.goal)) {
     const result = await runTool(requested.name, requested.args, { db: opts.db, orgId: opts.orgId, orgSlug: opts.orgSlug });
-    if (result !== null) steps.push({ ...requested, result });
+    if (result !== null) steps.push({ tool: requested.name, args: requested.args, result });
   }
   const toolContext = steps.length ? JSON.stringify(steps) : "";
   let lastError: unknown;
