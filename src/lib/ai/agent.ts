@@ -58,7 +58,7 @@ export function isProviderTemporarilyUnavailable(error: unknown): boolean {
   const lower = message.toLowerCase();
   const statusMatch = lower.match(/\b(408|429|500|501|502|503|504|505|506|507|508|509|510|511)\b/);
   if (statusMatch && isRetryableStatus(Number(statusMatch[1]))) return true;
-  return /timeout|timed out|network error|network request failed|fetch failed|connection reset|connection refused|temporarily unavailable|service unavailable|overloaded|too many requests|rate limit|rate_limit|quota|resource exhausted|limit exceeded|insufficient_quota|credit balance|insufficient balance|try again later|model.*not found|unknown model/i.test(lower);
+  return /timeout|timed out|network error|network request failed|fetch failed|connection reset|connection refused|temporarily unavailable|service unavailable|overloaded|too many requests|rate limit|rate_limit|quota|resource exhausted|limit exceeded|insufficient_quota|credit balance|credits?|payment required|insufficient balance|try again later|model.*not found|unknown model/i.test(lower);
 }
 
 async function providerFetch(provider: string, input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
