@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentContext } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { GROWTHSPACE_APP, GROWTHSPACE_DOMAIN, isAllowedBrowserApp, isAllowedBrowserUrl, normalizeBrowserPolicy } from "@/lib/ai/browser-policy";
+import { APPROVED_BROWSER_APPS, GROWTHSPACE_APP, GROWTHSPACE_DOMAIN, isAllowedBrowserApp, isAllowedBrowserUrl, normalizeBrowserPolicy } from "@/lib/ai/browser-policy";
 
 type Membership = { org_id: string; role: "owner" | "admin" | "agent" };
 
@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     policy: workspace.policy,
     company: { domain: GROWTHSPACE_DOMAIN, app: GROWTHSPACE_APP },
+    approvedApps: APPROVED_BROWSER_APPS,
     allowed: requestedUrl ? isAllowedBrowserUrl(requestedUrl, workspace.policy) : requestedApp ? isAllowedBrowserApp(requestedApp, workspace.policy) : undefined,
   });
 }
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
     enabled: body?.enabled,
     allowed_apps: Array.isArray(body?.allowed_apps) ? body.allowed_apps : workspace.policy.allowed_apps,
     require_confirmation: body?.require_confirmation,
+    computer_access_enabled: body?.computer_access_enabled,
   });
   const { error } = await workspace.db.from("organizations").update({ browser_policy: policy }).eq("id", workspace.org.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
