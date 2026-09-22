@@ -1,28 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentContext } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { runFreeGrowthAgent } from "@/lib/ai/free-agent";
+import { agentProviders, runGrowthAgent } from "@/lib/ai/agent";
 
 export const maxDuration = 60;
 
-const FREE_PROVIDERS = {
-  opencode: {
-    configured: Boolean(process.env.OPENCODE_API_KEY?.trim()),
-    models: [{ id: "big-pickle", name: "OpenCode Zen · Big Pickle (Free)" }],
-  },
-  openrouter: {
-    configured: Boolean(process.env.OPENROUTER_API_KEY?.trim()),
-    models: [{ id: "openrouter/free", name: "OpenRouter Free Models Router" }],
-  },
-};
-
 export async function GET() {
+  const providers = await agentProviders();
   return NextResponse.json({
-    providers: FREE_PROVIDERS,
+    providers,
     auto: {
       id: "auto",
-      name: "Free Auto",
-      description: "Uses only free AI: OpenCode Zen Big Pickle first, then OpenRouter Free Models Router when the first free route is unavailable or rate-limited.",
+      name: "Auto",
+      description: "Selects the best configured model for the request and fails over when a provider is temporarily unavailable.",
     },
   });
 }
@@ -34,6 +24,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const goal = typeof body?.goal === "string" ? body.goal.trim() : "";
   if (!goal) return NextResponse.json({ error: "goal required" }, { status: 400 });
+  const provider = typeof body?.provider === "string" ? body.provider : "auto";
+  const model = typeof body?.model === "string" ? body.model : "auto";
 
   const history = Array.isArray(body?.history)
     ? body.history
@@ -50,17 +42,19 @@ export async function POST(req: NextRequest) {
   if (orgError || !org) return NextResponse.json({ error: "Workspace could not be loaded." }, { status: 500 });
 
   try {
-    const result = await runFreeGrowthAgent({
-      goal,
-      history,
-      orgName: org.name || ctx.orgName || "Growth Inspector",
+    const result = await runGrowthAgent(goal, {
+      db,
       orgId: org.id,
       orgSlug: org.slug,
-      db,
+      orgName: org.name || ctx.orgName || "Growth Inspector",
+    }, {
+      provider: provider as "auto" | "openai" | "anthropic" | "zai" | "gemini" | "openrouter",
+      model,
+      history,
     });
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Free Growth AI failed:", error);
-    return NextResponse.json({ error: "Free AI services are temporarily unavailable. Please try again shortly." }, { status: 503 });
+    console.error("Growth AI failed:", error);
+    return NextResponse.json({ error: "Configured AI model services are temporarily unavailable. Please try again shortly." }, { status: 503 });
   }
 }
