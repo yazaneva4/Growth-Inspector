@@ -7,6 +7,8 @@ import { GrowthAiAgentControls } from "@/components/growth-ai-agent-controls";
 import { ConnectedAccounts } from "@/components/connected-accounts";
 import { BackupContacts } from "@/components/backup-contacts";
 import { ProfileNameForm } from "@/components/profile-name-form";
+import { BrowserAccessControls } from "@/components/browser-access-controls";
+import { normalizeBrowserPolicy } from "@/lib/ai/browser-policy";
 import type { BrandVoice, ReplyMode } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +19,7 @@ export default async function SettingsPage() {
 
   const { data: org } = await db
     .from("organizations")
-    .select("id, brand_voice, reply_mode, confidence_threshold")
+    .select("id, brand_voice, reply_mode, confidence_threshold, browser_policy")
     .eq("slug", ctx.orgSlug)
     .maybeSingle();
 
@@ -62,6 +64,8 @@ export default async function SettingsPage() {
         <p className="mt-1 text-xs text-slate-500">Choose where Growth AI runs and how permission prompts are handled. These controls apply to Growth AI wherever you use it.</p>
         <div className="mt-4"><GrowthAiAgentControls /></div>
       </div>
+
+      {!ctx.isDemo && <div className="mt-6"><BrowserAccessControls initial={normalizeBrowserPolicy(org?.browser_policy)} canManage={ctx.role === "owner" || ctx.role === "admin"} /></div>}
 
       <div className="mt-6">
         <SettingsForm initial={initial} canSave={!ctx.isDemo} />
