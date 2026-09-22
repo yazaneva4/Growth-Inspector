@@ -2,10 +2,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { gemini } from "./gemini";
 import { zaiConfigured } from "./zai";
 import { openrouterConfigured, OPENROUTER_MODEL_A, openrouterChatText } from "./openrouter";
+import { opencodeConfigured, OPENCODE_MODEL, opencodeChatText } from "./opencode";
 import { getAnalytics } from "@/lib/analytics";
 import { generateTrendRadar } from "@/lib/ai/trends";
 
-export type AgentProvider = "openai" | "anthropic" | "zai" | "gemini" | "openrouter";
+export type AgentProvider = "openai" | "anthropic" | "zai" | "gemini" | "openrouter" | "opencode";
 export type AgentSelection = AgentProvider | "auto";
 export type AgentModel = { id: string; name: string };
 export type AgentProviderState = { configured: boolean; models: AgentModel[] };
@@ -21,6 +22,9 @@ const ZAI_MODELS: AgentModel[] = [
 
 const OPENROUTER_MODELS: AgentModel[] = [
   { id: OPENROUTER_MODEL_A, name: "OpenRouter Free Models Router" },
+];
+const OPENCODE_MODELS: AgentModel[] = [
+  { id: OPENCODE_MODEL, name: "OpenCode Zen · Big Pickle (Free)" },
 ];
 
 /** Only tools that are actually dispatched by this endpoint are advertised. */
@@ -97,6 +101,7 @@ function fallbackModels(provider: AgentProvider): AgentModel[] {
   if (provider === "anthropic") return ["claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5"].map((id) => ({ id, name: id }));
   if (provider === "gemini") return ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.5-pro", "gemini-2.5-flash"].map((id) => ({ id, name: id }));
   if (provider === "openrouter") return OPENROUTER_MODELS;
+  if (provider === "opencode") return OPENCODE_MODELS;
   return ZAI_MODELS;
 }
 
@@ -109,6 +114,7 @@ async function buildCatalog(): Promise<Record<AgentProvider, AgentProviderState>
     zai: { configured: zaiConfigured(), models: ZAI_MODELS },
     gemini: { configured: Boolean(process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY), models: fallbackModels("gemini") },
     openrouter: { configured: openrouterConfigured(), models: OPENROUTER_MODELS },
+    opencode: { configured: opencodeConfigured(), models: OPENCODE_MODELS },
   };
   await Promise.all([
     (async () => { if (!value.openai.configured) return; try { const r = await providerFetch("OpenAI", "https://api.openai.com/v1/models", { headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` }, cache: "no-store" }); const d = await r.json(); const ids = Array.isArray(d?.data) ? d.data.map((x: { id?: string }) => x.id).filter((x: unknown): x is string => typeof x === "string" && /^gpt-/.test(x)) : []; if (ids.length) value.openai.models = ids.sort().map((id: string) => ({ id, name: id })); } catch {} })(),
@@ -144,7 +150,9 @@ function taskScores(goal: string, provider: AgentProvider, model: string) {
 
 function autoCandidates(goal: string, catalog: Record<AgentProvider, AgentProviderState>) {
   const candidates: Array<{ provider: AgentProvider; model: string; score: number }> = [];
-  for (const provider of ["openai", "anthropic", "zai", "gemini", "openrouter"] as AgentProvider[]) {
+  // Normal chat intentionally uses the free router first, then Big Pickle as
+  // the fallback when OpenRouter is rate-limited or out of quota.
+  for (const provider of ["openrouter", "opencode"] as AgentProvider[]) {
     if (!catalog[provider].configured) continue;
     for (const model of catalog[provider].models) candidates.push({ provider, model: model.id, score: taskScores(goal, provider, model.id) });
   }
@@ -174,6 +182,7 @@ async function textResponse(provider: AgentProvider, model: string, goal: string
     const d = await r.json().catch(() => null); return String(d?.choices?.[0]?.message?.content || "(no answer produced)");
   }
   if (provider === "openrouter") return openrouterChatText({ model, system: SYSTEM(orgName), user: `${toolContext ? `Workspace tool results:\n${toolContext}\n` : ""}${historyText(history)}\nUser: ${goal}` });
+  if (provider === "opencode") return opencodeChatText({ system: SYSTEM(orgName), user: `${toolContext ? `Workspace tool results:\n${toolContext}\n` : ""}${historyText(history)}\nUser: ${goal}` });
   const ai = gemini(); const r = await ai.models.generateContent({ model, contents: prompt }); return r.text || "(no answer produced)";
 }
 
@@ -212,7 +221,7 @@ export async function runGrowthAgent(goal: string, ctx: { db: SupabaseClient; or
     throw lastError instanceof Error ? lastError : new Error("All Auto models are temporarily unavailable.");
   }
 
-  const provider: AgentProvider = ["openai", "anthropic", "zai", "gemini", "openrouter"].includes(options?.provider ?? "") ? options!.provider as AgentProvider : "gemini";
+  const provider: AgentProvider = ["openai", "anthropic", "zai", "gemini", "openrouter", "opencode"].includes(options?.provider ?? "") ? options!.provider as AgentProvider : "gemini";
   if (!catalog[provider].configured) throw new Error(`${provider} is not configured on the server.`);
   const model = chosen(provider, options?.model, catalog);
   if (!model) throw new Error(`No models are available for ${provider}.`);

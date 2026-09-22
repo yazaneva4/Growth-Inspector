@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       orgSlug: org.slug,
       orgName: org.name || ctx.orgName || "Growth Inspector",
     }, {
-      provider: provider as "auto" | "openai" | "anthropic" | "zai" | "gemini" | "openrouter",
+      provider: provider as "auto" | "openai" | "anthropic" | "zai" | "gemini" | "openrouter" | "opencode",
       model,
       history,
     });
