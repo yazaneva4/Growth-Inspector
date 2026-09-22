@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type Message = { id: string; role: "user" | "assistant"; content: string; provider?: string; model?: string; createdAt: number; status?: "pending" | "failed" | "unsaved" };
 type Conversation = { id: string; title: string; messages: Message[]; archived: boolean; updatedAt: number };
@@ -24,8 +25,9 @@ export function GrowthAiChat() {
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const activeIdRef = useRef<string | null>(null);
+  const refreshChatsRef = useRef<((selectFirst?: boolean) => Promise<void>) | null>(null);
 
-  async function refreshChats(selectFirst = false) {
+  const refreshChats = useCallback(async (selectFirst = false) => {
     try {
       const res = await fetch("/api/agent/conversations", { cache: "no-store" });
       const data = await res.json().catch(() => null);
@@ -43,9 +45,36 @@ export function GrowthAiChat() {
       const selected = current && next.some((c: Conversation) => c.id === current) ? current : next.find((c: Conversation) => c.archived === showArchived)?.id ?? next[0].id;
       if (selectFirst || !current || !next.some((c: Conversation) => c.id === current)) { activeIdRef.current = selected; setActiveId(selected); }
     } catch (err) { setError(err instanceof Error ? err.message : "Could not load saved conversations."); }
-  }
+  }, [showArchived]);
 
-  useEffect(() => { void refreshChats(true); }, [showArchived]);
+  // Keep the latest loader available to the stable Realtime subscription.
+  useEffect(() => {
+    refreshChatsRef.current = refreshChats;
+  }, [refreshChats]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    let reconcileTimer: ReturnType<typeof setTimeout> | null = null;
+    const reconcile = () => {
+      if (reconcileTimer) clearTimeout(reconcileTimer);
+      reconcileTimer = setTimeout(() => { void refreshChatsRef.current?.(); }, 120);
+    };
+
+    const channel = supabase
+      .channel("growth-operator-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "ai_operator_conversations" }, reconcile)
+      .on("postgres_changes", { event: "*", schema: "public", table: "ai_operator_messages" }, reconcile)
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") reconcile();
+      });
+
+    return () => {
+      if (reconcileTimer) clearTimeout(reconcileTimer);
+      void supabase.removeChannel(channel);
+    };
+  }, []);
+
+  useEffect(() => { void refreshChats(true); }, [refreshChats]);
   useEffect(() => { activeIdRef.current = activeId; }, [activeId]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [activeId, chats, busy]);
 
