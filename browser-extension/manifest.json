@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Growth Inspector Browser Bridge",
+  "version": "0.1.0",
+  "description": "Admin-controlled browser bridge for Growth Inspector.",
+  "permissions": ["storage", "tabs", "activeTab"],
+  "host_permissions": [
+    "https://growth-inspector.vercel.app/*",
+    "https://growthspace.sa/*",
+    "https://*.growthspace.sa/*",
+    "https://mail.google.com/*",
+    "https://outlook.office.com/*",
+    "https://outlook.live.com/*",
+    "https://web.whatsapp.com/*",
+    "https://messages.google.com/*"
+  ],
+  "action": { "default_title": "Growth Inspector", "default_popup": "popup.html" },
+  "background": { "service_worker": "service-worker.js", "type": "module" },
+  "content_scripts": [{
+    "matches": [
+      "https://growth-inspector.vercel.app/*",
+      "https://growthspace.sa/*",
+      "https://*.growthspace.sa/*",
+      "https://mail.google.com/*",
+      "https://outlook.office.com/*",
+      "https://outlook.live.com/*",
+      "https://web.whatsapp.com/*",
+      "https://messages.google.com/*"
+    ],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  ]
+}
