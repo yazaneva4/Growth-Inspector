@@ -7,7 +7,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
-declare global { interface Window { turnstile?: { render: (el: HTMLElement, opts: { sitekey: string; callback: (token: string) => void; "error-callback": () => void; "expired-callback": () => void }) => string; reset: (id?: string) => void } } }
+declare global { interface Window { turnstile?: { render: (el: HTMLElement, opts: { sitekey: string; appearance: "always"; callback: (token: string) => void; "error-callback": () => void; "expired-callback": () => void }) => string; reset: (id?: string) => void } } }
 
 type Mode = "signin" | "signup";
 type Step = "email" | "method" | "security";
@@ -59,7 +59,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (step !== "method" || !turnstileReady || !turnstileSiteKey || !turnstileRef.current || !window.turnstile) return;
     if (widgetRef.current) { window.turnstile.reset(widgetRef.current); return; }
-    widgetRef.current = window.turnstile.render(turnstileRef.current, { sitekey: turnstileSiteKey, callback: (token) => { setTurnstileToken(token); setError(null); }, "error-callback": () => setTurnstileToken(null), "expired-callback": () => setTurnstileToken(null) });
+    widgetRef.current = window.turnstile.render(turnstileRef.current, { sitekey: turnstileSiteKey, appearance: "always", callback: (token) => { setTurnstileToken(token); setError(null); }, "error-callback": () => setTurnstileToken(null), "expired-callback": () => setTurnstileToken(null) });
     return () => { if (widgetRef.current && window.turnstile) window.turnstile.reset(widgetRef.current); widgetRef.current = null; setTurnstileToken(null); };
   }, [step, turnstileReady]);
 
