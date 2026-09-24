@@ -3,14 +3,11 @@ import {
   handleVoiceTurn,
   buildTwiml,
   verifyTwilioSignature,
-  transcribeWithWhisper,
 } from "@/lib/voice";
 
 /**
- * Twilio calls this after each listening step completes: with a transcribed
- * SpeechResult (Twilio's built-in recognizer), or a RecordingUrl to transcribe
- * ourselves via Whisper (when OPENAI_API_KEY + Twilio credentials are set) —
- * empty/short in both cases if the caller said nothing before the timeout.
+ * Twilio calls this after each listening step completes with its built-in
+ * SpeechResult. Paid Whisper recording transcription is intentionally disabled.
  */
 export async function POST(req: NextRequest) {
   const form = await req.formData();
@@ -25,17 +22,7 @@ export async function POST(req: NextRequest) {
   const toNumber = params.To ?? "";
   const fromNumber = params.From ?? "";
 
-  let speech = params.SpeechResult ?? "";
-  if (!speech && params.RecordingUrl) {
-    const durationSec = Number(params.RecordingDuration ?? "0");
-    if (durationSec >= 1) {
-      try {
-        speech = await transcribeWithWhisper(params.RecordingUrl);
-      } catch (err) {
-        console.error("whisper transcription failed", err);
-      }
-    }
-  }
+  const speech = params.SpeechResult ?? "";
 
   const turn = await handleVoiceTurn({ toNumber, fromNumber, speech });
   const gatherUrl = new URL("/api/voice/gather", req.url).toString();
