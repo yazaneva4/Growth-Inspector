@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { BrandVoice, ReplyMode } from "@/lib/types";
 
@@ -22,9 +22,40 @@ export function SettingsForm({
   const [instructions, setInstructions] = useState(initial.voice.instructions ?? "");
   const [mode, setMode] = useState<ReplyMode>(initial.reply_mode);
   const [threshold, setThreshold] = useState(initial.confidence_threshold);
+  const initialGuardrails = (initial.voice.guardrails ?? []).join("\n");
+  const lastSaved = useRef({
+    tone: initial.voice.tone ?? "",
+    facts: initial.voice.facts ?? "",
+    guardrails: initialGuardrails,
+    instructions: initial.voice.instructions ?? "",
+    mode: initial.reply_mode,
+    threshold: initial.confidence_threshold,
+  });
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const previous = lastSaved.current;
+    const next = {
+      tone: initial.voice.tone ?? "",
+      facts: initial.voice.facts ?? "",
+      guardrails: initialGuardrails,
+      instructions: initial.voice.instructions ?? "",
+      mode: initial.reply_mode,
+      threshold: initial.confidence_threshold,
+    };
+
+    // Refresh fields changed by a teammate without replacing text being edited here.
+    if (tone === previous.tone && previous.tone !== next.tone) setTone(next.tone);
+    if (facts === previous.facts && previous.facts !== next.facts) setFacts(next.facts);
+    if (guardrails === previous.guardrails && previous.guardrails !== next.guardrails) setGuardrails(next.guardrails);
+    if (instructions === previous.instructions && previous.instructions !== next.instructions) setInstructions(next.instructions);
+    if (mode === previous.mode && previous.mode !== next.mode) setMode(next.mode);
+    if (threshold === previous.threshold && previous.threshold !== next.threshold) setThreshold(next.threshold);
+
+    lastSaved.current = next;
+  }, [facts, guardrails, initial.confidence_threshold, initial.reply_mode, initial.voice.facts, initial.voice.instructions, initial.voice.tone, initialGuardrails, instructions, mode, threshold, tone]);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
