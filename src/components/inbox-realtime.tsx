@@ -76,7 +76,7 @@ export function InboxRealtime({
   useEffect(() => setMessages(initialMessages), [initialMessages, selectedId]);
 
   useEffect(() => {
-    if (!orgId) return;
+    if (!orgId || isDemo) return;
     const supabase = createClient();
     const channel = supabase
       .channel(`growth-inbox-${orgId}`)
@@ -95,9 +95,24 @@ export function InboxRealtime({
         if (payload.eventType === "DELETE") setMessages((current) => current.filter((m) => m.id !== row.id));
         else setMessages((current) => current.some((m) => m.id === row.id) ? current.map((m) => m.id === row.id ? { ...m, ...row } : m) : [...current, row]);
       })
-      .subscribe();
-    return () => { void supabase.removeChannel(channel); };
-  }, [orgId, selectedId]);
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") router.refresh();
+      });
+
+    // Realtime delivers changes immediately; this catches events missed during
+    // reconnects and still keeps the inbox fresh if database replication is off.
+    const refresh = () => {
+      if (document.visibilityState === "visible") router.refresh();
+    };
+    const timer = window.setInterval(refresh, 30_000);
+    document.addEventListener("visibilitychange", refresh);
+
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+      void supabase.removeChannel(channel);
+    };
+  }, [orgId, selectedId, isDemo, router]);
 
   async function sendMessage() {
     const body = composer.trim();
@@ -171,7 +186,7 @@ export function InboxRealtime({
     <div className="w-full min-w-0">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0"><h1 className="text-2xl font-bold">Inbox</h1><p className="mt-1 text-sm text-slate-500">Customer email conversations · live updates · human + AI activity</p></div>
-        <div className="flex shrink-0 items-center gap-2"><span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-700">● Live</span>{!isDemo && <button onClick={() => { setNotice(null); setShowNew(true); }} className="rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-medium text-white">+ Compose email</button>}</div>
+        <div className="flex shrink-0 items-center gap-2"><span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-700">● Live sync</span>{!isDemo && <button onClick={() => { setNotice(null); setShowNew(true); }} className="rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-medium text-white">+ Compose email</button>}</div>
       </div>
 
       {notice && <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">{notice}</div>}
