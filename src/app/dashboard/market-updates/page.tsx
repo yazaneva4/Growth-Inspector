@@ -1,8 +1,8 @@
 const sourceChecks = [
-  { label: "GrowthSpace and Saudi competitors", detail: "No new verified item in this check. Official company contact-detail changes were not verified.", href: "https://growthspace.sa/" },
-  { label: "Vision 2030 / Human Capability Development", detail: "HCI 2027 is confirmed below. No other new official announcement was verified.", href: "https://www.vision2030.gov.sa/en/explore/programs/human-capability-development-program" },
+  { label: "GrowthSpace and Saudi competitors", detail: "No new verified company update or official contact-detail change was found in this check.", href: "https://growthspace.sa/" },
+  { label: "Vision 2030 / Human Capability Development", detail: "New: Saudi MHRSD and MCIT, with Microsoft and Gulf Intelligence, announced an AI Center of Excellence initiative on 28 September 2026. SDAIA also announced that its Data and AI Training Program Standards Framework has begun being applied with TVTC (23 September 2026). HCI 2027 is listed below.", href: "https://www.hrsd.gov.sa/en/media-center/news/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%AA%D9%85%D9%8A%D9%91%D8%B2-%D9%84%D9%84%D8%B0%D9%83%D8%A7%D8%A1-%D8%A7%D9%84%D8%A7%D8%B5%D8%B7%D9%86%D8%A7%D8%B9%D9%8A" },
   { label: "Supabase", detail: "No new relevant product change verified in this check.", href: "https://supabase.com/changelog" },
-  { label: "GitHub", detail: "No new relevant product change verified in this check.", href: "https://github.blog/changelog/" },
+  { label: "GitHub", detail: "Claude Sonnet 5.5 became generally available in GitHub Copilot on 28 September 2026. This applies to Copilot; no Growth Inspector code action is indicated.", href: "https://github.blog/changelog/month/09-2026/" },
   { label: "Cloudflare", detail: "No new relevant product change verified in this check.", href: "https://blog.cloudflare.com/" },
   { label: "Resend", detail: "No new relevant product change verified in this check.", href: "https://resend.com/changelog" },
 ];
@@ -14,7 +14,7 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 28 September 2026, 9:08 p.m. Riyadh time · Facts below are attributed to their publishers.
+          Checked 29 September 2026, 2:38 a.m. Riyadh time · Facts below are attributed to their publishers.
         </p>
       </header>
 
@@ -45,6 +45,34 @@ export default function MarketUpdatesPage() {
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://humancapabilityinitiative.org/en" target="_blank" rel="noreferrer">
             Read the official HCI announcement
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Saudi Arabia · Workforce AI</span>
+            <time dateTime="2026-09-28" className="text-xs text-slate-500">28 September 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">AI Center of Excellence initiative announced</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Saudi Arabia’s Ministry of Human Resources and Social Development and Ministry of Communications and Information Technology, with Microsoft and Gulf Intelligence, announced an initiative to accelerate AI adoption in the workforce and develop future skills. This is a workforce capability announcement; no direct Growth Inspector code action is indicated.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://www.hrsd.gov.sa/en/media-center/news/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%AA%D9%85%D9%8A%D9%91%D8%B2-%D9%84%D9%84%D8%B0%D9%83%D8%A7%D8%A1-%D8%A7%D9%84%D8%A7%D8%B5%D8%B7%D9%86%D8%A7%D8%B9%D9%8A" target="_blank" rel="noreferrer">
+            Read MHRSD’s announcement
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Saudi Arabia · Data and AI training</span>
+            <time dateTime="2026-09-23" className="text-xs text-slate-500">23 September 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Data and AI training standards framework begins application</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            The Saudi Data and AI Authority (SDAIA), with the Technical and Vocational Training Corporation (TVTC), says it has begun applying a standards framework to specialized Data and AI training programs.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://www.spa.gov.sa/en/N2683524" target="_blank" rel="noreferrer">
+            Read the Saudi Press Agency report
           </a>
         </article>
       </section>
