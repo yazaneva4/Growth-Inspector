@@ -2,7 +2,7 @@ const sourceChecks = [
   { label: "GrowthSpace and Saudi competitors", detail: "No new verified company update or official contact-detail change was found in this check.", href: "https://growthspace.sa/" },
   { label: "Vision 2030 / Human Capability Development", detail: "New: Saudi MHRSD and MCIT, with Microsoft and Gulf Intelligence, announced an AI Center of Excellence initiative on 28 September 2026. SDAIA also announced that its Data and AI Training Program Standards Framework has begun being applied with TVTC (23 September 2026). HCI 2027 is listed below.", href: "https://www.hrsd.gov.sa/en/media-center/news/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%AA%D9%85%D9%8A%D9%91%D8%B2-%D9%84%D9%84%D8%B0%D9%83%D8%A7%D8%A1-%D8%A7%D9%84%D8%A7%D8%B5%D8%B7%D9%86%D8%A7%D8%B9%D9%8A" },
   { label: "Supabase", detail: "New: Supabase released @supabase/middleware 1.0 on 30 September 2026. The Fetch-compatible middleware engine supports typed request pipelines and runs across Supabase Edge Functions, Vercel Functions, Cloudflare Workers, Deno, Bun, and Node.js 22+.", href: "https://supabase.com/changelog" },
-  { label: "GitHub", detail: "Claude Sonnet 5.5 became generally available in GitHub Copilot on 28 September 2026. This applies to Copilot; no Growth Inspector code action is indicated.", href: "https://github.blog/changelog/month/09-2026/" },
+  { label: "GitHub", detail: "Effective 1 October 2026, checks, workflow runs, and statuses follow the repository Actions retention period (90-day maximum for public repositories). Review the setting only if longer history is needed.", href: "https://github.blog/changelog/2026-08-27-actions-retention-will-cover-checks-workflow-runs-and-statuses/" },
   { label: "Cloudflare", detail: "No new relevant product change verified in this check.", href: "https://blog.cloudflare.com/" },
   { label: "Resend", detail: "No new relevant product change verified in this check.", href: "https://resend.com/changelog" },
 ];
@@ -14,12 +14,54 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 30 September 2026, 7:21 p.m. Riyadh time · Newly verified: Supabase Middleware 1.0. Facts below are attributed to their publishers.
+          Checked 1 October 2026, 3:46 p.m. Riyadh time · Newly verified: Vercel Node.js 20 deprecation is now effective, GitHub Actions retention scope changed, and Vercel CDN changed Vary: Cookie caching. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">Vercel · Runtime deprecation</span>
+            <time dateTime="2026-10-01" className="text-xs text-slate-500">Effective 1 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Node.js 20 disabled for new Builds and Functions</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Vercel says Node.js 20 is now disabled in Project Settings and new deployments configured for it will fail. Existing deployments continue to run. Growth Inspector’s package.json does not pin a Node.js engine, so its Vercel project runtime setting should be checked before the next deployment.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://vercel.com/changelog/node-js-20-is-being-deprecated" target="_blank" rel="noreferrer">
+            Read Vercel’s deprecation notice
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub · Actions retention</span>
+            <time dateTime="2026-10-01" className="text-xs text-slate-500">Effective 1 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Actions retention now covers checks, runs, and statuses</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            GitHub says checks, workflow runs, and statuses now follow the same Actions retention setting as artifacts and logs. Public repositories can retain them for at most 90 days. No change is needed unless Growth Inspector requires longer CI history.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-08-27-actions-retention-will-cover-checks-workflow-runs-and-statuses/" target="_blank" rel="noreferrer">
+            Read GitHub’s changelog
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">Vercel · CDN behavior</span>
+            <time dateTime="2026-09-30" className="text-xs text-slate-500">30 September 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Responses varying by Cookie are no longer cached</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Vercel CDN no longer caches origin responses whose Vary header includes Cookie. This protects personalized responses from shared caching but can reduce cache hits if a route varies by Cookie unnecessarily.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://vercel.com/changelog/vary-cookie-responses-no-longer-cached" target="_blank" rel="noreferrer">
+            Read Vercel’s CDN update
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Product update</span>
