@@ -14,7 +14,7 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 1 October 2026, 8:23 p.m. Riyadh time · Newly verified: GitHub’s redesigned dashboard is now the default. Facts below are attributed to their publishers.
+          Checked 2 October 2026, 1:21 a.m. Riyadh time · No additional verified changes were found since the previous check. Facts below are attributed to their publishers.
         </p>
       </header>
 
