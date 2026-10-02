@@ -2,8 +2,8 @@ const sourceChecks = [
   { label: "GrowthSpace and Saudi competitors", detail: "No new verified company update or official contact-detail change was found in this check.", href: "https://growthspace.sa/" },
   { label: "Vision 2030 / Human Capability Development", detail: "New: Saudi MHRSD and MCIT, with Microsoft and Gulf Intelligence, announced an AI Center of Excellence initiative on 28 September 2026. SDAIA also announced that its Data and AI Training Program Standards Framework has begun being applied with TVTC (23 September 2026). HCI 2027 is listed below.", href: "https://www.hrsd.gov.sa/en/media-center/news/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%AA%D9%85%D9%8A%D9%91%D8%B2-%D9%84%D9%84%D8%B0%D9%83%D8%A7%D8%A1-%D8%A7%D9%84%D8%A7%D8%B5%D8%B7%D9%86%D8%A7%D8%B9%D9%8A" },
   { label: "Supabase", detail: "New: Supabase released @supabase/middleware 1.0 on 30 September 2026. The Fetch-compatible middleware engine supports typed request pipelines and runs across Supabase Edge Functions, Vercel Functions, Cloudflare Workers, Deno, Bun, and Node.js 22+.", href: "https://supabase.com/changelog" },
-  { label: "GitHub", detail: "New: GitHub made its redesigned dashboard the default on 1 October 2026, combining active agent sessions, issues, and pull requests, with the feed moved to a separate tab. This is a GitHub interface change; no Growth Inspector code action is indicated.", href: "https://github.blog/changelog/2026-10-01-new-dashboard-experience-now-the-default/" },
-  { label: "Cloudflare", detail: "No new relevant product change verified in this check.", href: "https://blog.cloudflare.com/" },
+  { label: "GitHub", detail: "New: On 2 October 2026, GitHub added read-only SecurityAdvisory GraphQL fields and filters, and released repository security advisory comments REST endpoints in public preview. Existing integrations remain compatible.", href: "https://github.blog/changelog/2026-10-02-new-fields-for-securityadvisory-graphql-api/" },
+  { label: "Cloudflare", detail: "New: Cloudflare announced a unified observability platform on 2 October 2026, including combined logs, tracing, a SQL API, alerts, 30-day domain analytics, custom dashboards, and Logpush on self-serve plans. Unified observability pricing starts 1 December 2026.", href: "https://blog.cloudflare.com/one-observability-platform/" },
   { label: "Resend", detail: "New: Resend released an Account Usage API on 1 October 2026. GET /usage returns current account usage and plan limits across email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits.", href: "https://resend.com/changelog/account-usage-api" },
 ];
 
@@ -14,12 +14,45 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 2 October 2026, 9:27 p.m. Riyadh time · No additional verified changes were found since the previous check. Facts below are attributed to their publishers.
+          Checked 3 October 2026, 2:29 a.m. Riyadh time · Two new verified product updates were found since the previous check. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · Observability</span>
+            <time dateTime="2026-10-02" className="text-xs text-slate-500">2 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Unified observability platform announced</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Cloudflare announced combined logs, end-to-end tracing, a unified SQL API, custom alerts, 30-day domain analytics, custom dashboards, and Logpush for self-serve plans. Unified pricing for ingested and stored logs and traces begins 1 December 2026. Growth Inspector needs no immediate code change, but Cloudflare usage and retention costs should be reviewed before that date if these features are enabled.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://blog.cloudflare.com/one-observability-platform/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s announcement
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub · Security APIs</span>
+            <time dateTime="2026-10-02" className="text-xs text-slate-500">2 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Security advisory APIs expanded</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            GitHub added five read-only SecurityAdvisory GraphQL fields plus severity and withdrawal filters. It also released REST endpoints for reading, adding, and editing repository security advisory comments in public preview. The additions are backward compatible; no Growth Inspector change is required unless advisory triage is automated.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+            <a className="text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-02-new-fields-for-securityadvisory-graphql-api/" target="_blank" rel="noreferrer">
+              GraphQL update
+            </a>
+            <a className="text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-02-repository-security-advisory-comments-api-in-public-preview/" target="_blank" rel="noreferrer">
+              Comments API preview
+            </a>
+          </div>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800">Resend · Product update</span>
