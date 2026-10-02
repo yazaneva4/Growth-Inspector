@@ -4,7 +4,7 @@ const sourceChecks = [
   { label: "Supabase", detail: "New: Supabase released @supabase/middleware 1.0 on 30 September 2026. The Fetch-compatible middleware engine supports typed request pipelines and runs across Supabase Edge Functions, Vercel Functions, Cloudflare Workers, Deno, Bun, and Node.js 22+.", href: "https://supabase.com/changelog" },
   { label: "GitHub", detail: "New: GitHub made its redesigned dashboard the default on 1 October 2026, combining active agent sessions, issues, and pull requests, with the feed moved to a separate tab. This is a GitHub interface change; no Growth Inspector code action is indicated.", href: "https://github.blog/changelog/2026-10-01-new-dashboard-experience-now-the-default/" },
   { label: "Cloudflare", detail: "No new relevant product change verified in this check.", href: "https://blog.cloudflare.com/" },
-  { label: "Resend", detail: "No new relevant product change verified in this check.", href: "https://resend.com/changelog" },
+  { label: "Resend", detail: "New: Resend released an Account Usage API on 1 October 2026. GET /usage returns current account usage and plan limits across email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits.", href: "https://resend.com/changelog/account-usage-api" },
 ];
 
 export default function MarketUpdatesPage() {
@@ -14,12 +14,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 2 October 2026, 1:21 a.m. Riyadh time · No additional verified changes were found since the previous check. Facts below are attributed to their publishers.
+          Checked 2 October 2026, 6:41 a.m. Riyadh time · One new verified product update was found since the previous check. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800">Resend · Product update</span>
+            <time dateTime="2026-10-01" className="text-xs text-slate-500">1 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Account Usage API released</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Resend’s new GET /usage endpoint returns current usage and plan limits for email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits. Growth Inspector could use it for quota alerts or pre-send throttling, but no immediate code change is required.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://resend.com/changelog/account-usage-api" target="_blank" rel="noreferrer">
+            Read Resend’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub · Interface update</span>
