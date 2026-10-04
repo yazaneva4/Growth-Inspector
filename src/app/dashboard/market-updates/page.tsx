@@ -14,7 +14,7 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 4 October 2026, 4:36 a.m. Riyadh time · No additional verified changes were found since the previous check. Facts below are attributed to their publishers.
+          Checked 4 October 2026, 9:11 a.m. Riyadh time · No additional verified changes were found since the previous check. Facts below are attributed to their publishers.
         </p>
       </header>
 
