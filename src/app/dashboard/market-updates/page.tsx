@@ -3,7 +3,7 @@ const sourceChecks = [
   { label: "Vision 2030 / Human Capability Development", detail: "New: Saudi MHRSD and MCIT, with Microsoft and Gulf Intelligence, announced an AI Center of Excellence initiative on 28 September 2026. SDAIA also announced that its Data and AI Training Program Standards Framework has begun being applied with TVTC (23 September 2026). HCI 2027 is listed below.", href: "https://www.hrsd.gov.sa/en/media-center/news/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D8%AA%D9%85%D9%8A%D9%91%D8%B2-%D9%84%D9%84%D8%B0%D9%83%D8%A7%D8%A1-%D8%A7%D9%84%D8%A7%D8%B5%D8%B7%D9%86%D8%A7%D8%B9%D9%8A" },
   { label: "Supabase", detail: "New: OrioleDB entered Public Beta on paid plans on 1 October 2026. Supabase says it is for testing, has no SLA, and is not recommended for production. The previously noted @supabase/middleware 1.0 release is listed below.", href: "https://supabase.com/changelog/orioledb-public-beta" },
   { label: "GitHub", detail: "New: On 2 October 2026, GitHub added read-only SecurityAdvisory GraphQL fields and filters, and released repository security advisory comments REST endpoints in public preview. Existing integrations remain compatible.", href: "https://github.blog/changelog/2026-10-02-new-fields-for-securityadvisory-graphql-api/" },
-  { label: "Cloudflare", detail: "New: Cloudflare introduced an Account Abuse Protection investigation dashboard on 2 October 2026 for Early Access customers. It summarizes login and signup behavior using per-domain hashed user IDs and can support WAF challenges or blocks after investigation. The previously noted unified observability launch is listed below.", href: "https://blog.cloudflare.com/account-abuse-protection-dashboard/" },
+  { label: "Cloudflare", detail: "Newly verified: Web Search API entered beta and AI Search became generally available on 2 October 2026. The previously noted Account Abuse Protection and unified observability updates are also listed below.", href: "https://developers.cloudflare.com/changelog/product-group/developer-platform/" },
   { label: "Resend", detail: "New: Resend released an Account Usage API on 1 October 2026. GET /usage returns current account usage and plan limits across email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits.", href: "https://resend.com/changelog/account-usage-api" },
 ];
 
@@ -14,12 +14,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 5 October 2026, 12:45 a.m. Riyadh time · No additional verified changes were found since the previous check. Facts below are attributed to their publishers.
+          Checked 5 October 2026, 6:07 a.m. Riyadh time · Newly verified: Cloudflare Web Search API beta and AI Search general availability, both published 2 October 2026. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · AI search</span>
+            <time dateTime="2026-10-02" className="text-xs text-slate-500">2 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Web Search API enters beta and AI Search becomes generally available</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Cloudflare’s new Web Search API lets applications retrieve live web results through AI Gateway using Ceramic.ai, Exa, or Linkup; requests support Zero Data Retention and use provider list pricing without a Cloudflare markup. Cloudflare also made AI Search generally available with hybrid retrieval enabled by default and usage-based billing beginning 1 November 2026. These are optional capabilities; Growth Inspector needs no immediate code change.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/product-group/developer-platform/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s developer-platform changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Database preview</span>
