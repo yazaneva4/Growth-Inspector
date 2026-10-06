@@ -2,7 +2,7 @@ const sourceChecks = [
   { label: "GrowthSpace and Saudi competitors", detail: "No new verified company update or official contact-detail change was found in this check.", href: "https://growthspace.sa/" },
   { label: "Vision 2030 / Human Capability Development", detail: "New: The Middle East Education and Training Exhibition opened in Jeddah on 5 October 2026, with AI-enabled education and labor-market alignment among its themes. Earlier workforce-AI and training-standards announcements remain listed below.", href: "https://www.spa.gov.sa/en/N2693651" },
   { label: "Supabase", detail: "New: Supabase deprecated four framework adapters in @supabase/server on 5 October 2026; removal is scheduled for 1 December 2026. OrioleDB Public Beta and @supabase/middleware 1.0 remain listed below.", href: "https://supabase.com/changelog" },
-  { label: "GitHub", detail: "New: On 2 October 2026, GitHub added read-only SecurityAdvisory GraphQL fields and filters, and released repository security advisory comments REST endpoints in public preview. Existing integrations remain compatible.", href: "https://github.blog/changelog/2026-10-02-new-fields-for-securityadvisory-graphql-api/" },
+  { label: "GitHub", detail: "New: GitHub secret scanning added detectors for Supabase OAuth access tokens and scoped personal access tokens on 5 October 2026. Earlier security-advisory API updates remain listed below.", href: "https://github.blog/changelog/2026-10-05-secret-scanning-adds-detectors-for-lovable-supabase-and-more/" },
   { label: "Cloudflare", detail: "Newly verified: Web Search API entered beta and AI Search became generally available on 2 October 2026. The previously noted Account Abuse Protection and unified observability updates are also listed below.", href: "https://developers.cloudflare.com/changelog/product-group/developer-platform/" },
   { label: "Resend", detail: "New: Resend released an Account Usage API on 1 October 2026. GET /usage returns current account usage and plan limits across email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits.", href: "https://resend.com/changelog/account-usage-api" },
 ];
@@ -14,12 +14,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 6 October 2026, 2:32 a.m. Riyadh time · Two newly verified updates were found. Facts below are attributed to their publishers.
+          Checked 6 October 2026, 7:15 a.m. Riyadh time · One newly verified platform update was found. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub · Secret scanning</span>
+            <time dateTime="2026-10-05" className="text-xs text-slate-500">5 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Secret scanning adds Supabase token detectors</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            GitHub secret scanning now detects Supabase OAuth access tokens and scoped personal access tokens in repositories. These are user-secret detectors, so findings generate secret-scanning alerts in public or private repositories. This improves credential-leak detection for Growth Inspector; any alert should still trigger immediate token revocation or rotation.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-05-secret-scanning-adds-detectors-for-lovable-supabase-and-more/" target="_blank" rel="noreferrer">
+            Read GitHub’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Deprecation</span>
