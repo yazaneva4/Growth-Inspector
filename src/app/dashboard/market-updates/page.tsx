@@ -2,7 +2,7 @@ const sourceChecks = [
   { label: "GrowthSpace and Saudi competitors", detail: "No new verified company update or official contact-detail change was found in this check.", href: "https://growthspace.sa/" },
   { label: "Vision 2030 / Human Capability Development", detail: "New: MCIT and IBM completed a Quantum Technologies Leadership Program for leaders and decision-makers on 5 October 2026. The Middle East Education and Training Exhibition and earlier workforce-AI announcements remain listed below.", href: "https://www.spa.gov.sa/en/N2693852" },
   { label: "Supabase", detail: "New: Supabase deprecated four framework adapters in @supabase/server on 5 October 2026; removal is scheduled for 1 December 2026. OrioleDB Public Beta and @supabase/middleware 1.0 remain listed below.", href: "https://supabase.com/changelog" },
-  { label: "GitHub", detail: "New: GitHub secret scanning added detectors for Supabase OAuth access tokens and scoped personal access tokens on 5 October 2026. Earlier security-advisory API updates remain listed below.", href: "https://github.blog/changelog/2026-10-05-secret-scanning-adds-detectors-for-lovable-supabase-and-more/" },
+  { label: "GitHub", detail: "New: Organization and enterprise admins can now audit AI Scan for pull requests enablement in Security Overview. Supabase token detectors and earlier security-advisory API updates remain listed below.", href: "https://github.blog/changelog/2026-10-06-code-scanning-ai-scan-enablement-status-in-security-overview/" },
   { label: "Cloudflare", detail: "Newly verified: Web Search API entered beta and AI Search became generally available on 2 October 2026. The previously noted Account Abuse Protection and unified observability updates are also listed below.", href: "https://developers.cloudflare.com/changelog/product-group/developer-platform/" },
   { label: "Resend", detail: "New: Resend released an Account Usage API on 1 October 2026. GET /usage returns current account usage and plan limits across email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits.", href: "https://resend.com/changelog/account-usage-api" },
 ];
@@ -14,12 +14,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 6 October 2026, 12:38 p.m. Riyadh time · One newly verified Saudi capability-development update was found. Facts below are attributed to their publishers.
+          Checked 6 October 2026, 5:19 p.m. Riyadh time · One newly verified GitHub security-management update was found. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub · Security coverage</span>
+            <time dateTime="2026-10-06" className="text-xs text-slate-500">6 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Security Overview shows AI Scan enablement by repository</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            GitHub organization and enterprise administrators can now see enabled and not-enabled repository counts for AI Scan for pull requests, inspect each repository’s effective status, filter the coverage view, and export the status in CSV. This improves security-adoption auditing; Growth Inspector needs no code change.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-06-code-scanning-ai-scan-enablement-status-in-security-overview/" target="_blank" rel="noreferrer">
+            Read GitHub’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800">Saudi Arabia · Executive technology capability</span>
