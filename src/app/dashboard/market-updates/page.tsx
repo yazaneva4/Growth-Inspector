@@ -4,7 +4,7 @@ const sourceChecks = [
   { label: "Supabase", detail: "New: Scoped personal access tokens are generally available, with resource limits, per-capability permissions, and expiry controls. The No access organization role and other recent security changes remain listed below.", href: "https://supabase.com/changelog/scoped-personal-access-tokens-ga" },
   { label: "Vercel", detail: "New: AI Gateway decision requests can use beta confidence-based fallbacks. Node.js 20 deprecation and earlier platform changes remain listed below.", href: "https://vercel.com/changelog/confidence-based-decision-fallbacks" },
   { label: "GitHub", detail: "New: Stacked pull requests are generally available on all GitHub.com plans. AI Scan coverage auditing, Supabase token detectors, and earlier security updates remain listed below.", href: "https://github.blog/changelog/2026-10-06-stacked-pull-requests-generally-available/" },
-  { label: "Cloudflare", detail: "Newly verified: Web Search API entered beta and AI Search became generally available on 2 October 2026. The previously noted Account Abuse Protection and unified observability updates are also listed below.", href: "https://developers.cloudflare.com/changelog/product-group/developer-platform/" },
+  { label: "Cloudflare", detail: "New: AI Gateway standardized rejected provider-credential responses on POST /ai/run. Web Search API, AI Search, and earlier platform updates remain listed below.", href: "https://developers.cloudflare.com/changelog/post/2026-10-05-provider-credential-errors/" },
   { label: "Resend", detail: "New: Resend released an Account Usage API on 1 October 2026. GET /usage returns current account usage and plan limits across email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits.", href: "https://resend.com/changelog/account-usage-api" },
 ];
 
@@ -15,12 +15,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 7 October 2026, 8:27 a.m. Riyadh time · Two newly verified product updates were found. Facts below are attributed to their publishers.
+          Checked 7 October 2026, 1:10 p.m. Riyadh time · One newly verified Cloudflare integration update was found. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · AI Gateway</span>
+            <time dateTime="2026-10-06" className="text-xs text-slate-500">6 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Provider-credential errors now use standardized responses</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Cloudflare AI Gateway’s POST /ai/run endpoint now returns HTTP 401 with error code 2009 when a provider rejects supplied credentials, including for ElevenLabs, Google Vertex, and other providers. Rejected credentials under Unified Billing return HTTP 503. Growth Inspector should update its error handling only if it calls this endpoint and currently treats the former 402, 403, 500, or provider-specific responses as credential failures.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-05-provider-credential-errors/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">Vercel · AI Gateway</span>
