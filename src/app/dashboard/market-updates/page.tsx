@@ -3,7 +3,7 @@ const sourceChecks = [
   { label: "Vision 2030 / Human Capability Development", detail: "New: MCIT and IBM completed a Quantum Technologies Leadership Program for leaders and decision-makers on 5 October 2026. The Middle East Education and Training Exhibition and earlier workforce-AI announcements remain listed below.", href: "https://www.spa.gov.sa/en/N2693852" },
   { label: "Supabase", detail: "New: Scoped personal access tokens are generally available, with resource limits, per-capability permissions, and expiry controls. The No access organization role and other recent security changes remain listed below.", href: "https://supabase.com/changelog/scoped-personal-access-tokens-ga" },
   { label: "Vercel", detail: "New: AI Gateway decision requests can use beta confidence-based fallbacks. Node.js 20 deprecation and earlier platform changes remain listed below.", href: "https://vercel.com/changelog/confidence-based-decision-fallbacks" },
-  { label: "GitHub", detail: "New: Stacked pull requests are generally available on all GitHub.com plans. AI Scan coverage auditing, Supabase token detectors, and earlier security updates remain listed below.", href: "https://github.blog/changelog/2026-10-06-stacked-pull-requests-generally-available/" },
+  { label: "GitHub", detail: "New: GitHub introduced a context-aware model for leaked-secret detection. Stacked pull requests, AI Scan coverage auditing, Supabase token detectors, and earlier security updates remain listed below.", href: "https://github.blog/changelog/2026-10-07-purpose-built-model-for-leaked-secret-detection/" },
   { label: "Cloudflare", detail: "New: Log Explorer datasets moved into Observability Logs with saved queries and enabled datasets preserved. The AI Gateway credential-response change and earlier updates remain listed below.", href: "https://developers.cloudflare.com/changelog/post/2026-10-07-log-search-in-observability-logs/" },
   { label: "Resend", detail: "New: Resend released an Account Usage API on 1 October 2026. GET /usage returns current account usage and plan limits across email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits.", href: "https://resend.com/changelog/account-usage-api" },
 ];
@@ -15,12 +15,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 7 October 2026, 11:39 p.m. Riyadh time · One newly verified Cloudflare observability update was found. Facts below are attributed to their publishers.
+          Checked 8 October 2026, 4:31 a.m. Riyadh time · One newly verified GitHub security update was found. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub · Secret protection</span>
+            <time dateTime="2026-10-07" className="text-xs text-slate-500">7 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Context-aware model expands leaked-secret detection</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            GitHub introduced a fine-tuned model that reads surrounding code to identify likely credentials, including passwords without a recognizable token format. Existing AI-detected Password alert customers were upgraded automatically at no extra charge under GitHub Secret Protection or Advanced Security. AI checks for push protection are in private preview, and checks for Copilot’s /security-review command are planned for private preview; those opt-in checks will consume GitHub AI Credits. Growth Inspector should keep existing secret alerts enabled, but no credit-consuming preview should be enabled without explicit approval.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-07-purpose-built-model-for-leaked-secret-detection/" target="_blank" rel="noreferrer">
+            Read GitHub’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · Observability</span>
