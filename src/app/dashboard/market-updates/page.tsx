@@ -2,7 +2,7 @@ const sourceChecks = [
   { label: "GrowthSpace and Saudi competitors", detail: "No new verified company update or official contact-detail change was found in this check.", href: "https://growthspace.sa/" },
   { label: "Vision 2030 / Human Capability Development", detail: "New: MCIT and IBM completed a Quantum Technologies Leadership Program for leaders and decision-makers on 5 October 2026. The Middle East Education and Training Exhibition and earlier workforce-AI announcements remain listed below.", href: "https://www.spa.gov.sa/en/N2693852" },
   { label: "Supabase", detail: "Newly verified compatibility note: realtime-js 2.15.1 and supabase-js 2.55.0 require Node.js versions below 22 to supply the ws transport. Scoped PATs and other recent changes remain listed below.", href: "https://supabase.com/changelog/37869-change-in-realtime-js-affecting-node-js-22" },
-  { label: "Vercel", detail: "New: AI Gateway supports OpenAI’s Decisions API through an OpenAI-compatible endpoint. Confidence-based fallbacks, Node.js 20 deprecation, and earlier changes remain listed below.", href: "https://vercel.com/changelog/openai-decisions-api-now-available-on-ai-gateway" },
+  { label: "Vercel", detail: "New: Projects can skip forwarding request bodies to Routing Middleware when that middleware does not read them, reducing Fast Origin Transfer usage and potentially improving time to first byte. Earlier updates remain listed below.", href: "https://vercel.com/changelog/skip-sending-request-bodies-to-routing-middleware" },
   { label: "GitHub", detail: "New: Copilot local sandboxing is generally available, and GitHub introduced a context-aware leaked-secret detector. Stacked pull requests and earlier security updates remain listed below.", href: "https://github.blog/changelog/2026-10-07-local-sandboxing-for-github-copilot-now-generally-available/" },
   { label: "Cloudflare", detail: "New: Log Explorer datasets moved into Observability Logs with saved queries and enabled datasets preserved. The AI Gateway credential-response change and earlier updates remain listed below.", href: "https://developers.cloudflare.com/changelog/post/2026-10-07-log-search-in-observability-logs/" },
   { label: "Resend", detail: "New: Resend released an Account Usage API on 1 October 2026. GET /usage returns current account usage and plan limits across email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits.", href: "https://resend.com/changelog/account-usage-api" },
@@ -15,12 +15,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 9 October 2026, 1:12 a.m. Riyadh time · No new verified material update or official contact-detail change was found in this check. Previously verified facts remain below and are attributed to their publishers.
+          Checked 9 October 2026, 6:04 a.m. Riyadh time · One newly verified Vercel platform update was found. No official contact-detail change was verified. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">Vercel · Routing Middleware</span>
+            <time dateTime="2026-10-08" className="text-xs text-slate-500">8 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Request bodies can be omitted from Routing Middleware</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Vercel added the optional skipMiddlewareRequestBody setting for projects whose Routing Middleware does not read incoming request bodies. Vercel says it can reduce Fast Origin Transfer usage and improve time to first byte, especially for large requests; Functions and rewrite targets still receive the body. Existing projects are unchanged unless the option is enabled and redeployed. No Routing Middleware reference was found in Growth Inspector’s indexed repository code, so no immediate change is indicated.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://vercel.com/changelog/skip-sending-request-bodies-to-routing-middleware" target="_blank" rel="noreferrer">
+            Read Vercel’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Runtime compatibility</span>
