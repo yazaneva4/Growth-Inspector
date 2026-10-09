@@ -4,7 +4,7 @@ const sourceChecks = [
   { label: "Supabase", detail: "Newly verified compatibility note: realtime-js 2.15.1 and supabase-js 2.55.0 require Node.js versions below 22 to supply the ws transport. Scoped PATs and other recent changes remain listed below.", href: "https://supabase.com/changelog/37869-change-in-realtime-js-affecting-node-js-22" },
   { label: "Vercel", detail: "New: Projects can skip forwarding request bodies to Routing Middleware when that middleware does not read them, reducing Fast Origin Transfer usage and potentially improving time to first byte. Earlier updates remain listed below.", href: "https://vercel.com/changelog/skip-sending-request-bodies-to-routing-middleware" },
   { label: "GitHub", detail: "New: Copilot local sandboxing is generally available, and GitHub introduced a context-aware leaked-secret detector. Stacked pull requests and earlier security updates remain listed below.", href: "https://github.blog/changelog/2026-10-07-local-sandboxing-for-github-copilot-now-generally-available/" },
-  { label: "Cloudflare", detail: "New: Log Explorer datasets moved into Observability Logs with saved queries and enabled datasets preserved. The AI Gateway credential-response change and earlier updates remain listed below.", href: "https://developers.cloudflare.com/changelog/post/2026-10-07-log-search-in-observability-logs/" },
+  { label: "Cloudflare", detail: "New: WAF and Rules expressions can use cf.appsec.request.failed_detections to react when supported security detections report failures. Earlier observability and AI Gateway updates remain listed below.", href: "https://developers.cloudflare.com/changelog/post/2026-10-09-failed-detections/" },
   { label: "Resend", detail: "New: Resend released an Account Usage API on 1 October 2026. GET /usage returns current account usage and plan limits across email, contacts, segments, broadcasts, domains, AI credits, automation runs, and API rate limits.", href: "https://resend.com/changelog/account-usage-api" },
 ];
 
@@ -15,12 +15,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 9 October 2026, 11:44 a.m. Riyadh time · No new verified material update or official contact-detail change was found in this check. Previously verified facts remain below and are attributed to their publishers.
+          Checked 9 October 2026, 4:24 p.m. Riyadh time · One newly verified Cloudflare security update was found. No official contact-detail change was verified. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · WAF rules</span>
+            <time dateTime="2026-10-09" className="text-xs text-slate-500">9 October 2026</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Rules can react to failed security detections</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Cloudflare added the cf.appsec.request.failed_detections array for Custom Rules, Rate Limiting Rules, and zone-level Request Header Transform Rules. It can report failures from content scanning, WAF attack scoring and signatures, leaked-credential checks, and AI prompt detections for PII, injection, custom topics, and unsafe topics. The field is available on all plans, subject to access to the underlying detection and rule features, and does not change detection behavior by itself. Growth Inspector needs no code change; the signal is useful only if its Cloudflare rules are configured to handle detection failures explicitly.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-09-failed-detections/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">Vercel · Routing Middleware</span>
