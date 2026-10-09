@@ -1,7 +1,7 @@
 const sourceChecks = [
   { label: "GrowthSpace and Saudi competitors", detail: "No new verified company update or official contact-detail change was found in this check.", href: "https://growthspace.sa/" },
   { label: "Vision 2030 / Human Capability Development", detail: "New: MCIT and IBM completed a Quantum Technologies Leadership Program for leaders and decision-makers on 5 October 2026. The Middle East Education and Training Exhibition and earlier workforce-AI announcements remain listed below.", href: "https://www.spa.gov.sa/en/N2693852" },
-  { label: "Supabase", detail: "Newly verified compatibility note: realtime-js 2.15.1 and supabase-js 2.55.0 require Node.js versions below 22 to supply the ws transport. Scoped PATs and other recent changes remain listed below.", href: "https://supabase.com/changelog/37869-change-in-realtime-js-affecting-node-js-22" },
+  { label: "Supabase", detail: "New: Supabase moved its status page to incident.io. RSS and Slack subscribers must resubscribe; SMS and webhook subscriptions are no longer supported. Earlier product and compatibility updates remain listed below.", href: "https://supabase.com/changelog/status-page-migration" },
   { label: "Vercel", detail: "New: Projects can skip forwarding request bodies to Routing Middleware when that middleware does not read them, reducing Fast Origin Transfer usage and potentially improving time to first byte. Earlier updates remain listed below.", href: "https://vercel.com/changelog/skip-sending-request-bodies-to-routing-middleware" },
   { label: "GitHub", detail: "New: Copilot local sandboxing is generally available, and GitHub introduced a context-aware leaked-secret detector. Stacked pull requests and earlier security updates remain listed below.", href: "https://github.blog/changelog/2026-10-07-local-sandboxing-for-github-copilot-now-generally-available/" },
   { label: "Cloudflare", detail: "New: WAF and Rules expressions can use cf.appsec.request.failed_detections to react when supported security detections report failures. Earlier observability and AI Gateway updates remain listed below.", href: "https://developers.cloudflare.com/changelog/post/2026-10-09-failed-detections/" },
@@ -15,12 +15,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 9 October 2026, 4:24 p.m. Riyadh time · One newly verified Cloudflare security update was found. No official contact-detail change was verified. Facts below are attributed to their publishers.
+          Checked 9 October 2026, 9:15 p.m. Riyadh time · One newly verified Supabase operations update was found. No official contact-detail change was verified. Facts below are attributed to their publishers.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed updates</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Service status</span>
+            <time dateTime="2026-10-08" className="text-xs text-slate-500">8 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Status page moves to incident.io</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Supabase moved status.supabase.com to incident.io without changing the URL. Email subscribers were carried over automatically, but RSS and Slack subscribers must resubscribe; SMS and webhook subscriptions are no longer supported. Growth Inspector needs no application-code change, but any operational alerting that relied on the old RSS, Slack, SMS, or webhook subscriptions should be reviewed.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/changelog/status-page-migration" target="_blank" rel="noreferrer">
+            Read Supabase’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · WAF rules</span>
