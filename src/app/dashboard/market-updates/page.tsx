@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 10 October 2026, 7:31 a.m. Riyadh time · One newly verified Vercel billing and retention update was found. No official contact-detail change was verified.
+          Checked 10 October 2026, 12:43 p.m. Riyadh time · One newly verified Cloudflare agent-tooling update was found. No official contact-detail change was verified.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · Agent tooling</span>
+            <time dateTime="2026-10-10" className="text-xs text-slate-500">10 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Cloudflare API MCP server now serves Cloudflare skills</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Cloudflare’s API MCP server now exposes Cloudflare skills through the Skills over MCP extension. Compatible MCP clients can discover them with skills/list and read their files from skill URLs after connecting to https://mcp.cloudflare.com/mcp. This is optional agent tooling and does not require a Growth Inspector application change.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-10-cloudflare-mcp-skills/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">Vercel · Storage billing</span>
