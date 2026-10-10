@@ -16,8 +16,8 @@ const checks = [
   },
   {
     label: "Vercel, GitHub, and Resend",
-    detail: "No newer material update was verified in this check. The latest reviewed changes remain Vercel's Routing Middleware option, GitHub's Copilot sandboxing and secret detection, and Resend's Account Usage API.",
-    href: "https://vercel.com/changelog",
+    detail: "New Vercel storage billing and retention terms are listed above. No newer material GitHub or Resend update was verified in this check.",
+    href: "https://vercel.com/changelog/deployment-storage-pricing-expands-to-existing-teams",
   },
 ];
 
@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 10 October 2026, 2:53 a.m. Riyadh time · One newly verified Cloudflare operations update was found. No official contact-detail change was verified.
+          Checked 10 October 2026, 7:31 a.m. Riyadh time · One newly verified Vercel billing and retention update was found. No official contact-detail change was verified.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">Vercel · Storage billing</span>
+            <time dateTime="2026-10-09" className="text-xs text-slate-500">9 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Existing Pro teams move to paid deployment storage and 30-day retention</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Vercel says Deployment Storage and Functions Storage billing will begin for all Pro teams at $0.10 per GB-month. Deployments older than 30 days will start being deleted on 23 October unless a team opts out in its retention settings. Deleted deployments cannot be used for rollback. Growth Inspector should review its Vercel retention settings and storage usage before 23 October if it runs on a Pro team.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://vercel.com/changelog/deployment-storage-pricing-expands-to-existing-teams" target="_blank" rel="noreferrer">
+            Read Vercel’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · HTTP analytics</span>
