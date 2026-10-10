@@ -11,8 +11,8 @@ const checks = [
   },
   {
     label: "Supabase",
-    detail: "Latest verified operations change: the status page moved to incident.io on 8 October. RSS and Slack users must resubscribe; SMS and webhook subscriptions are no longer supported.",
-    href: "https://supabase.com/changelog/status-page-migration",
+    detail: "The hosted Supabase MCP server is now available at mcp.supabase.com/mcp with browser-based OAuth; the 8 October status-page migration also remains relevant.",
+    href: "https://supabase.com/changelog/supabase-mcp-hosted",
   },
   {
     label: "Vercel, GitHub, and Resend",
@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 10 October 2026, 5:44 p.m. Riyadh time · One newly verified Cloudflare Workers AI update was found. No official contact-detail change was verified.
+          Checked 10 October 2026, 10:34 p.m. Riyadh time · One newly verified Supabase agent-tooling update was found. No official contact-detail change was verified.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Agent tooling</span>
+            <time dateTime="2026-10-10" className="text-xs text-slate-500">10 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Supabase MCP server moves to a hosted OAuth endpoint</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Supabase now hosts its MCP server at https://mcp.supabase.com/mcp. Compatible clients connect through browser-based OAuth 2, without running the server through npx or supplying a personal access token. This is optional development tooling and does not require a Growth Inspector application change.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/changelog/supabase-mcp-hosted" target="_blank" rel="noreferrer">
+            Read Supabase’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · Workers AI</span>
