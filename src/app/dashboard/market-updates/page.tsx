@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 10 October 2026, 12:43 p.m. Riyadh time · One newly verified Cloudflare agent-tooling update was found. No official contact-detail change was verified.
+          Checked 10 October 2026, 5:44 p.m. Riyadh time · One newly verified Cloudflare Workers AI update was found. No official contact-detail change was verified.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · Workers AI</span>
+            <time dateTime="2026-10-09" className="text-xs text-slate-500">9 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Clef decision models gain multimodal input, lower pricing, and faster serving</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Cloudflare released the open-weight Clef-omni decision model for text, images, audio, and video. It also cut hosted Clef-flash input pricing from $0.09 to $0.038 per million tokens while reducing its hosted context window from 64k to 24k, and reported faster hosted Clef inference. These are optional Workers AI capabilities; Growth Inspector needs no change unless it evaluates decision-model routing or classification.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://blog.cloudflare.com/clef-faster-cheaper-multimodal/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s announcement
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · Agent tooling</span>
