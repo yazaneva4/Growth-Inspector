@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 11 October 2026, 2:16 p.m. Riyadh time · No new verified information or official contact-detail change was found in this check.
+          Checked 11 October 2026, 7:03 p.m. Riyadh time · One newly verified DNS infrastructure notice was found. No official contact-detail change was verified.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · DNSSEC</span>
+            <time dateTime="2026-10-11" className="text-xs text-slate-500">11 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">DNS root key rolls over to KSK-2024</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            The DNS root is scheduled to switch its signing key to KSK-2024 today. Cloudflare says websites using Cloudflare DNS, 1.1.1.1, or Gateway DNS require no action because those services already trust the new key. Growth Inspector needs no change unless it operates a separate DNSSEC-validating resolver, which should be checked for the KSK-2024 trust anchor.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://blog.cloudflare.com/root-ksk-2024-rollover/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s notice
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub · Copilot for JetBrains</span>
