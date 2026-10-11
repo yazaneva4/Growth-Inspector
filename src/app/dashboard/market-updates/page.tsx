@@ -16,8 +16,8 @@ const checks = [
   },
   {
     label: "Vercel, GitHub, and Resend",
-    detail: "New Vercel storage billing and retention terms are listed above. No newer material GitHub or Resend update was verified in this check.",
-    href: "https://vercel.com/changelog/deployment-storage-pricing-expands-to-existing-teams",
+    detail: "The new GitHub Copilot for JetBrains controls and Vercel storage terms are listed above. No newer material Resend update was verified in this check.",
+    href: "https://github.blog/changelog/2026-10-10-new-controls-and-chat-improvements-in-copilot-for-jetbrains/",
   },
 ];
 
@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 10 October 2026, 10:34 p.m. Riyadh time · One newly verified Supabase agent-tooling update was found. No official contact-detail change was verified.
+          Checked 11 October 2026, 4:16 a.m. Riyadh time · One newly verified GitHub Copilot update was found. No official contact-detail change was verified.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub · Copilot for JetBrains</span>
+            <time dateTime="2026-10-10" className="text-xs text-slate-500">10 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">JetBrains Copilot adds MCP startup control and drops IDE 2025.1</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            GitHub added a setting that can disable automatic MCP server startup for Copilot and Claude in JetBrains IDEs, plus enterprise-managed default agent models and faster diagnostic fixes. GitHub also ended support for JetBrains IDE 2025.1, so the plugin now requires version 2025.2 or later. Growth Inspector needs no application-code change; JetBrains users should update their IDE before updating the plugin.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-10-new-controls-and-chat-improvements-in-copilot-for-jetbrains/" target="_blank" rel="noreferrer">
+            Read GitHub’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Agent tooling</span>
