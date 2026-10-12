@@ -43,7 +43,7 @@ export default function MarketUpdatesPage() {
           <p className="mt-2 text-sm leading-6 text-slate-600">
             Cloudflare now lets API Shield users manually start a zone-wide schema-learning run after sending representative test traffic, instead of waiting for the weekly schedule. The dashboard shows zone and operation-level learning status and results. Growth Inspector needs no change unless it uses API Shield schema validation; if it does, this can shorten testing and rollout checks.
           </p>
-          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-12-api-shield-schema-learning-on-demand/" target="_blank" rel="noreferrer">
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-12-manual-schema-learning/" target="_blank" rel="noreferrer">
             Read Cloudflare’s changelog
           </a>
         </article>
