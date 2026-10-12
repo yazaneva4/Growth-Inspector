@@ -28,7 +28,7 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 12 October 2026, 8:52 p.m. Riyadh time · Two new verified platform updates were found; no official contact-detail change was found.
+          Checked 13 October 2026, 1:28 a.m. Riyadh time · No new verified information or official contact-detail change was found in this check.
         </p>
       </header>
 
