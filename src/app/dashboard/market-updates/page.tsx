@@ -28,12 +28,40 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 12 October 2026, 3:56 p.m. Riyadh time · One new verified platform update was found; no official contact-detail change was found.
+          Checked 12 October 2026, 8:52 p.m. Riyadh time · Two new verified platform updates were found; no official contact-detail change was found.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · TLS compatibility</span>
+            <time dateTime="2026-10-12" className="text-xs text-slate-500">12 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Legacy TLS 1.2 cipher suites will be removed</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Supabase will stop offering four outdated CBC-mode TLS 1.2 cipher suites on project HTTP APIs from 10 November 2026 at the earliest. Auth, Data API, Storage, Realtime, and Edge Functions are affected; TLS 1.3 and database connections are unchanged. Modern Growth Inspector clients should be unaffected, but any legacy or embedded client should be checked before the deadline.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/changelog/tls-1-2-cipher-deprecation" target="_blank" rel="noreferrer">
+            Read Supabase’s notice
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · Managed WAF</span>
+            <time dateTime="2026-10-12" className="text-xs text-slate-500">12 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Managed rules add TanStack XSS and Atlassian file-access detections</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Cloudflare added blocking detections for CVE-2026-102989, a reflected XSS issue affecting TanStack, and CVE-2026-21589, an arbitrary file-access issue affecting Atlassian products. Growth Inspector needs no application change if it does not use the affected products; Cloudflare Managed Rules users should confirm the new rules are present and monitor for false positives.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-12-waf-release/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · API Shield</span>
