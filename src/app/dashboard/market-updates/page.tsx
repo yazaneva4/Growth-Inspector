@@ -6,8 +6,8 @@ const checks = [
   },
   {
     label: "Vision 2030 / Human Capability Development",
-    detail: "No newly verified announcement was found in this check. Previously verified Saudi workforce and AI capability announcements remain unchanged.",
-    href: "https://www.vision2030.gov.sa/",
+    detail: "Newly verified: the Riyadh Economic Forum will examine knowledge localization and national workforce capability-building, and SASO will host an AI standards forum on 14 October.",
+    href: "https://www.spa.gov.sa/en/N2698506",
   },
   {
     label: "Supabase",
@@ -28,12 +28,27 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 12 October 2026, 12:26 a.m. Riyadh time · No new verified information or official contact-detail change was found in this check.
+          Checked 12 October 2026, 5:30 a.m. Riyadh time · Two newly verified Saudi capability and AI-standards announcements were found. No official contact-detail change was verified.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Saudi Arabia · Workforce and AI standards</span>
+            <time dateTime="2026-10-11" className="text-xs text-slate-500">11 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Saudi forums focus on knowledge localization and trusted AI</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            The 12th Riyadh Economic Forum, opening 12 October, will review a study on transferring and localizing knowledge among Saudi personnel to strengthen national capabilities and organizational performance. SASO will also host its 10th Standards Forum on 14 October, focused on AI standards, application reliability, performance, privacy, and advanced use cases. These create timely themes for GrowthSpace capability-development and responsible-business-AI content.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-4">
+            <a className="text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://www.spa.gov.sa/en/N2698506" target="_blank" rel="noreferrer">Riyadh Economic Forum notice</a>
+            <a className="text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://www.spa.gov.sa/en/N2698608" target="_blank" rel="noreferrer">SASO forum notice</a>
+          </div>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · DNSSEC</span>
