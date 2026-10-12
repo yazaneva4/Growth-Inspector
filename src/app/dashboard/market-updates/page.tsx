@@ -43,7 +43,7 @@ export default function MarketUpdatesPage() {
           <p className="mt-2 text-sm leading-6 text-slate-600">
             Supabase will stop offering four outdated CBC-mode TLS 1.2 cipher suites on project HTTP APIs from 10 November 2026 at the earliest. Auth, Data API, Storage, Realtime, and Edge Functions are affected; TLS 1.3 and database connections are unchanged. Modern Growth Inspector clients should be unaffected, but any legacy or embedded client should be checked before the deadline.
           </p>
-          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/changelog/tls-1-2-cipher-deprecation" target="_blank" rel="noreferrer">
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/changelog/cbc-tls-ciphers-deprecated" target="_blank" rel="noreferrer">
             Read Supabase’s notice
           </a>
         </article>
