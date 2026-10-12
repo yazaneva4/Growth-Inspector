@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 12 October 2026, 10:19 a.m. Riyadh time · No new verified information or official contact-detail change was found in this check.
+          Checked 12 October 2026, 3:56 p.m. Riyadh time · One new verified platform update was found; no official contact-detail change was found.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · API Shield</span>
+            <time dateTime="2026-10-12" className="text-xs text-slate-500">12 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">API Shield schema learning can now run on demand</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Cloudflare now lets API Shield users manually start a zone-wide schema-learning run after sending representative test traffic, instead of waiting for the weekly schedule. The dashboard shows zone and operation-level learning status and results. Growth Inspector needs no change unless it uses API Shield schema validation; if it does, this can shorten testing and rollout checks.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-12-api-shield-schema-learning-on-demand/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Saudi Arabia · Workforce and AI standards</span>
