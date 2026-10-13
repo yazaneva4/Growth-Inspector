@@ -32,18 +32,15 @@ export async function POST(req: NextRequest) {
     : [];
 
   try {
-    const response = await fetch("https://api.perplexity.ai/chat/completions", {
+    const response = await fetch("https://api.perplexity.ai/v1/agent", {
       method: "POST",
       headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "sonar",
-        temperature: 0.2,
-        max_tokens: 1400,
-        messages: [
-          { role: "system", content: "You are Growth AI's live web research assistant. Answer using current web information, distinguish facts from uncertainty, include relevant dates, and keep the answer useful and concise. The interface will display source links returned by the search API." },
-          ...history,
-          { role: "user", content: goal },
-        ],
+        max_output_tokens: 1400,
+        input: [...history.map((m: HistoryMessage) => (m.role === "user" ? "User: " : "Assistant: ") + m.content), "User: " + goal].join("\n\n"),
+        tools: [{ type: "web_search", search_type: "fast" }],
+        instructions: "You are Growth AI's live web research assistant. Search the web for current information, distinguish facts from uncertainty, include relevant dates, and keep the answer useful and concise. The interface will display source links returned by the search API.",
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(40_000),
@@ -56,13 +53,17 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json();
-    const answer = typeof data?.choices?.[0]?.message?.content === "string" ? data.choices[0].message.content : "No answer returned.";
-    const citations = Array.isArray(data?.citations)
-      ? data.citations
-          .filter((url: unknown): url is string => typeof url === "string" && (url.startsWith("https://") || url.startsWith("http://")))
-          .slice(0, 8)
-          .map((url: string) => ({ url }))
-      : [];
+    const output = Array.isArray(data?.output) ? data.output : [];
+    const message = output.find((item: { type?: string; role?: string }) => item.type === "message" && item.role === "assistant");
+    const answer = Array.isArray(message?.content)
+      ? message.content.filter((item: { type?: string }) => item.type === "output_text").map((item: { text?: string }) => item.text || "").join("\n").trim()
+      : "";
+    const citations = output
+      .filter((item: { type?: string }) => item.type === "search_results")
+      .flatMap((item: { results?: Array<{ url?: unknown; title?: unknown }> }) => Array.isArray(item.results) ? item.results : [])
+      .map((result: { url?: unknown; title?: unknown }) => typeof result.url === "string" && (result.url.startsWith("https://") || result.url.startsWith("http://")) ? { url: result.url, title: typeof result.title === "string" ? result.title : new URL(result.url).hostname } : null)
+      .filter((source: { url: string; title: string } | null): source is { url: string; title: string } => source !== null)
+      .slice(0, 8);
     return NextResponse.json({ answer, citations, provider: "perplexity", model: "sonar" });
   } catch (error) {
     console.error("Perplexity live research failed:", error);
