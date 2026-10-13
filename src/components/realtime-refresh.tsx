@@ -1,79 +1,157 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { REALTIME_TABLES } from "@/lib/realtime/tables";
+
+type LiveState = "connecting" | "live" | "reconnecting" | "polling" | "offline";
+
+/** How often we refetch while the realtime socket is not connected. */
+const POLL_INTERVAL_MS = 15_000;
+/** Coalesce bursts (imports, webhook batches, AI updates) into one refresh. */
+const REFRESH_DEBOUNCE_MS = 150;
+/** Never refresh more often than this for focus/visibility/online events. */
+const FOCUS_REFRESH_MIN_GAP_MS = 1_000;
+
+const LABELS: Record<LiveState, { text: string; hint: string; color: string }> = {
+  connecting: { text: "…", hint: "Connecting to live updates…", color: "#64748b" },
+  live: { text: "Live", hint: "Live updates connected", color: "#34d399" },
+  reconnecting: { text: "Reconnecting", hint: "Live connection lost — reconnecting. Refreshing every 15s meanwhile.", color: "#f59e0b" },
+  polling: { text: "Polling", hint: "Live socket unavailable — refreshing every 15s.", color: "#f59e0b" },
+  offline: { text: "Offline", hint: "You are offline. Updates resume automatically when you reconnect.", color: "#ef4444" },
+};
 
 /**
- * One connection for the whole authenticated dashboard. Supabase Realtime
- * applies the database's RLS rules before delivering Postgres Changes, so the
- * browser never gets rows the signed-in user cannot read.
+ * One realtime connection for the whole authenticated dashboard.
  *
- * We deliberately use the wildcard table subscription here. New workspace
- * tables therefore become live automatically as soon as they are added to
- * the supabase_realtime publication, instead of silently falling back to
- * stale UI because someone forgot to update this list.
+ * Mechanics (kept in sync with docs/realtime.md):
+ *  1. Subscribes to Postgres Changes on every table in REALTIME_TABLES.
+ *     Supabase applies RLS before delivery, so the browser never receives
+ *     rows the signed-in user cannot read.
+ *  2. Any change triggers a debounced `router.refresh()`, re-running the
+ *     server components of the current page.
+ *  3. On (re)connect we refresh once to close the gap while we were away.
+ *  4. When the socket is not connected we poll every 15s (only while the tab
+ *     is visible) so the UI is never stuck stale, and we say so in the pill.
+ *  5. Returning to the tab (focus / visibility / online) refreshes at once.
  */
 export function RealtimeRefresh() {
   const router = useRouter();
   const channelId = useId();
-  const [connected, setConnected] = useState(false);
+  const [state, setState] = useState<LiveState>("connecting");
   const [pulse, setPulse] = useState(false);
+  const [lastEventAt, setLastEventAt] = useState<Date | null>(null);
+
+  const stateRef = useRef<LiveState>("connecting");
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastRefreshAt = useRef(0);
 
+  const setLive = useCallback((next: LiveState) => {
+    stateRef.current = next;
+    setState(next);
+  }, []);
+
+  const refreshNow = useCallback(() => {
+    lastRefreshAt.current = Date.now();
+    router.refresh();
+  }, [router]);
+
+  // Realtime subscription.
   useEffect(() => {
     const supabase = createClient();
 
-    const refresh = () => {
+    const onChange = () => {
       setPulse(true);
+      setLastEventAt(new Date());
       if (pulseTimer.current) clearTimeout(pulseTimer.current);
       pulseTimer.current = setTimeout(() => setPulse(false), 900);
 
-      // Coalesce bursts (imports, webhook batches, AI-generated updates) into
-      // one server-component refresh rather than hammering the app with a
-      // refresh for every row.
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
-      refreshTimer.current = setTimeout(() => router.refresh(), 150);
+      refreshTimer.current = setTimeout(refreshNow, REFRESH_DEBOUNCE_MS);
     };
 
-    const channel = supabase
-      .channel(`dashboard-realtime-${channelId}`)
-      .on(
+    let channel = supabase.channel(`dashboard-realtime-${channelId}`);
+    for (const table of REALTIME_TABLES) {
+      channel = channel.on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "*" },
-        refresh,
-      )
-      .subscribe((status) => {
-        const live = status === "SUBSCRIBED";
-        setConnected(live);
-        if (live) {
-          // Reconcile immediately after a reconnect. This closes the small
-          // gap where the browser was offline while database changes landed.
-          router.refresh();
-        }
-      });
+        { event: "*", schema: "public", table },
+        onChange,
+      );
+    }
+
+    channel.subscribe((status) => {
+      if (status === "SUBSCRIBED") {
+        const wasDown = stateRef.current !== "connecting" && stateRef.current !== "live";
+        setLive(typeof navigator !== "undefined" && !navigator.onLine ? "offline" : "live");
+        // Reconcile after (re)connect: closes the gap while we were away.
+        if (wasDown || stateRef.current === "live") refreshNow();
+      } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        setLive(navigator.onLine ? "polling" : "offline");
+      } else if (status === "CLOSED") {
+        setLive(navigator.onLine ? "reconnecting" : "offline");
+      }
+    });
 
     return () => {
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
       if (pulseTimer.current) clearTimeout(pulseTimer.current);
       void supabase.removeChannel(channel);
     };
-  }, [router, channelId]);
+  }, [channelId, refreshNow, setLive]);
+
+  // Backstop polling while the socket is down, and refetch when the user
+  // comes back to the tab or the network returns.
+  useEffect(() => {
+    const maybeFocusRefresh = () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastRefreshAt.current < FOCUS_REFRESH_MIN_GAP_MS) return;
+      refreshNow();
+    };
+    const onOnline = () => {
+      if (stateRef.current === "offline") setLive("reconnecting");
+      maybeFocusRefresh();
+    };
+    const onOffline = () => setLive("offline");
+
+    const poll = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      if (stateRef.current === "live" || stateRef.current === "connecting") return;
+      if (!navigator.onLine) return;
+      refreshNow();
+    }, POLL_INTERVAL_MS);
+
+    document.addEventListener("visibilitychange", maybeFocusRefresh);
+    window.addEventListener("focus", maybeFocusRefresh);
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+    return () => {
+      window.clearInterval(poll);
+      document.removeEventListener("visibilitychange", maybeFocusRefresh);
+      window.removeEventListener("focus", maybeFocusRefresh);
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+    };
+  }, [refreshNow, setLive]);
+
+  const label = LABELS[state];
+  const title = lastEventAt
+    ? `${label.hint} Last change received ${lastEventAt.toLocaleTimeString()}.`
+    : label.hint;
 
   return (
     <span
       className="flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs"
-      style={connected ? { color: "#34d399" } : { color: "#64748b" }}
-      title={connected ? "Live updates connected" : "Connecting…"}
+      style={{ color: label.color }}
+      title={title}
+      data-realtime-state={state}
     >
       <span
         className="inline-block h-1.5 w-1.5 rounded-full transition-colors"
-        style={{
-          background: pulse ? "#86efac" : connected ? "#34d399" : "#475569",
-        }}
+        style={{ background: pulse ? "#86efac" : label.color }}
       />
-      <span className="hidden sm:inline">{connected ? "Live" : "…"}</span>
+      <span className="hidden sm:inline">{label.text}</span>
     </span>
   );
 }
