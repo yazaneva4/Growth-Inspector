@@ -77,6 +77,7 @@ export default function LoginPage() {
     if (/invalid.*password|invalid login credentials/i.test(message)) return "The email or password is incorrect.";
     if (/email_not_confirmed|confirm.*email/i.test(message)) return "This account still requires email confirmation. No verification code is used; confirmation is by email link.";
     if (/passkey_disabled/i.test(message)) return "Passkey sign-in is not enabled for this project yet.";
+    if (/timed out or was not allowed|NotAllowedError|webauthn/i.test(message)) return "Passkey sign-in was cancelled, timed out, or no passkey is saved on this device. Try again, or use your password or an emailed magic link.";
     return message;
   }
 
