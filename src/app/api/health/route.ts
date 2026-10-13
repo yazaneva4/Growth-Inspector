@@ -37,18 +37,22 @@ export async function GET() {
 }
 
 /**
- * Reports whether every RLS-protected public table is in the
- * supabase_realtime publication. `gaps` lists tables that would be stale.
+ * The dashboard listens to the public schema wildcard. The inventory count is
+ * the set of application tables represented by repository migrations; it is
+ * not the number of tables currently in the live publication.
  */
 async function realtimeHealth() {
-  const base = { tables_subscribed: REALTIME_TABLES.length };
+  const base = {
+    subscription_scope: "public-schema-wildcard" as const,
+    local_schema_table_count: REALTIME_TABLES.length,
+  };
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return { ...base, publication: "unchecked" as const };
   try {
     const { data, error } = await createServiceClient().rpc("realtime_publication_gaps");
-    if (error) return { ...base, publication: "unchecked" as const, error: error.message };
+    if (error) return { ...base, publication: "unchecked" as const, error: "publication-gap-check-unavailable" };
     const gaps = ((data ?? []) as { table_name: string }[]).map((r) => r.table_name);
     return { ...base, publication: gaps.length === 0 ? ("complete" as const) : ("gaps" as const), gaps };
-  } catch (e) {
-    return { ...base, publication: "unchecked" as const, error: e instanceof Error ? e.message : "failed" };
+  } catch {
+    return { ...base, publication: "unchecked" as const, error: "publication-gap-check-unavailable" };
   }
 }
