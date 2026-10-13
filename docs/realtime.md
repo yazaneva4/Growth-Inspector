@@ -1,65 +1,51 @@
 # How real time works in Growth Inspector
 
-This page describes what is actually implemented. If you change the mechanism,
-change this page in the same PR.
+This page describes the implemented behaviour and its operational limits.
 
-## The pipeline
+## Event flow
 
-```
- DB write (user action, webhook, AI job, import)
-        │  Postgres WAL
-        ▼
- supabase_realtime publication ──► Supabase Realtime (applies RLS per subscriber)
-        │  WebSocket
-        ▼
- <RealtimeRefresh/> in every /dashboard page ──► router.refresh() (150 ms debounce)
-        ▼
- Server components re-run and the page shows the new data
+```text
+Database write → Supabase Realtime publication → public schema wildcard subscription
+              → RLS-filtered change event → 150 ms debounce → router.refresh()
+              → dashboard server components reload current data
 ```
 
-Pages with their own live client state (inbox conversations/messages, internal
-chats and presence, team chat, notification bell, Growth AI chat) subscribe to
-their tables directly and update without a full refresh.
+`RealtimeRefresh` is mounted throughout the authenticated dashboard. It listens to all `postgres_changes` events in the `public` schema. Supabase's `supabase_realtime` publication determines which tables emit changes; row-level security determines which rows a signed-in browser can receive. Pages with dedicated client-side channels may update their own state directly.
 
-## What is guaranteed
+## Connection behaviour
 
-| Behaviour | Mechanism |
-|---|---|
-| Any change to a listed table reaches every signed-in session that may read the row | `postgres_changes` on each table in `src/lib/realtime/tables.ts`; RLS enforced by Supabase |
-| After a reconnect the UI catches up | one `router.refresh()` when the channel becomes `SUBSCRIBED` |
-| Returning to a backgrounded tab / sleeping laptop shows fresh data | refresh on `visibilitychange`, `focus`, `online` (min 1 s apart) |
-| A blocked or dropped WebSocket does not leave the UI stale | while not `SUBSCRIBED`, refresh every 15 s (visible tab only) |
-| You can see which of those is happening | the pill in the sidebar: **Live**, **Reconnecting**, **Polling**, **Offline**; tooltip shows last change time |
-| A new table can't be silently "not live" | CI runs `scripts/check-realtime-tables.mjs`; `/api/health` reports `realtime.publication` (`complete` / `gaps`) using `realtime_publication_gaps()` |
+- A successful subscription displays **Live**. The component refreshes after a channel reconnects.
+- Focus, visibility, and network-online events trigger a throttled refresh when a user returns to the app.
+- While the WebSocket is not subscribed, a visible tab refreshes every 15 seconds and reports **Reconnecting** or **Polling**. If the browser is offline, it reports **Offline**.
+- A database event causes a server refresh; the UI is not a durable event log and does not replay each intermediate change. Deletes also trigger a refresh because Supabase cannot apply row-level security filtering to DELETE events.
 
-## What is NOT real time
+## Inventory and publication
 
-- Data that is computed on a schedule or by an external system only updates when
-  that system writes to the database.
-- **Email.** Growth Inspector only knows about an email once it is written to the
-  database. Inbound mail arrives via the provider webhooks
-  (`/api/inbox/email/webhook`, `/api/webhooks/email`) and therefore needs an
-  external inbound-mail provider configured. Nothing in this app polls a mailbox.
-  See `DEPLOY.md` → *Email channel*. Direct Gmail / Outlook / iCloud mailbox
-  sync is planned, not shipped.
-- Deletes: Supabase cannot filter DELETE events by RLS, so a delete triggers a
-  refresh rather than a targeted update.
+`src/lib/realtime/tables.ts` inventories tables created in this repository's migrations. It is used by the CI migration inventory check and health response; it is not the runtime subscription allowlist. Externally managed live tables may not appear there.
+
+Migration `20261013120000_realtime_publication_sweep.sql` adds RLS-enabled public tables to the publication with full replica identity and defines `realtime_publication_gaps()`. `/api/health` reports the wildcard subscription scope and the result of that RPC. Until the migration is applied to a database, publication status is **unchecked**. A complete result means the RPC found no missing eligible tables in the database it inspected.
+
+The live project was inspected and its existing RLS tables were present in `supabase_realtime` with full replica identity. The Supabase Preview GitHub check currently fails because the remote database has migration versions that are absent from this repository. Do not infer the migration is applied from a successful application build.
+
+## What does not update by itself
+
+- Data produced only by a schedule or external service changes when that process writes to the database.
+- Email appears after a configured inbound provider webhook writes it. Direct Gmail, Outlook, or iCloud mailbox polling is not implemented.
+- A **Live** connection badge means the channel is subscribed; RLS may still prevent a given user from seeing a row.
+- Internal chat tables are not present in the inspected live database, even though repository migrations describe them. Those features need schema reconciliation before production realtime can be claimed for them.
 
 ## Adding a table
 
-1. Create it with RLS enabled in a migration.
-2. Add it to `REALTIME_TABLES` in `src/lib/realtime/tables.ts` (CI fails otherwise).
-3. Make sure it is in the publication: the sweep migration
-   `20261013120000_realtime_publication_sweep.sql` does this for all RLS tables;
-   for later tables add
-   `alter table public.x replica identity full; alter publication supabase_realtime add table public.x;`.
-4. Check `GET /api/health` → `realtime.publication` is `complete`.
+1. Add the table and its RLS policies in a repository migration.
+2. Add the table name to `REALTIME_TABLES` so CI tracks the local migration inventory.
+3. Ensure the deployed database includes the table in `supabase_realtime` and configure replica identity as required by its event payloads. The sweep migration covers eligible RLS-enabled public tables when it is applied.
+4. Check `/api/health` for publication status; verify changes with an authenticated session that is allowed to read the affected rows.
 
 ## Troubleshooting
 
 | Symptom | Likely cause |
 |---|---|
-| Pill stuck on **Polling** | WebSocket blocked (proxy/VPN/corporate network) or Realtime disabled for the project; data still refreshes every 15 s |
-| One table never updates | not in publication → `/api/health` shows it under `gaps`; apply the sweep migration |
-| Pill **Live** but no updates for a table | table missing from `REALTIME_TABLES`, or RLS denies the row to this user |
-| Supabase project paused | free-tier projects pause when idle; restore in the Supabase dashboard |
+| Badge remains on Polling | WebSocket blocked by a proxy/VPN/network, or the Realtime service is unavailable. Visible tabs continue refreshing every 15 seconds. |
+| Badge says Live but a row does not appear | The current user may be excluded by RLS, the database write may not have occurred, or its table may not be in the publication. |
+| Health reports unchecked | The service role is not configured or the publication-gap RPC is not installed/available. |
+| Supabase Preview check fails on migration history | Remote migration versions are missing from the repository's migration directory; reconcile migration history before applying further migrations. |
