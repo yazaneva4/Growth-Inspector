@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServiceClient } from "@/lib/supabase/server";
-import { sendEmail } from "@/lib/email/send";
+import { createServiceClient, serviceKeyConfigured } from "@/lib/supabase/server";
+import { emailTransport, sendEmail } from "@/lib/email/send";
 
 
-const genericResponse = () => NextResponse.json({ ok: true, message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
+const genericResponse = (extra: Record<string, unknown> = {}) => NextResponse.json({ ok: true, ...extra, message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
 
 
 export async function POST(req: NextRequest) {
@@ -24,11 +24,21 @@ export async function POST(req: NextRequest) {
     if (!verification.ok || !verificationResult?.success) return NextResponse.json({ error: "Bot verification failed. Please try again." }, { status: 400 });
 
 
+    if (!serviceKeyConfigured() || emailTransport() === "none") {
+      // Bot check above has passed. Self-hosted delivery is not configured, so the browser asks Supabase Auth to send the link (PKCE, completed by /auth/callback?code=).
+      console.warn("Magic-link: service key or app email transport missing; using client-side Supabase delivery.");
+      return genericResponse({ delivery: "supabase" });
+    }
     const origin = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://growth-inspector-yazaneva4-3470s-projects.vercel.app").replace(/\/$/, "");
     const redirectTo = new URL("/auth/callback?next=/dashboard/inbox", origin).toString();
     const supabase = createServiceClient();
     const { data, error } = await supabase.auth.admin.generateLink({ type: "magiclink", email, options: { redirectTo } });
-    if (error || !data?.properties?.hashed_token) return genericResponse();
+    if (error || !data?.properties?.hashed_token) {
+      console.error("Magic-link generateLink failed:", error?.message ?? "no token returned");
+      // Account-state errors keep the generic reply so responses do not reveal which emails are registered.
+      if (error && /user_not_found|signup_disabled|not found|signups? not allowed/i.test(`${error.code ?? ""} ${error.message}`)) return genericResponse();
+      return NextResponse.json({ error: "We could not send the sign-in link right now. Please try again." }, { status: 503, headers: { "Cache-Control": "no-store" } });
+    }
 
 
     const link = new URL("/auth/callback", origin);

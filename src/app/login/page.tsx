@@ -37,6 +37,8 @@ export default function LoginPage() {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [deviceLive, setDeviceLive] = useState(false);
 
+  useEffect(() => { if (new URLSearchParams(window.location.search).get("error") === "link") setError("That sign-in link expired or was opened on a different device or browser than the one that requested it. Request a new link and open it on the same device."); }, []);
+
   useEffect(() => { setPasskeySupported(typeof window !== "undefined" && !!window.PublicKeyCredential && !!navigator.credentials?.get); }, []);
 
   // Realtime auth state for device/passkey sign-in only
@@ -77,6 +79,7 @@ export default function LoginPage() {
     if (/invalid.*password|invalid login credentials/i.test(message)) return "The email or password is incorrect.";
     if (/email_not_confirmed|confirm.*email/i.test(message)) return "This account still requires email confirmation. No verification code is used; confirmation is by email link.";
     if (/passkey_disabled/i.test(message)) return "Passkey sign-in is not enabled for this project yet.";
+    if (/timed out or was not allowed|NotAllowedError/i.test(message)) return "Passkey sign-in was cancelled, timed out, or no passkey is saved on this device. Try again, or use your password or an emailed magic link.";
     return message;
   }
 
@@ -111,6 +114,11 @@ export default function LoginPage() {
       const result = await res.json().catch(() => null);
       setTurnstileToken(null); if (widgetRef.current && window.turnstile) window.turnstile.reset(widgetRef.current);
       if (!res.ok) throw new Error(result?.error ?? "Could not send a sign-in link.");
+      if (result?.delivery === "supabase") {
+        // Unknown-user / signups-disabled errors are ignored on purpose so the response stays generic; anything else is a real failure.
+        const { error: otpError } = await createClient().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { emailRedirectTo: `${origin()}/auth/callback?next=/dashboard/inbox`, shouldCreateUser: false } });
+        if (otpError && !/signups? not allowed|user not found/i.test(otpError.message)) throw new Error(/rate limit|too many|security purposes/i.test(otpError.message) ? "Too many requests. Please wait a minute and try again." : "We could not send the sign-in link right now. Please try again.");
+      }
       setMagicLinkSent(true);
       setNotice(result?.message ?? "If an account exists for that address, a sign-in link is on its way.");
     } catch (e) { setError(friendly(e instanceof Error ? e.message : "Could not send a sign-in link.")); }

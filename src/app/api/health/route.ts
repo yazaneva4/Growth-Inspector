@@ -4,7 +4,7 @@ import { emailTransport } from "@/lib/email/send";
 import { geminiConfigured } from "@/lib/ai/gemini";
 import { openrouterConfigured, OPENROUTER_MODEL_A } from "@/lib/ai/openrouter";
 import { zaiConfigured, ZAI_MODEL } from "@/lib/ai/zai";
-import { createServiceClient } from "@/lib/supabase/server";
+import { createServiceClient, serviceKeyConfigured } from "@/lib/supabase/server";
 import { REALTIME_TABLES } from "@/lib/realtime/tables";
 
 /** Integration health check. Reports configuration state without exposing secrets. */
@@ -16,7 +16,7 @@ export async function GET() {
     realtime,
     integrations: {
       supabase: has(process.env.NEXT_PUBLIC_SUPABASE_URL) ? "configured" : "fallback",
-      supabase_service_role: has(process.env.SUPABASE_SERVICE_ROLE_KEY),
+      supabase_service_role: serviceKeyConfigured(),
       anthropic: has(process.env.ANTHROPIC_API_KEY),
       zai: zaiConfigured() ? ZAI_MODEL : false,
       gemini: geminiConfigured(),
@@ -46,7 +46,7 @@ async function realtimeHealth() {
     subscription_scope: "public-schema-wildcard" as const,
     local_schema_table_count: REALTIME_TABLES.length,
   };
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return { ...base, publication: "unchecked" as const };
+  if (!serviceKeyConfigured()) return { ...base, publication: "unchecked" as const };
   try {
     const { data, error } = await createServiceClient().rpc("realtime_publication_gaps");
     if (error) return { ...base, publication: "unchecked" as const, error: "publication-gap-check-unavailable" };
