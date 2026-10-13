@@ -19,6 +19,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: node scripts/check-realtime-tables.mjs
       - run: npx eslint src --max-warnings=-1
       - run: npm run build
         env:
