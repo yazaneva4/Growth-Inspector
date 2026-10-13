@@ -69,7 +69,7 @@ export function InboxRealtime({
   const [subject, setSubject] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [sending, setSending] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null); const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
   const selected = useMemo(() => conversations.find((c) => c.id === selectedId) ?? null, [conversations, selectedId]);
 
   useEffect(() => setConversations(initialConversations), [initialConversations]);
@@ -95,7 +95,7 @@ export function InboxRealtime({
         if (payload.eventType === "DELETE") setMessages((current) => current.filter((m) => m.id !== row.id));
         else setMessages((current) => current.some((m) => m.id === row.id) ? current.map((m) => m.id === row.id ? { ...m, ...row } : m) : [...current, row]);
       })
-      .subscribe();
+      .subscribe((status) => { setRealtimeStatus(status === "SUBSCRIBED" ? "live" : status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED" ? "offline" : "connecting"); });
     return () => { void supabase.removeChannel(channel); };
   }, [orgId, selectedId]);
 
@@ -171,7 +171,7 @@ export function InboxRealtime({
     <div className="w-full min-w-0">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0"><h1 className="text-2xl font-bold">Inbox</h1><p className="mt-1 text-sm text-slate-500">Customer email conversations · live updates · human + AI activity</p></div>
-        <div className="flex shrink-0 items-center gap-2"><span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-700">● Live</span>{!isDemo && <button onClick={() => { setNotice(null); setShowNew(true); }} className="rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-medium text-white">+ Compose email</button>}</div>
+        <div className="flex shrink-0 items-center gap-2"><span className={"rounded-full border px-2.5 py-1 text-[11px] font-medium " + (realtimeStatus === "live" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700" : realtimeStatus === "connecting" ? "border-amber-500/30 bg-amber-500/10 text-amber-700" : "border-rose-500/30 bg-rose-500/10 text-rose-700")} >{realtimeStatus === "live" ? "● Live" : realtimeStatus === "connecting" ? "◌ Connecting" : "● Reconnecting"}</span>{!isDemo && <button onClick={() => { setNotice(null); setShowNew(true); }} className="rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-medium text-white">+ Compose email</button>}</div>
       </div>
 
       {notice && <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">{notice}</div>}
