@@ -77,7 +77,7 @@ export default function LoginPage() {
     if (/invalid.*password|invalid login credentials/i.test(message)) return "The email or password is incorrect.";
     if (/email_not_confirmed|confirm.*email/i.test(message)) return "This account still requires email confirmation. No verification code is used; confirmation is by email link.";
     if (/passkey_disabled/i.test(message)) return "Passkey sign-in is not enabled for this project yet.";
-    if (/timed out or was not allowed|NotAllowedError|webauthn/i.test(message)) return "Passkey sign-in was cancelled, timed out, or no passkey is saved on this device. Try again, or use your password or an emailed magic link.";
+    if (/timed out or was not allowed|NotAllowedError/i.test(message)) return "Passkey sign-in was cancelled, timed out, or no passkey is saved on this device. Try again, or use your password or an emailed magic link.";
     return message;
   }
 
@@ -112,6 +112,11 @@ export default function LoginPage() {
       const result = await res.json().catch(() => null);
       setTurnstileToken(null); if (widgetRef.current && window.turnstile) window.turnstile.reset(widgetRef.current);
       if (!res.ok) throw new Error(result?.error ?? "Could not send a sign-in link.");
+      if (result?.delivery === "supabase") {
+        // Not-found/signups-disabled errors are ignored on purpose so the response stays generic.
+        const { error: otpError } = await createClient().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { emailRedirectTo: `${origin()}/auth/callback?next=/dashboard/inbox`, shouldCreateUser: false } });
+        if (otpError && /rate limit|too many|security purposes/i.test(otpError.message)) throw new Error("Too many requests. Please wait a minute and try again.");
+      }
       setMagicLinkSent(true);
       setNotice(result?.message ?? "If an account exists for that address, a sign-in link is on its way.");
     } catch (e) { setError(friendly(e instanceof Error ? e.message : "Could not send a sign-in link.")); }

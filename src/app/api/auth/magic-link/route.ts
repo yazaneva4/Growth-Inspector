@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPublicClient, createServiceClient } from "@/lib/supabase/server";
-import { sendEmail } from "@/lib/email/send";
+import { createServiceClient, serviceKeyConfigured } from "@/lib/supabase/server";
+import { emailTransport, sendEmail } from "@/lib/email/send";
 
 
 const genericResponse = () => NextResponse.json({ ok: true, message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
@@ -26,23 +26,16 @@ export async function POST(req: NextRequest) {
 
     const origin = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://growth-inspector-yazaneva4-3470s-projects.vercel.app").replace(/\/$/, "");
     const redirectTo = new URL("/auth/callback?next=/dashboard/inbox", origin).toString();
-    const hasServiceKey = !!(process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim());
-    const hasEmailTransport = !!(process.env.RESEND_API_KEY?.trim() && process.env.EMAIL_FROM?.trim());
-    if (!hasServiceKey || !hasEmailTransport) {
-      // Self-hosted link delivery is not fully configured: let Supabase Auth deliver the link instead.
-      console.warn("Magic-link: falling back to Supabase-delivered email (missing " + [!hasServiceKey && "service key", !hasEmailTransport && "EMAIL_FROM/RESEND_API_KEY"].filter(Boolean).join(", ") + ")");
-      const { error: otpError } = await createPublicClient().auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo, shouldCreateUser: true } });
-      if (otpError) {
-        console.error("Magic-link fallback failed:", otpError.message);
-        return NextResponse.json({ error: "We could not send the sign-in link right now. Please try again." }, { status: 503, headers: { "Cache-Control": "no-store" } });
-      }
-      return genericResponse();
+    if (!serviceKeyConfigured() || emailTransport() === "none") {
+      // Self-hosted delivery is not configured: tell the browser to request the link from Supabase Auth (PKCE, handled by /auth/callback?code=).
+      console.warn("Magic-link: service key or app email transport missing; using client-side Supabase delivery.");
+      return NextResponse.json({ ok: true, delivery: "supabase", message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
     }
     const supabase = createServiceClient();
     const { data, error } = await supabase.auth.admin.generateLink({ type: "magiclink", email, options: { redirectTo } });
     if (error || !data?.properties?.hashed_token) {
       console.error("Magic-link generateLink failed:", error?.message ?? "no token returned");
-      return genericResponse();
+      return NextResponse.json({ error: "We could not send the sign-in link right now. Please try again." }, { status: 503, headers: { "Cache-Control": "no-store" } });
     }
 
 
