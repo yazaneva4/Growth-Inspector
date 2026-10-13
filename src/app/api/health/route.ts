@@ -4,12 +4,16 @@ import { emailTransport } from "@/lib/email/send";
 import { geminiConfigured } from "@/lib/ai/gemini";
 import { openrouterConfigured, OPENROUTER_MODEL_A } from "@/lib/ai/openrouter";
 import { zaiConfigured, ZAI_MODEL } from "@/lib/ai/zai";
+import { createServiceClient } from "@/lib/supabase/server";
+import { REALTIME_TABLES } from "@/lib/realtime/tables";
 
 /** Integration health check. Reports configuration state without exposing secrets. */
 export async function GET() {
   const has = (v?: string) => Boolean(v && v.length > 0);
+  const realtime = await realtimeHealth();
   return NextResponse.json({
     ok: true,
+    realtime,
     integrations: {
       supabase: has(process.env.NEXT_PUBLIC_SUPABASE_URL) ? "configured" : "fallback",
       supabase_service_role: has(process.env.SUPABASE_SERVICE_ROLE_KEY),
@@ -30,4 +34,21 @@ export async function GET() {
     },
     note: "Booleans and non-secret integration identifiers only — no secret values are exposed.",
   });
+}
+
+/**
+ * Reports whether every RLS-protected public table is in the
+ * supabase_realtime publication. `gaps` lists tables that would be stale.
+ */
+async function realtimeHealth() {
+  const base = { tables_subscribed: REALTIME_TABLES.length };
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return { ...base, publication: "unchecked" as const };
+  try {
+    const { data, error } = await createServiceClient().rpc("realtime_publication_gaps");
+    if (error) return { ...base, publication: "unchecked" as const, error: error.message };
+    const gaps = ((data ?? []) as { table_name: string }[]).map((r) => r.table_name);
+    return { ...base, publication: gaps.length === 0 ? ("complete" as const) : ("gaps" as const), gaps };
+  } catch (e) {
+    return { ...base, publication: "unchecked" as const, error: e instanceof Error ? e.message : "failed" };
+  }
 }
