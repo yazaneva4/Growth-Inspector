@@ -53,7 +53,7 @@ with `OPENROUTER_MODEL_A` and `OPENROUTER_MODEL_B` when needed.
 Growth AI conversations are stored in the workspace's Supabase tables and
 loaded again when the signed-in user returns. The UI supports new chats,
 search, archive/restore, rename, delete, model/provider selection, and realtime
-refresh across signed-in devices.
+refresh across signed-in devices (see [docs/realtime.md](docs/realtime.md)).
 
 The conversations API is authenticated and scopes reads/writes to the current
 workspace, rather than using the public demo client for private AI history.
@@ -146,9 +146,18 @@ See [`.env.example`](./.env.example): Supabase URL/keys, `ANTHROPIC_API_KEY`,
 WhatsApp/Instagram, `TWILIO_*` for voice + Whisper, `X_*` for publishing to X,
 and `NEXT_PUBLIC_GOOGLE_ENABLED`.
 
+## Realtime
+
+Every dashboard page stays live over Supabase Realtime (Postgres Changes +
+Row-Level Security), with refetch on reconnect/focus and a 15 s polling fallback
+when the socket is down; the sidebar pill shows *Live / Reconnecting / Polling /
+Offline*. Email is only as real time as its inbound provider webhook: see
+[docs/realtime.md](docs/realtime.md) for exactly what is and isn't covered.
+
 ## Roadmap
 
 The multi-tenant schema, dashboard UI, Growth AI multi-provider agent,
 OpenRouter A/B fallback integration, saved conversations, realtime workspace
-sync, and webhook ingestion are in place. The remaining product work is to
+sync, and webhook ingestion are in place (direct Gmail/Outlook/iCloud mailbox
+sync is planned, not shipped). The remaining product work is to
 expand channel integrations, automation, and analytics depth around this core.
