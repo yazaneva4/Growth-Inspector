@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const verificationResult = await verification.json().catch(() => null);
     if (!verification.ok || !verificationResult?.success) return NextResponse.json({ error: "Bot verification failed. Please try again." }, { status: 400 });
 
-    const origin = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || req.nextUrl.origin).replace(/\/$/, "");
+    const origin = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://growth-inspector-yazaneva4-3470s-projects.vercel.app").replace(/\/$/, "");
     const redirectTo = new URL("/auth/callback?next=/dashboard/inbox", origin).toString();
     const supabase = createServiceClient();
     const { data, error } = await supabase.auth.admin.generateLink({ type: "magiclink", email, options: { redirectTo } });
