@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !turnstileToken) {
       return NextResponse.json({ error: "Enter a valid email and complete bot verification." }, { status: 400, headers: { "Cache-Control": "no-store" } });
     }
-    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY?.trim();
+    const turnstileSecret = (process.env.TURNSTILE_SECRET_KEY || process.env.TURNSTILE_SECRET)?.trim();
     if (!turnstileSecret) return NextResponse.json({ error: "Bot verification is not configured." }, { status: 503 });
     const verifyBody = new URLSearchParams({ secret: turnstileSecret, response: turnstileToken });
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
