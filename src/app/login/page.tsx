@@ -109,13 +109,14 @@ export default function LoginPage() {
       if (!email.trim()) throw new Error("Enter your email address.");
       if (!turnstileToken) throw new Error("Please complete the bot verification first.");
       const res = await fetch("/api/auth/magic-link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.trim().toLowerCase(), turnstileToken }) });
+      const sentToken = turnstileToken;
       const result = await res.json().catch(() => null);
       setTurnstileToken(null); if (widgetRef.current && window.turnstile) window.turnstile.reset(widgetRef.current);
       if (!res.ok) throw new Error(result?.error ?? "Could not send a sign-in link.");
       if (result?.delivery === "supabase") {
-        // Not-found/signups-disabled errors are ignored on purpose so the response stays generic.
-        const { error: otpError } = await createClient().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { emailRedirectTo: `${origin()}/auth/callback?next=/dashboard/inbox`, shouldCreateUser: false } });
-        if (otpError && /rate limit|too many|security purposes/i.test(otpError.message)) throw new Error("Too many requests. Please wait a minute and try again.");
+        // Unknown-user / signups-disabled errors are ignored on purpose so the response stays generic; anything else is a real failure.
+        const { error: otpError } = await createClient().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { emailRedirectTo: `${origin()}/auth/callback?next=/dashboard/inbox`, shouldCreateUser: false, captchaToken: sentToken } });
+        if (otpError && !/signups? not allowed|user not found|otp_disabled/i.test(otpError.message)) throw new Error(/rate limit|too many|security purposes/i.test(otpError.message) ? "Too many requests. Please wait a minute and try again." : "We could not send the sign-in link right now. Please try again.");
       }
       setMagicLinkSent(true);
       setNotice(result?.message ?? "If an account exists for that address, a sign-in link is on its way.");

@@ -22,11 +22,6 @@ export async function createClient() {
   });
 }
 
-/**
- * Trusted server-side client for webhook/background work.
- * Prefer the modern Supabase secret key, then the legacy service-role key.
- * Never expose either key to browser code.
- */
 function serviceKey() {
   return process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 }
@@ -35,6 +30,11 @@ export function serviceKeyConfigured() {
   return !!serviceKey();
 }
 
+/**
+ * Trusted server-side client for webhook/background work.
+ * Prefer the modern Supabase secret key, then the legacy service-role key.
+ * Never expose either key to browser code.
+ */
 export function createServiceClient() {
   const key = serviceKey();
   if (!key) throw new Error("SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY is required for trusted server operations.");

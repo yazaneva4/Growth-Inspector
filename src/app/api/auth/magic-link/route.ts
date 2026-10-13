@@ -14,6 +14,11 @@ export async function POST(req: NextRequest) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !turnstileToken) {
       return NextResponse.json({ error: "Enter a valid email and complete bot verification." }, { status: 400, headers: { "Cache-Control": "no-store" } });
     }
+    if (!serviceKeyConfigured() || emailTransport() === "none") {
+      // Self-hosted delivery is not configured: tell the browser to request the link from Supabase Auth (PKCE, handled by /auth/callback?code=).
+      console.warn("Magic-link: service key or app email transport missing; using client-side Supabase delivery.");
+      return NextResponse.json({ ok: true, delivery: "supabase", message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
+    }
     const turnstileSecret = (process.env.TURNSTILE_SECRET_KEY || process.env.TURNSTILE_SECRET)?.trim();
     if (!turnstileSecret) return NextResponse.json({ error: "Bot verification is not configured." }, { status: 503 });
     const verifyBody = new URLSearchParams({ secret: turnstileSecret, response: turnstileToken });
@@ -26,11 +31,6 @@ export async function POST(req: NextRequest) {
 
     const origin = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://growth-inspector-yazaneva4-3470s-projects.vercel.app").replace(/\/$/, "");
     const redirectTo = new URL("/auth/callback?next=/dashboard/inbox", origin).toString();
-    if (!serviceKeyConfigured() || emailTransport() === "none") {
-      // Self-hosted delivery is not configured: tell the browser to request the link from Supabase Auth (PKCE, handled by /auth/callback?code=).
-      console.warn("Magic-link: service key or app email transport missing; using client-side Supabase delivery.");
-      return NextResponse.json({ ok: true, delivery: "supabase", message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
-    }
     const supabase = createServiceClient();
     const { data, error } = await supabase.auth.admin.generateLink({ type: "magiclink", email, options: { redirectTo } });
     if (error || !data?.properties?.hashed_token) {
