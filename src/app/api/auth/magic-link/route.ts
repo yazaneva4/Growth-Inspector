@@ -3,7 +3,7 @@ import { createServiceClient, serviceKeyConfigured } from "@/lib/supabase/server
 import { emailTransport, sendEmail } from "@/lib/email/send";
 
 
-const genericResponse = () => NextResponse.json({ ok: true, message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
+const genericResponse = (extra: Record<string, unknown> = {}) => NextResponse.json({ ok: true, ...extra, message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
 
 
 export async function POST(req: NextRequest) {
@@ -13,11 +13,6 @@ export async function POST(req: NextRequest) {
     const turnstileToken = typeof body?.turnstileToken === "string" ? body.turnstileToken : "";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !turnstileToken) {
       return NextResponse.json({ error: "Enter a valid email and complete bot verification." }, { status: 400, headers: { "Cache-Control": "no-store" } });
-    }
-    if (!serviceKeyConfigured() || emailTransport() === "none") {
-      // Self-hosted delivery is not configured: tell the browser to request the link from Supabase Auth (PKCE, handled by /auth/callback?code=).
-      console.warn("Magic-link: service key or app email transport missing; using client-side Supabase delivery.");
-      return NextResponse.json({ ok: true, delivery: "supabase", message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
     }
     const turnstileSecret = (process.env.TURNSTILE_SECRET_KEY || process.env.TURNSTILE_SECRET)?.trim();
     if (!turnstileSecret) return NextResponse.json({ error: "Bot verification is not configured." }, { status: 503 });
@@ -29,12 +24,19 @@ export async function POST(req: NextRequest) {
     if (!verification.ok || !verificationResult?.success) return NextResponse.json({ error: "Bot verification failed. Please try again." }, { status: 400 });
 
 
+    if (!serviceKeyConfigured() || emailTransport() === "none") {
+      // Bot check above has passed. Self-hosted delivery is not configured, so the browser asks Supabase Auth to send the link (PKCE, completed by /auth/callback?code=).
+      console.warn("Magic-link: service key or app email transport missing; using client-side Supabase delivery.");
+      return genericResponse({ delivery: "supabase" });
+    }
     const origin = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://growth-inspector-yazaneva4-3470s-projects.vercel.app").replace(/\/$/, "");
     const redirectTo = new URL("/auth/callback?next=/dashboard/inbox", origin).toString();
     const supabase = createServiceClient();
     const { data, error } = await supabase.auth.admin.generateLink({ type: "magiclink", email, options: { redirectTo } });
     if (error || !data?.properties?.hashed_token) {
       console.error("Magic-link generateLink failed:", error?.message ?? "no token returned");
+      // Account-state errors keep the generic reply so responses do not reveal which emails are registered.
+      if (error && /user_not_found|signup_disabled|not found|signups? not allowed/i.test(`${error.code ?? ""} ${error.message}`)) return genericResponse();
       return NextResponse.json({ error: "We could not send the sign-in link right now. Please try again." }, { status: 503, headers: { "Cache-Control": "no-store" } });
     }
 
