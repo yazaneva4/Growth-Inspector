@@ -6,8 +6,8 @@ const checks = [
   },
   {
     label: "Vision 2030 / Human Capability Development",
-    detail: "Newly verified: the Riyadh Economic Forum will examine knowledge localization and national workforce capability-building, and SASO will host an AI standards forum on 14 October.",
-    href: "https://www.spa.gov.sa/en/N2698506",
+    detail: "Newly verified: SASO’s 14 October AI standards forum agenda includes an SDAIA case study, a live autonomous-vehicle demonstration, and private-sector AI presentations.",
+    href: "https://www.saso.gov.sa/en/mediacenter/events/pages/saso-events-403.aspx",
   },
   {
     label: "Supabase",
@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 14 October 2026, 7:51 a.m. Riyadh time · No new verified information or official contact-detail change was found in this check.
+          Checked 14 October 2026, 1:31 p.m. Riyadh time · One new verified Saudi business-AI update was added; no official contact-detail change was found.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Saudi Arabia · AI standards</span>
+            <time dateTime="2026-10-14" className="text-xs text-slate-500">14 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">SASO agenda connects AI standards with deployed use cases</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            SASO’s official 10th Standards Forum agenda includes an SDAIA AI case study, a live autonomous-vehicle demonstration from the Ministry of Transport and Logistics, an AI application presentation by MOZN, and a panel with government and private-sector participants. For GrowthSpace, this strengthens the case for executive content that pairs AI governance and trust with practical sector use cases.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://www.saso.gov.sa/en/mediacenter/events/pages/saso-events-403.aspx" target="_blank" rel="noreferrer">
+            View SASO’s official agenda
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Database migrations</span>
