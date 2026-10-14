@@ -21,13 +21,14 @@ export async function POST(req: NextRequest) {
 
   const { data: conversation } = await db.from("conversations").select("id, org_id, platform, customer_email, customer_handle, email_subject, thread_key").eq("id", conversationId).eq("org_id", org.id).maybeSingle();
   if (!conversation) return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
+  if (conversation.platform !== "email") {
+    return NextResponse.json({ error: "This conversation channel does not yet have a human-send adapter." }, { status: 501 });
+  }
 
-  const recipient = conversation.customer_email || (conversation.platform === "email" ? conversation.customer_handle : null);
-  if (conversation.platform === "email" && !recipient) return NextResponse.json({ error: "This email conversation has no customer email identity." }, { status: 400 });
+  const recipient = conversation.customer_email || conversation.customer_handle;
+  if (!recipient) return NextResponse.json({ error: "This email conversation has no customer email identity." }, { status: 400 });
 
-  const { data: latestInbound } = conversation.platform === "email"
-    ? await db.from("messages").select("external_message_id").eq("conversation_id", conversation.id).eq("direction", "inbound").not("external_message_id", "is", null).order("created_at", { ascending: false }).limit(1).maybeSingle()
-    : { data: null };
+  const { data: latestInbound } = await db.from("messages").select("external_message_id").eq("conversation_id", conversation.id).eq("direction", "inbound").not("external_message_id", "is", null).order("created_at", { ascending: false }).limit(1).maybeSingle();
   const replyTo = latestInbound?.external_message_id ?? conversation.thread_key ?? undefined;
 
   const { data: message, error } = await db.from("messages").insert({
@@ -44,23 +45,21 @@ export async function POST(req: NextRequest) {
   if (error || !message) return NextResponse.json({ error: error?.message || "Could not save message." }, { status: 500 });
 
   try {
-    if (conversation.platform === "email") {
-      await sendEmail({
-        to: recipient!,
-        subject: conversation.email_subject?.startsWith("Re:") ? conversation.email_subject : `Re: ${conversation.email_subject || "Your Growth Inspector conversation"}`,
-        text,
-        inReplyTo: replyTo,
-        references: replyTo,
-      });
-    } else {
-      return NextResponse.json({ error: "This conversation channel does not yet have a human-send adapter." }, { status: 501 });
-    }
+    await sendEmail({
+      to: recipient,
+      subject: conversation.email_subject?.startsWith("Re:") ? conversation.email_subject : "Re: " + (conversation.email_subject || "Your Growth Inspector conversation"),
+      text,
+      inReplyTo: replyTo,
+      references: replyTo,
+    });
     await db.from("messages").update({ delivered: true, delivery_status: "delivered", delivery_error: null, delivered_at: new Date().toISOString() }).eq("id", message.id);
     await db.from("conversations").update({ last_message_at: new Date().toISOString(), assigned_to: ctx.userId }).eq("id", conversation.id);
     return NextResponse.json({ ok: true, message: { ...message, delivered: true, delivery_status: "delivered" } });
   } catch (err) {
     const detail = err instanceof Error ? err.message : "Email delivery failed";
+    const failedMessage = { ...message, delivered: false, delivery_status: "failed" };
     await db.from("messages").update({ delivered: false, delivery_status: "failed", delivery_error: detail.slice(0, 1000) }).eq("id", message.id);
-    return NextResponse.json({ error: detail, message: { ...message, delivered: false, delivery_status: "failed" } }, { status: 502 });
+    await db.from("conversations").update({ last_message_at: new Date().toISOString() }).eq("id", conversation.id);
+    return NextResponse.json({ error: detail, message: failedMessage }, { status: 502 });
   }
 }
