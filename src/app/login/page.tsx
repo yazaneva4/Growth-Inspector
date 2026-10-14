@@ -7,7 +7,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
-declare global { interface Window { turnstile?: { render: (el: HTMLElement, opts: { sitekey: string; callback: (token: string) => void; "error-callback": () => void; "expired-callback": () => void }) => string; reset: (id?: string) => void } } }
+declare global { interface Window { turnstile?: { render: (el: HTMLElement, opts: { sitekey: string; action: string; callback: (token: string) => void; "error-callback": () => void; "expired-callback": () => void }) => string; reset: (id?: string) => void } } }
 
 type Mode = "signin" | "signup";
 type Step = "email" | "method" | "security";
@@ -62,14 +62,14 @@ export default function LoginPage() {
   useEffect(() => {
     if (step !== "method" || !turnstileReady || !turnstileSiteKey || !turnstileRef.current || !window.turnstile) return;
     if (widgetRef.current) { window.turnstile.reset(widgetRef.current); return; }
-    widgetRef.current = window.turnstile.render(turnstileRef.current, { sitekey: turnstileSiteKey, callback: (token) => { setTurnstileToken(token); setError(null); }, "error-callback": () => setTurnstileToken(null), "expired-callback": () => setTurnstileToken(null) });
+    widgetRef.current = window.turnstile.render(turnstileRef.current, { sitekey: turnstileSiteKey, action: "growth_inspector_auth", callback: (token) => { setTurnstileToken(token); setError(null); }, "error-callback": () => setTurnstileToken(null), "expired-callback": () => setTurnstileToken(null) });
     return () => { if (widgetRef.current && window.turnstile) window.turnstile.reset(widgetRef.current); widgetRef.current = null; setTurnstileToken(null); };
   }, [step, turnstileReady]);
 
   async function verifyTurnstile() {
     if (!turnstileSiteKey) throw new Error("Bot verification is not configured yet.");
     if (!turnstileToken) throw new Error("Please complete the bot verification first.");
-    const res = await fetch("/api/auth/turnstile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ "cf-turnstile-response": turnstileToken }) });
+    const res = await fetch("/api/auth/turnstile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ "cf-turnstile-response": turnstileToken, action: "growth_inspector_auth" }) });
     const result = await res.json().catch(() => null);
     setTurnstileToken(null); if (widgetRef.current && window.turnstile) window.turnstile.reset(widgetRef.current);
     if (!res.ok || !result?.ok) throw new Error(result?.error ?? "Bot verification failed.");
