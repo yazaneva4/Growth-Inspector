@@ -25,10 +25,10 @@ export async function GET(req: NextRequest) {
       .from("chat_messages")
       .select("id, conversation_id, author_id, author_email, body, created_at")
       .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true })
+      .order("created_at", { ascending: false })
       .limit(300);
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ messages: messages ?? [] });
+    return NextResponse.json({ messages: (messages ?? []).reverse() });
   }
 
   const [{ data: conversations, error: conversationError }, { data: members, error: memberError }] =
