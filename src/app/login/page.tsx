@@ -79,8 +79,20 @@ export default function LoginPage() {
     if (/invalid.*password|invalid login credentials/i.test(message)) return "The email or password is incorrect.";
     if (/email_not_confirmed|confirm.*email/i.test(message)) return "This account still requires email confirmation. No verification code is used; confirmation is by email link.";
     if (/passkey_disabled/i.test(message)) return "Passkey sign-in is not enabled for this project yet.";
-    if (/timed out or was not allowed|NotAllowedError/i.test(message)) return "Passkey sign-in was cancelled, timed out, or no passkey is saved on this device. Try again, or use your password or an emailed magic link.";
     return message;
+  }
+
+  /** Maps a WebAuthn failure to its real cause using Supabase's error code and the browser's DOMException name. */
+  function passkeyMessage(e: unknown, action: "sign-in" | "setup") {
+    const err = e as { name?: string; code?: string; message?: string; cause?: { name?: string } } | null;
+    const code = err?.code ?? "";
+    const name = err?.cause?.name ?? err?.name ?? "";
+    if (code === "ERROR_CEREMONY_ABORTED") return "Another passkey prompt is still open. Close it and try again.";
+    if (code === "ERROR_INVALID_DOMAIN" || code === "ERROR_INVALID_RP_ID" || name === "SecurityError") return "Passkeys cannot be used on this web address. Open Growth Inspector on its official HTTPS address and try again.";
+    if (code === "ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED" || name === "InvalidStateError") return "A passkey for this account is already saved on this device.";
+    if (code === "ERROR_AUTHENTICATOR_MISSING_DISCOVERABLE_CREDENTIAL_SUPPORT" || code === "ERROR_AUTHENTICATOR_MISSING_USER_VERIFICATION_SUPPORT" || code === "ERROR_AUTHENTICATOR_NO_SUPPORTED_PUBKEYCREDPARAMS_ALG" || name === "NotSupportedError") return "This device or security key does not support passkey sign-in.";
+    if (name === "NotAllowedError") return action === "sign-in" ? "The passkey prompt was cancelled or timed out. Try again. If this device has no passkey saved for Growth Inspector, use your password or a magic link." : "Passkey setup was cancelled or timed out. Try again.";
+    return friendly(err?.message ?? (action === "sign-in" ? "Passkey sign-in failed" : "Security setup failed"));
   }
 
   async function signInPassword() {
@@ -114,11 +126,6 @@ export default function LoginPage() {
       const result = await res.json().catch(() => null);
       setTurnstileToken(null); if (widgetRef.current && window.turnstile) window.turnstile.reset(widgetRef.current);
       if (!res.ok) throw new Error(result?.error ?? "Could not send a sign-in link.");
-      if (result?.delivery === "supabase") {
-        // Unknown-user / signups-disabled errors are ignored on purpose so the response stays generic; anything else is a real failure.
-        const { error: otpError } = await createClient().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { emailRedirectTo: `${origin()}/auth/callback?next=/dashboard/inbox`, shouldCreateUser: false } });
-        if (otpError && !/signups? not allowed|user not found/i.test(otpError.message)) throw new Error(/rate limit|too many|security purposes/i.test(otpError.message) ? "Too many requests. Please wait a minute and try again." : "We could not send the sign-in link right now. Please try again.");
-      }
       setMagicLinkSent(true);
       setNotice(result?.message ?? "If an account exists for that address, a sign-in link is on its way.");
     } catch (e) { setError(friendly(e instanceof Error ? e.message : "Could not send a sign-in link.")); }
@@ -137,7 +144,7 @@ async function passkeySignIn() {
       setNotice("Device sign-in live.");
       // Auth state change listener handles the realtime redirect
     } catch (e) {
-      setError(friendly(e instanceof Error ? e.message : "Passkey sign-in failed"));
+      setError(passkeyMessage(e, "sign-in"));
       setBusy(false);
     }
   }
@@ -153,7 +160,7 @@ async function passkeySignIn() {
       setDeviceLive(true);
       setNotice("Secure device sign-in is configured and live. Your biometric data and private authenticator key stay on the device.");
     } catch (e) {
-      setError(friendly(e instanceof Error ? e.message : "Security setup failed"));
+      setError(passkeyMessage(e, "setup"));
     } finally {
       setBusy(false);
     }

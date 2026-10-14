@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServiceClient, serviceKeyConfigured } from "@/lib/supabase/server";
+import { createClient, createServiceClient, serviceKeyConfigured } from "@/lib/supabase/server";
 import { emailTransport, sendEmail } from "@/lib/email/send";
 
 
-const genericResponse = (extra: Record<string, unknown> = {}) => NextResponse.json({ ok: true, ...extra, message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
+const genericResponse = () => NextResponse.json({ ok: true, message: "If an account exists for that address, a sign-in link is on its way." }, { headers: { "Cache-Control": "no-store" } });
 
 
 export async function POST(req: NextRequest) {
@@ -25,9 +25,18 @@ export async function POST(req: NextRequest) {
 
 
     if (!serviceKeyConfigured() || emailTransport() === "none") {
-      // Bot check above has passed. Self-hosted delivery is not configured, so the browser asks Supabase Auth to send the link (PKCE, completed by /auth/callback?code=).
-      console.warn("Magic-link: service key or app email transport missing; using client-side Supabase delivery.");
-      return genericResponse({ delivery: "supabase" });
+      // Self-hosted delivery is not configured: have Supabase Auth send the link. Run server-side so the Turnstile check above
+      // guards it and the PKCE verifier cookie is set on this response (completed by /auth/callback?code=). Supabase's own
+      // captcha must be off here, because Cloudflare tokens are single-use and ours is already spent.
+      console.warn("Magic-link: service key or app email transport missing; using Supabase-delivered email.");
+      const { error: otpError } = await (await createClient()).auth.signInWithOtp({ email, options: { emailRedirectTo: new URL("/auth/callback?next=/dashboard/inbox", req.nextUrl.origin).toString(), shouldCreateUser: false } });
+      if (!otpError) return genericResponse();
+      const detail = `${otpError.code ?? ""} ${otpError.message}`;
+      // Unknown-user and rate-limit replies stay generic: Supabase only cools down real accounts, so a 429 would reveal which emails exist.
+      if (/signups? not allowed|user not found|otp_disabled_for_user|over_email_send_rate_limit|rate limit|too many|security purposes/i.test(detail) || otpError.status === 429) { console.warn("Magic-link Supabase delivery skipped:", detail.trim()); return genericResponse(); }
+      if (/captcha/i.test(detail)) console.error("Magic-link: Supabase Auth captcha is enabled, which rejects server-side OTP. Disable it or set SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY and EMAIL_FROM.");
+      else console.error("Magic-link Supabase delivery failed:", detail.trim());
+      return NextResponse.json({ error: "We could not send the sign-in link right now. Please try again." }, { status: 503, headers: { "Cache-Control": "no-store" } });
     }
     const origin = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://growth-inspector-yazaneva4-3470s-projects.vercel.app").replace(/\/$/, "");
     const redirectTo = new URL("/auth/callback?next=/dashboard/inbox", origin).toString();
