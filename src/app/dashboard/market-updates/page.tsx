@@ -1,8 +1,8 @@
 const checks = [
   {
     label: "GrowthSpace and Saudi competitors",
-    detail: "No newly verified company announcement or official contact-detail change was found in this check.",
-    href: "https://growthspace.sa/",
+    detail: "Newly verified: SIDF Academy offered a 14 October executive webinar on AI’s effects on work, decision-making, productivity, and value creation; no official company contact-detail change was found.",
+    href: "https://academy.sidf.gov.sa/Webinars/Webinar-Course?CourseId=154",
   },
   {
     label: "Vision 2030 / Human Capability Development",
@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 14 October 2026, 6:42 p.m. Riyadh time · No new verified information or official contact-detail change was found in this check.
+          Checked 14 October 2026, 11:09 p.m. Riyadh time · One new verified Saudi workforce and business-AI update was added; no official contact-detail change was found.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Saudi Arabia · Executive AI learning</span>
+            <time dateTime="2026-10-14" className="text-xs text-slate-500">14 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">SIDF Academy links AI adoption to decisions and value creation</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            SIDF Academy listed a virtual seminar titled “From Generation to Decision: How Artificial Intelligence Is Reshaping How We Work and Make Decisions.” Its outcomes focus on AI’s role in future work, decision-making, productivity, work quality, and the shift from productivity to value creation. This is a relevant Saudi benchmark for GrowthSpace executive-learning and business-AI positioning.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://academy.sidf.gov.sa/Webinars/Webinar-Course?CourseId=154" target="_blank" rel="noreferrer">
+            View SIDF Academy’s course page
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Saudi Arabia · AI standards</span>
