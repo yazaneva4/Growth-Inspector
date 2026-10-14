@@ -3,12 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 
 const ROLES = ["admin", "agent"] as const;
 
-/** Invite an employee (by email) to the signed-in user's workspace. */
+/** Invite an employee by email to the signed-in user's workspace. */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const email = (body?.email as string | undefined)?.trim().toLowerCase();
   const role = ROLES.includes(body?.role) ? body.role : "agent";
-  if (!email || !email.includes("@")) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "valid email required" }, { status: 400 });
   }
 
@@ -22,33 +22,36 @@ export async function POST(req: NextRequest) {
 
   const { data: membership } = await supabase
     .from("memberships")
-    .select("org_id")
+    .select("org_id, role")
     .limit(1)
     .maybeSingle();
   if (!membership) {
     return NextResponse.json({ error: "no organization" }, { status: 404 });
   }
+  if (membership.role !== "owner" && membership.role !== "admin") {
+    return NextResponse.json({ error: "only workspace owners and admins can invite members" }, { status: 403 });
+  }
+  if (role === "admin" && membership.role !== "owner") {
+    return NextResponse.json({ error: "only workspace owners can invite admins" }, { status: 403 });
+  }
 
   const { error } = await supabase
     .from("team_invites")
     .upsert(
-      { org_id: membership.org_id, email, role, accepted: false },
+      { org_id: membership.org_id, email, role, accepted: false, created_by: user.id },
       { onConflict: "org_id,email" },
     );
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  // If this email already has an account, join it immediately. The RPC runs
-  // with elevated DB privileges but verifies that the caller belongs to the
-  // target workspace before touching the target user's membership.
+  // Existing users can be added immediately. The database function independently
+  // checks inviter role, inviter identity, invite state, and permitted role.
   const { error: acceptError } = await supabase.rpc("accept_existing_team_invite", {
     p_org_id: membership.org_id,
     p_email: email,
   });
   if (acceptError) {
-    // Keep the normal pending-invite flow working if the migration has not yet
-    // been applied; new users can still accept through accept_pending_invites.
     if (!acceptError.message.toLowerCase().includes("does not exist")) {
       return NextResponse.json({ error: acceptError.message }, { status: 400 });
     }
