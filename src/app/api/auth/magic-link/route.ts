@@ -20,8 +20,9 @@ export async function POST(req: NextRequest) {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
     if (ip) verifyBody.set("remoteip", ip);
     const verification = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: verifyBody, cache: "no-store" });
-    const verificationResult = await verification.json().catch(() => null);
-    if (!verification.ok || !verificationResult?.success) return NextResponse.json({ error: "Bot verification failed. Please try again." }, { status: 400 });
+    const verificationResult = (await verification.json().catch(() => null)) as { success?: boolean; action?: string; hostname?: string } | null;
+    const expectedHostname = req.nextUrl.hostname.toLowerCase();
+    if (!verification.ok || verificationResult?.success !== true || verificationResult.action !== "growth_inspector_auth" || verificationResult.hostname?.toLowerCase() !== expectedHostname) return NextResponse.json({ error: "Bot verification failed. Please try again." }, { status: 400 });
 
 
     if (!serviceKeyConfigured() || emailTransport() === "none") {
