@@ -17,6 +17,7 @@ const SOCIAL_SEARCH_DOMAINS = [
 ];
 
 const SOCIAL_INTENT_PATTERN = /\b(?:social(?:\s+media)?|twitter|instagram|facebook|linkedin|whatsapp|trends?|trending|viral|buzz|sentiment|public chatter|social listening|mentions?|reactions?|engagement|what (?:are|is) people saying|comments?)\b/i;
+const SOCIAL_INTENT_ARABIC_PATTERN = /(?:سوشال(?:\s+ميديا)?|تواصل اجتماعي|ترند|ترندات|تويتر|اكس|إكس|انستغرام|إنستغرام|انستجرام|فيسبوك|فيس بوك|لينكدإن|لينكد ان|واتساب|واتس اب|الناس يقولون|ماذا يقول|تفاعل|انتشار|ضجة|آراء الناس)/i;
 
 export async function POST(req: NextRequest) {
   const ctx = await getCurrentContext();
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     : [];
 
   const researchContext = [...history.map((m) => m.content), goal].join(" ");
-  const socialSearch = SOCIAL_INTENT_PATTERN.test(researchContext);
+  const socialSearch = SOCIAL_INTENT_PATTERN.test(researchContext) || SOCIAL_INTENT_ARABIC_PATTERN.test(researchContext);
   const webSearchTool = {
     type: "web_search",
     search_type: "fast",
