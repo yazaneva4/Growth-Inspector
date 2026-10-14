@@ -5,6 +5,19 @@ export const maxDuration = 45;
 
 type HistoryMessage = { role: "user" | "assistant"; content: string };
 
+const SOCIAL_SEARCH_DOMAINS = [
+  "x.com",
+  "twitter.com",
+  "instagram.com",
+  "facebook.com",
+  "linkedin.com",
+  "whatsapp.com",
+  "blog.whatsapp.com",
+  "about.fb.com",
+];
+
+const SOCIAL_INTENT_PATTERN = /\b(?:social(?:\s+media)?|twitter|instagram|facebook|linkedin|whatsapp|trends?|trending|viral|buzz|sentiment|public chatter|social listening|mentions?|reactions?|engagement|what (?:are|is) people saying|comments?)\b/i;
+
 export async function POST(req: NextRequest) {
   const ctx = await getCurrentContext();
   if (!ctx.userId || ctx.isDemo) {
@@ -31,6 +44,21 @@ export async function POST(req: NextRequest) {
         .map((m: HistoryMessage) => ({ role: m.role, content: m.content.slice(0, 4000) }))
     : [];
 
+  const researchContext = [...history.map((m) => m.content), goal].join(" ");
+  const socialSearch = SOCIAL_INTENT_PATTERN.test(researchContext);
+  const webSearchTool = {
+    type: "web_search",
+    search_type: "fast",
+    ...(socialSearch
+      ? {
+          filters: {
+            search_domain_filter: SOCIAL_SEARCH_DOMAINS,
+            search_recency_filter: "day",
+          },
+        }
+      : {}),
+  };
+
   try {
     const response = await fetch("https://api.perplexity.ai/v1/agent", {
       method: "POST",
@@ -39,8 +67,8 @@ export async function POST(req: NextRequest) {
         model: "sonar",
         max_output_tokens: 1400,
         input: [...history.map((m: HistoryMessage) => (m.role === "user" ? "User: " : "Assistant: ") + m.content), "User: " + goal].join("\n\n"),
-        tools: [{ type: "web_search", search_type: "fast" }],
-        instructions: "You are Growth AI's live web research assistant. Search the web for current information, distinguish facts from uncertainty, include relevant dates, and keep the answer useful and concise. The interface will display source links returned by the search API.",
+        tools: [webSearchTool],
+        instructions: "You are Growth AI's live web research assistant. Search for current information, distinguish facts from uncertainty, include relevant dates, and keep the answer useful and concise. When researching social chatter, trends, or what people are saying, prioritize the configured public social sources and cite results inline with bracketed search result IDs such as [1]. These results cover only public pages indexed by web search, not private WhatsApp chats, DMs, closed groups, or complete platform feeds. If public results are unavailable or incomplete, say so clearly rather than implying full coverage. The interface also displays clickable source links.",
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(40_000),
