@@ -11,8 +11,8 @@ const checks = [
   },
   {
     label: "Supabase",
-    detail: "Newly verified: Supabase joined the SpaceXAI Partner Network and documented a Grok Bot-to-Cursor workflow that can make scoped backend changes through the Supabase MCP server.",
-    href: "https://supabase.com/blog/ship-changes-to-your-supabase-backend-with-grok-bot",
+    detail: "Newly verified: Declarative Schemas 2.0 uses pg-delta so generated migrations now capture RLS policies, grants, view settings, partitions, domains, and extension-managed objects.",
+    href: "https://supabase.com/blog/declarative-schemas-2-0-pg-delta",
   },
   {
     label: "Vercel, GitHub, and Resend",
@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 13 October 2026, 10:04 p.m. Riyadh time · One new verified product update was added; no official contact-detail change was found.
+          Checked 14 October 2026, 3:36 a.m. Riyadh time · One new verified product update was added; no official contact-detail change was found.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Database migrations</span>
+            <time dateTime="2026-10-13" className="text-xs text-slate-500">13 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Declarative Schemas 2.0 captures RLS and grant changes</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Supabase’s CLI now uses the open-source pg-delta diff engine for Declarative Schemas 2.0. Generated migrations can include RLS-policy changes, grants, view settings, partitions, domains, and extension-managed objects that the previous migra-based workflow skipped. New CLI projects use 2.0 by default; existing projects must opt in. Growth Inspector should evaluate the opt-in on a review branch and inspect generated migrations before applying them.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/blog/declarative-schemas-2-0-pg-delta" target="_blank" rel="noreferrer">
+            Read Supabase’s announcement
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Agent workflow</span>
