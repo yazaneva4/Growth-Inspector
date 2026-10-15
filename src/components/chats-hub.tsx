@@ -57,7 +57,9 @@ export function ChatsHub() {
   const [groupTitle, setGroupTitle] = useState("");
   const [memberSearch, setMemberSearch] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-  const [showMessages, setShowMessages] = useState(true);
+  const loadSeq = useRef(0);
+  const messagesSeq = useRef(0);
+  const selectedIdRef = useRef<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const memberById = useMemo(() => new Map(members.map((member) => [member.user_id, member])), [members]);
@@ -86,34 +88,46 @@ export function ChatsHub() {
       .find((member) => member && member.user_id !== currentUserId) ?? null;
   }
 
-  async function load() {
-    setError(null);
+  // Only the newest load may apply, so overlapping loads (initial, realtime,
+  // after creating a chat) cannot overwrite each other with older data.
+  async function load(autoSelect = false) {
+    const seq = ++loadSeq.current;
     const response = await fetch("/api/chats", { cache: "no-store" });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error ?? "Unable to load chats");
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.error ?? "Unable to load chats");
+    if (seq !== loadSeq.current) return;
+    const list: Conversation[] = data.conversations ?? [];
     setMembers(data.members ?? []);
-    setConversations(data.conversations ?? []);
+    setConversations(list);
     setCurrentUserId(data.currentUserId ?? "");
     setOrgId(data.orgId ?? "");
-    setSelectedId((current) => current ?? data.conversations?.[0]?.id ?? null);
+    // Auto-select only on the first load, and never a chat from the other tab;
+    // a chat that disappeared (left/removed) is deselected.
+    setSelectedId((current) => current && list.some((c) => c.id === current) ? current : autoSelect ? list.find((c) => c.kind === "personal")?.id ?? null : null);
   }
 
   async function loadMessages(conversationId: string) {
+    const seq = ++messagesSeq.current;
     const response = await fetch(`/api/chats?conversationId=${encodeURIComponent(conversationId)}`, { cache: "no-store" });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error ?? "Unable to load messages");
-    setMessages(data.messages ?? []);
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.error ?? "Unable to load messages");
+    // Drop answers for a chat the user has already left, and older responses.
+    if (seq !== messagesSeq.current || selectedIdRef.current !== conversationId) return;
+    const loaded: Message[] = data.messages ?? [];
+    const ids = new Set(loaded.map((m) => m.id));
+    const newest = loaded.at(-1)?.created_at ?? "";
+    // Keep live messages that arrived while this request was in flight.
+    setMessages((prev) => [...loaded, ...prev.filter((m) => m.conversation_id === conversationId && !ids.has(m.id) && m.created_at > newest)]);
   }
 
   useEffect(() => {
-    void load().catch((err) => setError(err instanceof Error ? err.message : "Unable to load chats"));
+    void load(true).catch((err) => setError(err instanceof Error ? err.message : "Unable to load chats"));
   }, []);
 
   useEffect(() => {
-    if (!selectedId) {
-      setMessages([]);
-      return;
-    }
+    selectedIdRef.current = selectedId;
+    setMessages([]);
+    if (!selectedId) return;
     void loadMessages(selectedId).catch((err) => setError(err instanceof Error ? err.message : "Unable to load messages"));
   }, [selectedId]);
 
@@ -153,22 +167,44 @@ export function ChatsHub() {
     };
   }, [currentUserId, orgId]);
 
+  // One channel per user (not per selected chat), reading the selection through
+  // a ref so switching chats never drops events while the socket re-joins.
   useEffect(() => {
     if (!currentUserId) return;
     const supabase = createClient();
+    let wasDown = false;
     const channel = supabase
       .channel(`internal-chats:${currentUserId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (payload) => {
         const message = payload.new as Message;
-        setMessages((current) => current.some((item) => item.id === message.id) || message.conversation_id !== selectedId ? current : [...current, message]);
+        setMessages((current) => current.some((item) => item.id === message.id) || message.conversation_id !== selectedIdRef.current ? current : [...current, message]);
         setConversations((current) => current.map((conversation) => conversation.id === message.conversation_id ? { ...conversation, updated_at: message.created_at } : conversation).sort((a, b) => +new Date(b.updated_at) - +new Date(a.updated_at)));
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_conversations" }, () => {
         void load().catch(() => undefined);
       })
-      .subscribe();
+      // Being added to / removed from a chat changes which conversations are visible.
+      .on("postgres_changes", { event: "*", schema: "public", table: "chat_participants" }, () => {
+        void load().catch(() => undefined);
+      })
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          // After a drop, re-fetch to close the gap.
+          if (wasDown) {
+            void load().catch(() => undefined);
+            if (selectedIdRef.current) void loadMessages(selectedIdRef.current).catch(() => undefined);
+          }
+          wasDown = false;
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") wasDown = true;
+      });
     return () => { void supabase.removeChannel(channel); };
-  }, [currentUserId, selectedId]);
+  }, [currentUserId]);
+
+  useEffect(() => {
+    if (!error) return;
+    const timer = setTimeout(() => setError(null), 8000);
+    return () => clearTimeout(timer);
+  }, [error]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -207,8 +243,8 @@ export function ChatsHub() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "create", kind: mode, participantIds: selectedMembers, title: groupTitle }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Unable to create chat");
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data?.conversation) throw new Error(data?.error ?? "Unable to create chat");
       closeComposer();
       await load();
       setSelectedId(data.conversation.id);
@@ -230,10 +266,11 @@ export function ChatsHub() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "message", conversationId: selectedId, text }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Unable to send message");
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(data?.error ?? "Unable to send message");
       setInput("");
-      if (data.message) setMessages((current) => current.some((item) => item.id === data.message.id) ? current : [...current, data.message]);
+      // The user may have switched chats while sending; only show it where it belongs.
+      if (data?.message && data.message.conversation_id === selectedIdRef.current) setMessages((current) => current.some((item) => item.id === data.message.id) ? current : [...current, data.message]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to send message");
     } finally {
@@ -274,16 +311,15 @@ export function ChatsHub() {
               <button onClick={() => setSelectedId(null)} className="rounded-lg px-2 py-1 text-lg text-slate-500 hover:bg-slate-100 lg:hidden" aria-label="Back to chats">←</button>
               <Avatar member={otherMember(selected)} label={conversationName(selected)} online={Boolean(otherMember(selected) && onlineUserIds.has(otherMember(selected)!.user_id))} />
               <div className="min-w-0 flex-1"><h2 className="truncate text-sm font-semibold text-slate-900">{conversationName(selected)}</h2><p className="text-xs text-slate-400">{selected.kind === "group" ? "Group chat" : "Personal chat"}</p></div>
-              <button onClick={() => setShowMessages((value) => !value)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Messages</button>
             </header>
 
-            {showMessages && <div className="flex-1 overflow-y-auto p-4" aria-label="Messages">
+            <div className="flex-1 overflow-y-auto p-4" aria-label="Messages">
               {messages.length === 0 ? <p className="py-12 text-center text-sm text-slate-500">No messages yet. Start the conversation.</p> : messages.map((message) => {
                 const mine = message.author_id === currentUserId;
                 return <div key={message.id} className={`mb-3 flex gap-2 ${mine ? "flex-row-reverse" : ""}`}><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">{initials(message.author_email)}</span><div className={`max-w-[82%] ${mine ? "text-right" : ""}`}><div className="text-[10px] text-slate-400">{mine ? "You" : message.author_email} · {timeLabel(message.created_at)}</div><div className={`mt-1 inline-block whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm ${mine ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-900"}`} dir="auto">{message.body}</div></div></div>;
               })}
               <div ref={bottomRef} />
-            </div>}
+            </div>
 
             <div className="border-t border-slate-200 p-3"><div className="flex gap-2"><textarea value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void send(); } }} rows={1} placeholder="Write a message…" className="min-h-11 flex-1 resize-none rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-emerald-500" dir="auto"/><button onClick={() => void send()} disabled={busy || !input.trim()} className="self-end rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50">{busy ? "…" : "Send"}</button></div><p className="mt-1 text-[10px] text-slate-400">Enter sends · Shift+Enter makes a new line</p></div>
           </>
@@ -291,7 +327,7 @@ export function ChatsHub() {
       </main>
 
       {showComposer && <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/30 p-3 sm:items-center"><div className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-xl"><div className="flex items-center justify-between"><div><h2 className="text-lg font-bold">New {mode === "personal" ? "personal chat" : "group chat"}</h2><p className="text-xs text-slate-500">{mode === "personal" ? "Add one person from your Growth Inspector workspace." : "Add the people who should be in this group."}</p></div><button onClick={closeComposer} className="rounded-lg px-2 py-1 text-slate-500" aria-label="Close">✕</button></div>{mode === "group" && <input value={groupTitle} onChange={(event) => setGroupTitle(event.target.value)} placeholder="Group name" className="mt-4 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-emerald-500"/>}<div className="mt-4"><label htmlFor="chat-member-search" className="sr-only">Search people</label><input id="chat-member-search" value={memberSearch} onChange={(event) => setMemberSearch(event.target.value)} placeholder="Search people by name or email" className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-emerald-500" autoComplete="off"/></div><div className="mt-3 max-h-64 space-y-1 overflow-y-auto">{composerMembers.length === 0 ? <p className="p-5 text-center text-sm text-slate-500">No people found in your workspace.</p> : composerMembers.map((member) => <button key={member.user_id} type="button" onClick={() => mode === "personal" ? setSelectedMembers([member.user_id]) : toggleMember(member.user_id)} className={`flex w-full items-center gap-3 rounded-xl p-3 text-left ${selectedMembers.includes(member.user_id) ? "bg-emerald-50 ring-1 ring-emerald-200" : "hover:bg-slate-50"}`}><span className={`relative flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-xs font-bold ring-2 ring-offset-1 ${onlineUserIds.has(member.user_id) ? "ring-emerald-500" : "ring-slate-300"}`} aria-label={`${member.name || member.email} · ${onlineUserIds.has(member.user_id) ? "Online" : "Offline"}`} title={`${member.name || member.email} · ${onlineUserIds.has(member.user_id) ? "Online" : "Offline"}`}>{initials(member.name || member.email)}</span><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{member.name}</span><span className="block truncate text-xs text-slate-400">{member.email}</span></span><span className="text-emerald-600">{selectedMembers.includes(member.user_id) ? "✓" : ""}</span></button>)}</div><button onClick={() => void createChat()} disabled={busy || selectedMembers.length === 0} className="mt-4 w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy ? "Creating…" : mode === "personal" ? "Start personal chat" : "Create group"}</button></div></div>}
-      {error && <div className="fixed bottom-4 left-1/2 z-[60] -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-3 text-xs text-white shadow-lg">{error}</div>}
+      {error && <div role="alert" className="fixed bottom-4 left-1/2 z-[60] flex max-w-[90vw] -translate-x-1/2 items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-xs text-white shadow-lg"><span>{error}</span><button type="button" aria-label="Dismiss" onClick={() => setError(null)} className="text-slate-300 hover:text-white">×</button></div>}
     </div>
   );
 }

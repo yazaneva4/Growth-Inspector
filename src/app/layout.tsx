@@ -1,27 +1,44 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Noto_Kufi_Arabic, Source_Serif_4 } from "next/font/google";
+import localFont from "next/font/local";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 import "./globals.css";
 
+// Fonts are self-hosted from npm packages (@fontsource/*) instead of
+// next/font/google, so `next build` never depends on fonts.googleapis.com being
+// reachable and well-formed (a malformed response there failed CI once).
+// Same families, weights and subsets as before.
+
 // Plus Jakarta Sans — rounded, premium sans-serif matching the brand logomark style.
-const jakartaSans = Plus_Jakarta_Sans({
+const jakartaSans = localFont({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  src: [
+    { path: "../../node_modules/@fontsource/plus-jakarta-sans/files/plus-jakarta-sans-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../../node_modules/@fontsource/plus-jakarta-sans/files/plus-jakarta-sans-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../../node_modules/@fontsource/plus-jakarta-sans/files/plus-jakarta-sans-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "../../node_modules/@fontsource/plus-jakarta-sans/files/plus-jakarta-sans-latin-700-normal.woff2", weight: "700", style: "normal" },
+    { path: "../../node_modules/@fontsource/plus-jakarta-sans/files/plus-jakarta-sans-latin-800-normal.woff2", weight: "800", style: "normal" },
+  ],
 });
 
 // Arabic-native typeface so Khaleeji/MSA content renders beautifully.
-const notoArabic = Noto_Kufi_Arabic({
+const notoArabic = localFont({
   variable: "--font-arabic",
-  subsets: ["arabic"],
+  display: "swap",
+  src: "../../node_modules/@fontsource-variable/noto-kufi-arabic/files/noto-kufi-arabic-arabic-wght-normal.woff2",
+  weight: "100 900",
 });
 
 // Editorial serif for headlines and formal documents — same register as the
 // serif Anthropic uses for its own long-form/editorial text.
-const sourceSerif = Source_Serif_4({
+const sourceSerif = localFont({
   variable: "--font-serif-brand",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  display: "swap",
+  src: [
+    { path: "../../node_modules/@fontsource/source-serif-4/files/source-serif-4-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../../node_modules/@fontsource/source-serif-4/files/source-serif-4-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "../../node_modules/@fontsource/source-serif-4/files/source-serif-4-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
 });
 
 export const metadata: Metadata = {

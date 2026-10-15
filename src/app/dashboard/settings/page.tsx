@@ -3,7 +3,6 @@ import { HARD_BLOCK_TOPICS } from "@/lib/ai/responder";
 import { getCurrentContext } from "@/lib/auth";
 import { createClient, createPublicClient } from "@/lib/supabase/server";
 import { SettingsForm } from "@/components/settings-form";
-import { GrowthAiAgentControls } from "@/components/growth-ai-agent-controls";
 import { ConnectedAccounts } from "@/components/connected-accounts";
 import { BackupContacts } from "@/components/backup-contacts";
 import { ProfileNameForm } from "@/components/profile-name-form";
@@ -58,12 +57,6 @@ export default async function SettingsPage() {
           <div className="mt-4"><ProfileNameForm initialName={ctx.name ?? ""} /></div>
         </div>
       )}
-
-      <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
-        <h2 className="text-sm font-semibold text-slate-900">Growth AI behavior</h2>
-        <p className="mt-1 text-xs text-slate-500">Choose where Growth AI runs and how permission prompts are handled. These controls apply to Growth AI wherever you use it.</p>
-        <div className="mt-4"><GrowthAiAgentControls /></div>
-      </div>
 
       {!ctx.isDemo && <div className="mt-6"><BrowserAccessControls initial={normalizeBrowserPolicy(org?.browser_policy)} canManage={ctx.role === "owner" || ctx.role === "admin"} /></div>}
 

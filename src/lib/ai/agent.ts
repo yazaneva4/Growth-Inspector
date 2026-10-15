@@ -5,6 +5,7 @@ import { openrouterConfigured, OPENROUTER_MODEL_A, openrouterChatText } from "./
 import { opencodeConfigured, OPENCODE_MODEL, opencodeChatText } from "./opencode";
 import { getAnalytics } from "@/lib/analytics";
 import { generateTrendRadar } from "@/lib/ai/trends";
+import { recentHistory } from "./history";
 
 export type AgentProvider = "openai" | "anthropic" | "zai" | "gemini" | "openrouter" | "opencode";
 export type AgentSelection = AgentProvider | "auto";
@@ -35,12 +36,6 @@ export const TOOL_DECLARATIONS = [
 ] as const;
 
 const SYSTEM = (org: string) => `You are Growth AI for "${org}". Have a natural multi-turn conversation, use workspace tool results when provided, cite real numbers, and only take actions when explicitly requested. This endpoint exposes read-only workspace tools; it does not directly send email or WhatsApp messages.`;
-/** Last 16 turns, never starting on an assistant turn (Anthropic/z.ai reject that). */
-const recentHistory = (history: AgentHistoryMessage[]) => {
-  const recent = history.slice(-16);
-  while (recent.length && recent[0].role !== "user") recent.shift();
-  return recent;
-};
 const historyText = (history: AgentHistoryMessage[]) => recentHistory(history).map((m) => `${m.role === "user" ? "User" : "Growth AI"}: ${m.content}`).join("\n");
 
 export class ProviderUnavailableError extends Error {
