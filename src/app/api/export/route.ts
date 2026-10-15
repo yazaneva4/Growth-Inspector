@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentContext } from "@/lib/auth";
-import { createClient, createPublicClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 function csvCell(v: unknown): string {
   const s = v == null ? "" : String(v);
@@ -10,7 +10,11 @@ function csvCell(v: unknown): string {
 /** Export the workspace's conversations as CSV. */
 export async function GET() {
   const ctx = await getCurrentContext();
-  const db = ctx.isDemo ? createPublicClient() : await createClient();
+  if (!ctx.userId || ctx.isDemo) {
+    return NextResponse.json({ error: "Sign in to export workspace data." }, { status: 401 });
+  }
+
+  const db = await createClient();
 
   const { data: org } = await db
     .from("organizations")
