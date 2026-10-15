@@ -80,8 +80,11 @@ export function verifyTwilioSignature(url: string, params: Record<string, string
 
 /** Paid OpenAI Whisper is intentionally disabled; voice uses Twilio speech recognition instead. */
 export const WHISPER_ENABLED = false;
+// Signature kept so callers compile; the disabled stubs intentionally ignore their arguments.
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export async function transcribeAudio(_audio?: Blob, _filename?: string): Promise<string> { throw new Error("Paid Whisper transcription is disabled. Use the voice speech-recognition path."); }
 export async function transcribeWithWhisper(_recordingUrl?: string): Promise<string> { throw new Error("Paid Whisper transcription is disabled. Use the voice speech-recognition path."); }
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 function escapeXml(s: string): string { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&apos;"); }
 
