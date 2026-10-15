@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { SocialPlatform } from "@/lib/types";
@@ -32,8 +33,8 @@ export async function POST(req: NextRequest) {
   if (!CONNECTABLE_PLATFORMS.includes(platform as (typeof CONNECTABLE_PLATFORMS)[number])) {
     return NextResponse.json({ error: "unsupported platform" }, { status: 400 });
   }
-  const externalId = (body.externalId as string | undefined)?.trim();
-  const displayName = (body.displayName as string | undefined)?.trim();
+  const externalId = requestText(body.externalId);
+  const displayName = requestText(body.displayName);
   if (!externalId || !displayName) {
     return NextResponse.json({ error: "externalId and displayName required" }, { status: 400 });
   }

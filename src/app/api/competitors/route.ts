@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -5,9 +6,9 @@ const PLATFORMS = ["instagram", "x", "tiktok", "snapchat", "whatsapp"] as const;
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const handle = (body?.handle as string | undefined)?.trim();
+  const handle = requestText(body?.handle);
   const platform = PLATFORMS.includes(body?.platform) ? body.platform : "instagram";
-  const notes = (body?.notes as string | undefined)?.trim() || null;
+  const notes = requestText(body?.notes) || null;
   if (!handle) {
     return NextResponse.json({ error: "handle required" }, { status: 400 });
   }

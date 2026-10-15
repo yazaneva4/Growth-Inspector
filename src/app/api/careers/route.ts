@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createPublicClient } from "@/lib/supabase/server";
 
@@ -5,8 +6,8 @@ import { createPublicClient } from "@/lib/supabase/server";
  *  Supabase (anon cannot read them back). */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const full_name = (body?.full_name as string | undefined)?.trim();
-  const email = (body?.email as string | undefined)?.trim();
+  const full_name = requestText(body?.full_name);
+  const email = requestText(body?.email);
   if (!full_name || !email || !email.includes("@")) {
     return NextResponse.json(
       { error: "name and a valid email are required" },
@@ -18,9 +19,9 @@ export async function POST(req: NextRequest) {
   const { error } = await db.from("job_applications").insert({
     full_name,
     email,
-    phone: (body?.phone as string | undefined)?.trim() || null,
-    role_interest: (body?.role_interest as string | undefined)?.trim() || null,
-    message: (body?.message as string | undefined)?.trim() || null,
+    phone: requestText(body?.phone) || null,
+    role_interest: requestText(body?.role_interest) || null,
+    message: requestText(body?.message) || null,
   });
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });

@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -19,9 +20,9 @@ async function requireOrg() {
 /** Add a CRM client (name + phone, optional company). */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const name = (body?.name as string | undefined)?.trim();
-  const phone = (body?.phone as string | undefined)?.trim();
-  const company = (body?.company as string | undefined)?.trim() || null;
+  const name = requestText(body?.name);
+  const phone = requestText(body?.phone);
+  const company = requestText(body?.company) || null;
   if (!name || !phone) {
     return NextResponse.json({ error: "name and phone required" }, { status: 400 });
   }

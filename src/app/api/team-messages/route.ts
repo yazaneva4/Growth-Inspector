@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -5,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
  *  server-side; RLS enforces you can only post as yourself into your org. */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const text = (body?.body as string | undefined)?.trim();
+  const text = requestText(body?.body);
   if (!text) return NextResponse.json({ error: "message body required" }, { status: 400 });
   if (text.length > 2000) {
     return NextResponse.json({ error: "message too long" }, { status: 400 });

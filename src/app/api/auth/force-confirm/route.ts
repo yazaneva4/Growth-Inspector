@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createServiceClient, serviceKeyConfigured } from "@/lib/supabase/server";
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => null);
-  const email = (body?.email as string | undefined)?.trim().toLowerCase();
+  const email = requestText(body?.email).toLowerCase();
   const password = body?.password as string | undefined;
   if (!email || !password) {
     return NextResponse.json({ error: "email and password required" }, { status: 400 });

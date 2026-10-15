@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { handleInbound } from "@/lib/orchestrator";
@@ -15,7 +16,7 @@ export const maxDuration = 30;
  */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const message: string | undefined = body?.message;
+  const message = requestText(body?.message);
   if (!message?.trim()) return NextResponse.json({ error: "message required" }, { status: 400 });
 
   const channel: "email" | "sandbox" = body?.channel === "email" ? "email" : "sandbox";

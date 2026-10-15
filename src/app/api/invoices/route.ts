@@ -1,3 +1,4 @@
+import { requestText, requestNumber } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sendInvoiceEmail, type InvoiceItem } from "@/lib/email/invoice";
@@ -7,15 +8,15 @@ const VAT_RATE = 0.15; // Saudi VAT
 /** Create an invoice for the signed-in workspace and email it to the customer. */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const customerName = (body?.customerName as string | undefined)?.trim();
-  const customerEmail = (body?.customerEmail as string | undefined)?.trim().toLowerCase();
+  const customerName = requestText(body?.customerName);
+  const customerEmail = requestText(body?.customerEmail).toLowerCase();
   const rawItems = Array.isArray(body?.items) ? body.items : [];
 
   const items: InvoiceItem[] = rawItems
     .map((it: Record<string, unknown>) => ({
-      description: String(it?.description ?? "").trim(),
-      qty: Number(it?.qty),
-      unit_price: Number(it?.unit_price),
+      description: requestText(it?.description),
+      qty: requestNumber(it?.qty),
+      unit_price: requestNumber(it?.unit_price),
     }))
     .filter(
       (it: InvoiceItem) =>
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
         Number.isFinite(it.unit_price) && it.unit_price >= 0 && it.unit_price <= 100_000_000,
     );
 
-  if (!customerName || !customerEmail || !customerEmail.includes("@") || items.length === 0) {
+  if (!customerName || !customerEmail || !customerEmail.includes("@") || items.length === 0 || items.length !== rawItems.length) {
     return NextResponse.json(
       { error: "customerName, valid customerEmail and at least one line item are required" },
       { status: 400 },

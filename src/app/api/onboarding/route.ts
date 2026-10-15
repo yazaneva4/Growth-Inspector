@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { INDUSTRIES } from "@/lib/constants";
@@ -6,10 +7,10 @@ import { INDUSTRIES } from "@/lib/constants";
  *  caller's organization and marks it onboarded. */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const fullName = (body?.fullName as string | undefined)?.trim();
-  const companyName = (body?.companyName as string | undefined)?.trim();
-  const industry = (body?.industry as string | undefined)?.trim();
-  const country = (body?.country as string | undefined)?.trim() || "Saudi Arabia";
+  const fullName = requestText(body?.fullName);
+  const companyName = requestText(body?.companyName);
+  const industry = requestText(body?.industry);
+  const country = requestText(body?.country) || "Saudi Arabia";
 
   if (!fullName || !companyName || !industry) {
     return NextResponse.json(
