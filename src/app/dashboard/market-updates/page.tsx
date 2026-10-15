@@ -28,12 +28,27 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 15 October 2026, 10:09 a.m. Riyadh time · One newly verified GitHub supply-chain update was added; no official contact-detail change was found.
+          Checked 15 October 2026, 3:11 p.m. Riyadh time · A critical Next.js security update affecting the repository’s current version was added; no official contact-detail change was found.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-red-200 bg-red-50 p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-800">Next.js · Critical security update</span>
+            <time dateTime="2026-10-14" className="text-xs text-slate-500">14 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Growth Inspector’s Next.js 16.2.9 is within affected ranges</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Official Next.js advisories disclose critical unauthenticated remote-code-execution issues affecting Next.js 16.0.0 through 16.4.0, including Image Optimization with SVG files and certain use-cache functions returning typed arrays. Growth Inspector currently declares Next.js 16.2.9, so it should be upgraded to patched version 16.4.1 and redeployed promptly in a separate, tested dependency-change pull request. This monitoring PR does not change dependencies or deploy anything.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-4">
+            <a className="text-sm font-medium text-red-700 underline underline-offset-4" href="https://github.com/vercel/next.js/security/advisories/GHSA-2464-fhr4-w9xw" target="_blank" rel="noreferrer">SVG Image Optimization advisory</a>
+            <a className="text-sm font-medium text-red-700 underline underline-offset-4" href="https://github.com/vercel/next.js/security/advisories/GHSA-673q-mjm6-r5xr" target="_blank" rel="noreferrer">use cache advisory</a>
+          </div>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub Actions · Supply-chain security</span>
