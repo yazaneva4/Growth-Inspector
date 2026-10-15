@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentContext } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -13,8 +14,8 @@ export const maxDuration = 30;
  */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const name = (body?.name as string | undefined)?.trim();
-  const company = (body?.company as string | undefined)?.trim();
+  const name = requestText(body?.name);
+  const company = requestText(body?.company);
   if (!name) {
     return NextResponse.json({ error: "name required" }, { status: 400 });
   }

@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -8,8 +9,8 @@ import { createClient } from "@/lib/supabase/server";
  */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const phone = (body?.phone as string | undefined)?.trim();
-  const displayName = (body?.displayName as string | undefined)?.trim() || "Phone line";
+  const phone = requestText(body?.phone);
+  const displayName = requestText(body?.displayName) || "Phone line";
   if (!phone || !/^\+[1-9]\d{6,14}$/.test(phone)) {
     return NextResponse.json(
       { error: "phone must be E.164 format, e.g. +9665XXXXXXXX" },

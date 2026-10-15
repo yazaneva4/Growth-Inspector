@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { draftSocialPost } from "@/lib/ai/social-post";
@@ -16,8 +17,8 @@ const PLATFORMS = ["x"] as const; // Instagram feed posts require media and
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const platform = PLATFORMS.includes(body?.platform) ? body.platform : null;
-  const topic = (body?.topic as string | undefined)?.trim();
-  const text = (body?.text as string | undefined)?.trim();
+  const topic = requestText(body?.topic);
+  const text = requestText(body?.text);
   const replyToTweetId = body?.replyToId as string | undefined;
 
   if (!platform) {

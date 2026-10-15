@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -6,7 +7,7 @@ const ROLES = ["admin", "agent"] as const;
 /** Invite an employee by email to the signed-in user's workspace. */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const email = (body?.email as string | undefined)?.trim().toLowerCase();
+  const email = requestText(body?.email).toLowerCase();
   const role = ROLES.includes(body?.role) ? body.role : "agent";
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "valid email required" }, { status: 400 });

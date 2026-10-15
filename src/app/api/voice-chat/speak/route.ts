@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { elevenLabsConfigured, elevenLabsTTS } from "@/lib/ai/elevenlabs";
 
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => null);
-  const text = (body?.text as string | undefined)?.trim();
+  const text = requestText(body?.text);
   if (!text) return NextResponse.json({ error: "text required" }, { status: 400 });
 
   // Guard against very long inputs (ElevenLabs bills per character).

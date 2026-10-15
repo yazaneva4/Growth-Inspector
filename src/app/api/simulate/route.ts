@@ -1,3 +1,4 @@
+import { requestText } from "@/lib/request-input";
 import { NextRequest, NextResponse } from "next/server";
 import { respondBestAvailable, AIUnavailableError } from "@/lib/ai/responder";
 import type { BrandVoice, ReplyMode } from "@/lib/types";
@@ -26,7 +27,7 @@ const DEMO_VOICE: BrandVoice = {
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const message: string | undefined = body?.message;
+  const message = requestText(body?.message);
   if (!message?.trim()) {
     return NextResponse.json({ error: "message required" }, { status: 400 });
   }
