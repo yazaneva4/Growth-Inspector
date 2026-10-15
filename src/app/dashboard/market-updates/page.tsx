@@ -1,18 +1,18 @@
 const checks = [
   {
     label: "GrowthSpace and Saudi competitors",
-    detail: "No newly verified company announcement or official contact-detail change was found in this check.",
-    href: "https://growthspace.sa/",
+    detail: "Newly verified: SIDF Academy offered a 14 October executive webinar on AI’s effects on work, decision-making, productivity, and value creation; no official company contact-detail change was found.",
+    href: "https://academy.sidf.gov.sa/Webinars/Webinar-Course?CourseId=154",
   },
   {
     label: "Vision 2030 / Human Capability Development",
-    detail: "Newly verified: the Riyadh Economic Forum will examine knowledge localization and national workforce capability-building, and SASO will host an AI standards forum on 14 October.",
-    href: "https://www.spa.gov.sa/en/N2698506",
+    detail: "Newly verified: SASO’s 14 October AI standards forum agenda includes an SDAIA case study, a live autonomous-vehicle demonstration, and private-sector AI presentations.",
+    href: "https://www.saso.gov.sa/en/mediacenter/events/pages/saso-events-403.aspx",
   },
   {
     label: "Supabase",
-    detail: "Newly verified: Supabase joined the SpaceXAI Partner Network and documented a Grok Bot-to-Cursor workflow that can make scoped backend changes through the Supabase MCP server.",
-    href: "https://supabase.com/blog/ship-changes-to-your-supabase-backend-with-grok-bot",
+    detail: "Newly verified: Declarative Schemas 2.0 uses pg-delta so generated migrations now capture RLS policies, grants, view settings, partitions, domains, and extension-managed objects.",
+    href: "https://supabase.com/blog/declarative-schemas-2-0-pg-delta",
   },
   {
     label: "Vercel, GitHub, and Resend",
@@ -28,12 +28,96 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 13 October 2026, 10:04 p.m. Riyadh time · One new verified product update was added; no official contact-detail change was found.
+          Checked 15 October 2026, 10:09 a.m. Riyadh time · One newly verified GitHub supply-chain update was added; no official contact-detail change was found.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub Actions · Supply-chain security</span>
+            <time dateTime="2026-10-14" className="text-xs text-slate-500">14 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Workflow lockfiles can pin Actions and transitive dependencies</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            GitHub Actions workflow lockfiles are in public preview. They let repositories keep readable tag or branch references while executions use reviewed commit SHAs for actions, reusable workflows, and transitive dependencies. Growth Inspector can evaluate the gh actions-lock extension on its review branch; dependencies still need security review before locking.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-14-github-actions-workflow-lockfiles-in-public-preview/" target="_blank" rel="noreferrer">
+            Read GitHub’s changelog
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · Managed WAF</span>
+            <time dateTime="2026-10-14" className="text-xs text-slate-500">14 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Emergency rule blocks an actively exploited RCE pattern</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Cloudflare added a blocking rule to its Managed Ruleset for active exploitation of a critical remote-code-execution pattern involving invalid path sequences. Growth Inspector should confirm the managed rule is enabled and review WAF events for unexpected blocking.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-14-emergency-waf-release/" target="_blank" rel="noreferrer">
+            Read Cloudflare’s emergency notice
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · .NET observability</span>
+            <time dateTime="2026-10-14" className="text-xs text-slate-500">14 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Supabase .NET SDK adds native traces and metrics</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            The official Supabase .NET SDK now emits System.Diagnostics traces and metrics for Auth, Postgrest, Storage, and Functions, with Realtime not yet covered. It strips query strings from recorded URLs and does not tag tokens, credentials, or payloads. This is useful only if Growth Inspector has .NET clients; the current web application needs no change.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/changelog/dotnet-opentelemetry-support" target="_blank" rel="noreferrer">
+            Read Supabase’s changelog
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Saudi Arabia · Executive AI learning</span>
+            <time dateTime="2026-10-14" className="text-xs text-slate-500">14 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">SIDF Academy links AI adoption to decisions and value creation</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            SIDF Academy listed a virtual seminar titled “From Generation to Decision: How Artificial Intelligence Is Reshaping How We Work and Make Decisions.” Its outcomes focus on AI’s role in future work, decision-making, productivity, work quality, and the shift from productivity to value creation. This is a relevant Saudi benchmark for GrowthSpace executive-learning and business-AI positioning.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://academy.sidf.gov.sa/Webinars/Webinar-Course?CourseId=154" target="_blank" rel="noreferrer">
+            View SIDF Academy’s course page
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Saudi Arabia · AI standards</span>
+            <time dateTime="2026-10-14" className="text-xs text-slate-500">14 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">SASO agenda connects AI standards with deployed use cases</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            SASO’s official 10th Standards Forum agenda includes an SDAIA AI case study, a live autonomous-vehicle demonstration from the Ministry of Transport and Logistics, an AI application presentation by MOZN, and a panel with government and private-sector participants. For GrowthSpace, this strengthens the case for executive content that pairs AI governance and trust with practical sector use cases.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://www.saso.gov.sa/en/mediacenter/events/pages/saso-events-403.aspx" target="_blank" rel="noreferrer">
+            View SASO’s official agenda
+          </a>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Database migrations</span>
+            <time dateTime="2026-10-13" className="text-xs text-slate-500">13 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Declarative Schemas 2.0 captures RLS and grant changes</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Supabase’s CLI now uses the open-source pg-delta diff engine for Declarative Schemas 2.0. Generated migrations can include RLS-policy changes, grants, view settings, partitions, domains, and extension-managed objects that the previous migra-based workflow skipped. New CLI projects use 2.0 by default; existing projects must opt in. Growth Inspector should evaluate the opt-in on a review branch and inspect generated migrations before applying them.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/blog/declarative-schemas-2-0-pg-delta" target="_blank" rel="noreferrer">
+            Read Supabase’s announcement
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Supabase · Agent workflow</span>
