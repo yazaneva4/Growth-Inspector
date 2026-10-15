@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentContext } from "@/lib/auth";
-import { createClient, createPublicClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { composeText, ComposeUnavailableError } from "@/lib/ai/compose";
 
 export const maxDuration = 30;
@@ -20,7 +20,11 @@ export async function POST(req: NextRequest) {
   }
 
   const ctx = await getCurrentContext();
-  const db = ctx.isDemo ? createPublicClient() : await createClient();
+  if (!ctx.userId || ctx.isDemo) {
+    return NextResponse.json({ error: "Sign in to generate client messages." }, { status: 401 });
+  }
+
+  const db = await createClient();
   const { data: org } = await db
     .from("organizations")
     .select("name")
