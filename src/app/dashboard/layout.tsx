@@ -9,7 +9,11 @@ export default async function DashboardLayout({
 }) {
   const ctx = await getCurrentContext();
 
-  if (!ctx.isDemo && !ctx.onboarded) {
+  if (!ctx.userId) {
+    redirect("/login");
+  }
+
+  if (ctx.isDemo || !ctx.onboarded) {
     redirect("/onboarding");
   }
 
