@@ -28,12 +28,26 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 15 October 2026, 5:08 a.m. Riyadh time · Two newly verified infrastructure updates were added; no official contact-detail change was found.
+          Checked 15 October 2026, 10:09 a.m. Riyadh time · One newly verified GitHub supply-chain update was added; no official contact-detail change was found.
         </p>
       </header>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800">GitHub Actions · Supply-chain security</span>
+            <time dateTime="2026-10-14" className="text-xs text-slate-500">14 October 2026 · newly verified in this check</time>
+          </div>
+          <h3 className="mt-3 text-lg font-semibold">Workflow lockfiles can pin Actions and transitive dependencies</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            GitHub Actions workflow lockfiles are in public preview. They let repositories keep readable tag or branch references while executions use reviewed commit SHAs for actions, reusable workflows, and transitive dependencies. Growth Inspector can evaluate the gh actions-lock extension on its review branch; dependencies still need security review before locking.
+          </p>
+          <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-14-github-actions-workflow-lockfiles-in-public-preview/" target="_blank" rel="noreferrer">
+            Read GitHub’s changelog
+          </a>
+        </article>
+
         <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800">Cloudflare · Managed WAF</span>
