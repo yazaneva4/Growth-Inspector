@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 interface Note {
@@ -13,26 +12,31 @@ interface Note {
 
 /** Live escalation notifications — subscribes to database changes. */
 export function NotificationBell() {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Note[]>([]);
   const boxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const supabase = createClient();
+    let cancelled = false;
+    let loadSeq = 0;
 
     async function load() {
-      const { data: rows } = await supabase
+      // Ignore out-of-order responses and anything that lands after unmount.
+      const seq = ++loadSeq;
+      const { data: rows, error } = await supabase
         .from("escalations")
         .select("id, reason, created_at, conversation_id")
         .order("created_at", { ascending: false })
         .limit(10);
+      if (error || cancelled || seq !== loadSeq) return; // keep the last good list on a failed fetch
 
       const escalationRows = rows ?? [];
       const conversationIds = escalationRows.map((row) => row.conversation_id).filter(Boolean);
       const { data: conversations } = conversationIds.length
         ? await supabase.from("conversations").select("id, customer_name, customer_handle").in("id", conversationIds)
         : { data: [] };
+      if (cancelled || seq !== loadSeq) return;
       const byId = new Map((conversations ?? []).map((conversation) => [conversation.id as string, conversation]));
 
       setItems(
@@ -51,20 +55,24 @@ export function NotificationBell() {
     void load();
 
     const channel = supabase
-      .channel("notif-escalations")
+      .channel("notif-escalations-" + Math.random().toString(36).slice(2))
       .on("postgres_changes", { event: "*", schema: "public", table: "escalations" }, () => {
+        // The dashboard-wide RealtimeRefresh already refreshes server data.
         void load();
-        router.refresh();
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, () => {
         void load();
       })
-      .subscribe();
+      .subscribe((status) => {
+        // Re-load on (re)connect so escalations raised while offline appear.
+        if (status === "SUBSCRIBED") void load();
+      });
 
     return () => {
+      cancelled = true;
       void supabase.removeChannel(channel);
     };
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {

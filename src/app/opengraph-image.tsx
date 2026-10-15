@@ -5,6 +5,8 @@ export const alt =
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+// No emoji in this card: next/og downloads emoji glyphs from a CDN at build
+// time, which fails any offline or egress-restricted build.
 export default function OpengraphImage() {
   return new ImageResponse(
     (
@@ -48,7 +50,7 @@ export default function OpengraphImage() {
         </div>
         <div style={{ fontSize: 30, color: "#94a3b8", marginTop: 28, maxWidth: 900 }}>
           Autonomous Arabic + English replies across WhatsApp, Instagram, X,
-          email &amp; phone calls · Built for Saudi Arabia 🇸🇦
+          email &amp; phone calls · Built for Saudi Arabia
         </div>
       </div>
     ),

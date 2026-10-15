@@ -35,7 +35,13 @@ export const TOOL_DECLARATIONS = [
 ] as const;
 
 const SYSTEM = (org: string) => `You are Growth AI for "${org}". Have a natural multi-turn conversation, use workspace tool results when provided, cite real numbers, and only take actions when explicitly requested. This endpoint exposes read-only workspace tools; it does not directly send email or WhatsApp messages.`;
-const historyText = (history: AgentHistoryMessage[]) => history.slice(-16).map((m) => `${m.role === "user" ? "User" : "Growth AI"}: ${m.content}`).join("\n");
+/** Last 16 turns, never starting on an assistant turn (Anthropic/z.ai reject that). */
+const recentHistory = (history: AgentHistoryMessage[]) => {
+  const recent = history.slice(-16);
+  while (recent.length && recent[0].role !== "user") recent.shift();
+  return recent;
+};
+const historyText = (history: AgentHistoryMessage[]) => recentHistory(history).map((m) => `${m.role === "user" ? "User" : "Growth AI"}: ${m.content}`).join("\n");
 
 export class ProviderUnavailableError extends Error {
   readonly status?: number;
@@ -173,12 +179,12 @@ async function textResponse(provider: AgentProvider, model: string, goal: string
   }
   if (provider === "anthropic") {
     const key = process.env.ANTHROPIC_API_KEY; if (!key) throw new Error("ANTHROPIC_API_KEY is not configured.");
-    const r = await providerFetch("Anthropic", "https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model, max_tokens: 1200, system: SYSTEM(orgName), messages: [...history.slice(-16), { role: "user", content: `${toolContext ? `Workspace tool results:\n${toolContext}\n` : ""}${goal}` }] }) });
+    const r = await providerFetch("Anthropic", "https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model, max_tokens: 1200, system: SYSTEM(orgName), messages: [...recentHistory(history), { role: "user", content: `${toolContext ? `Workspace tool results:\n${toolContext}\n` : ""}${goal}` }] }) });
     const d = await r.json().catch(() => null); const text = Array.isArray(d?.content) ? d.content.find((x: { type?: string }) => x.type === "text")?.text : ""; return String(text || "(no answer produced)");
   }
   if (provider === "zai") {
     const key = process.env.ZAI_API_KEY; if (!key) throw new Error("ZAI_API_KEY is not configured.");
-    const r = await providerFetch("z.ai", "https://api.z.ai/api/paas/v4/chat/completions", { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${key}` }, body: JSON.stringify({ model, messages: [{ role: "system", content: SYSTEM(orgName) }, ...history.slice(-16), { role: "user", content: `${toolContext ? `Workspace tool results:\n${toolContext}\n` : ""}${goal}` }] }) });
+    const r = await providerFetch("z.ai", "https://api.z.ai/api/paas/v4/chat/completions", { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${key}` }, body: JSON.stringify({ model, messages: [{ role: "system", content: SYSTEM(orgName) }, ...recentHistory(history), { role: "user", content: `${toolContext ? `Workspace tool results:\n${toolContext}\n` : ""}${goal}` }] }) });
     const d = await r.json().catch(() => null); return String(d?.choices?.[0]?.message?.content || "(no answer produced)");
   }
   if (provider === "openrouter") return openrouterChatText({ model, system: SYSTEM(orgName), user: `${toolContext ? `Workspace tool results:\n${toolContext}\n` : ""}${historyText(history)}\nUser: ${goal}` });

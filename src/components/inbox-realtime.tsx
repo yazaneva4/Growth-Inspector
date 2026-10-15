@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -102,11 +102,18 @@ export function InboxRealtime({
   useEffect(() => setConversations(initialConversations), [initialConversations]);
   useEffect(() => setMessages(initialMessages), [initialMessages, selectedId]);
 
+  // Read through a ref so switching conversations does not tear the socket
+  // down (which dropped events during the gap and flashed "Reconnecting").
+  const selectedIdRef = useRef(selectedId);
+  useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
+
   useEffect(() => {
     if (!orgId) return;
     const supabase = createClient();
+    let cancelled = false;
+    let wasDown = false;
     const channel = supabase
-      .channel("growth-inbox-" + orgId)
+      .channel("growth-inbox-" + orgId + "-" + Math.random().toString(36).slice(2))
       .on("postgres_changes", { event: "*", schema: "public", table: "conversations", filter: "org_id=eq." + orgId }, (payload) => {
         const row = (payload.new || payload.old) as Conversation;
         if (!row?.id) return;
@@ -118,13 +125,23 @@ export function InboxRealtime({
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: "org_id=eq." + orgId }, (payload) => {
         const row = (payload.new || payload.old) as Message;
-        if (!row?.id || row.conversation_id !== selectedId) return;
-        if (payload.eventType === "DELETE") setMessages((current) => current.filter((m) => m.id !== row.id));
-        else setMessages((current) => current.some((m) => m.id === row.id) ? current.map((m) => m.id === row.id ? { ...m, ...row } : m) : [...current, row]);
+        if (!row?.id) return;
+        // DELETE payloads only carry the primary key, so apply them by id.
+        if (payload.eventType === "DELETE") { setMessages((current) => current.filter((m) => m.id !== row.id)); return; }
+        if (row.conversation_id !== selectedIdRef.current) return;
+        setMessages((current) => current.some((m) => m.id === row.id) ? current.map((m) => m.id === row.id ? { ...m, ...row } : m) : [...current, row]);
       })
-      .subscribe((status) => { setRealtimeStatus(status === "SUBSCRIBED" ? "live" : status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED" ? "offline" : "connecting"); });
-    return () => { void supabase.removeChannel(channel); };
-  }, [orgId, selectedId]);
+      .subscribe((status) => {
+        if (cancelled) return; // ignore callbacks from a channel we already removed
+        setRealtimeStatus(status === "SUBSCRIBED" ? "live" : status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED" ? "offline" : "connecting");
+        if (status === "SUBSCRIBED") {
+          // Re-fetch after a reconnect to close the gap while the socket was down.
+          if (wasDown) router.refresh();
+          wasDown = false;
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") wasDown = true;
+      });
+    return () => { cancelled = true; void supabase.removeChannel(channel); };
+  }, [orgId, router]);
 
   async function sendMessage() {
     const body = composer.trim();
