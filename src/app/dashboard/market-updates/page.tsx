@@ -28,9 +28,32 @@ export default function MarketUpdatesPage() {
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Checked 15 October 2026, 10:09 a.m. Riyadh time · One newly verified GitHub supply-chain update was added; no official contact-detail change was found.
+          Saudi workforce intelligence verified 16 October 2026; older technology updates are retained below for reference.
         </p>
       </header>
+
+      <section aria-labelledby="growthspace-intelligence" className="space-y-4">
+        <div>
+          <h2 id="growthspace-intelligence" className="text-xl font-semibold">GrowthSpace · Saudi market intelligence</h2>
+          <p className="mt-1 text-sm text-slate-500">Verified 16 October 2026 · Source dates shown below · <a className="text-emerald-700 underline" href="https://github.com/yazaneva4/Growth-Inspector/blob/claude/growth-inspector-saudi-int7vg/intelligence/reports/2026-10-16.md">Full dated report</a></p>
+        </div>
+        {[
+          { date: "2026-10-15", title: "Saudi-based finance staff shift to remote work", change: "Reuters sources report temporary work-from-home arrangements at international financial firms amid security concerns.", impact: "GrowthSpace should offer remote training continuity and flexible rescheduling.", source: "Reuters via Dawn", href: "https://www.dawn.com/news/2037376/attacks-in-saudi-arabia-prompt-finance-firms-to-let-staff-work-from-home-sources-say" },
+          { date: "2026-10-13", title: "FII hybrid participation planned; Misk forum cancelled", change: "Reuters sources describe plans for remote FII attendance; organizers had not confirmed the final hybrid format. The Misk Global Forum will not proceed this year.", impact: "Hybrid-ready executive programs reduce delivery disruption.", source: "Reuters", href: "https://www.reuters.com/world/middle-east/saudi-arabia-plans-hybrid-format-marquee-fii-conference-after-attacks-sources-2026-10-13/" },
+          { date: "2026-10-04", title: "SAP highlights skills-based HR and AI workforce readiness", change: "SAP HR Connect highlighted AI-enabled HR and workforce planning, citing an earlier commissioned survey: 54% large-scale upskilling and 52% role-specific training among surveyed Saudi IT decision-makers.", impact: "Test outcome-based AI leadership and role-specific training. Survey figures are not nationwide employer statistics.", source: "SAP MENA", href: "https://news.sap.com/mena/2026/10/business-ai-takes-center-stage-as-saudi-organizations-advancehr-transformation-at-sap-hr-connect-ksa-2026/" },
+        ].map((item) => (
+          <article key={item.title} className="rounded-2xl border border-emerald-200 bg-white p-5">
+            <time dateTime={item.date} className="text-xs text-slate-500">{item.date} · {item.source}</time>
+            <h3 className="mt-2 font-semibold">{item.title}</h3>
+            <p className="mt-2 text-sm text-slate-700">{item.change}</p>
+            <p className="mt-2 text-sm text-emerald-800"><strong>GrowthSpace implication:</strong> {item.impact}</p>
+            <a className="mt-2 inline-block text-sm text-emerald-700 underline" href={item.href} target="_blank" rel="noreferrer">Read dated source</a>
+          </article>
+        ))}
+        <div className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-950">
+          <strong>Top 3 actions:</strong> (1) Offer hybrid delivery options; (2) pilot practical AI leadership training; (3) monitor event-format confirmations before long-term changes.
+        </div>
+      </section>
 
       <section aria-labelledby="confirmed-heading" className="space-y-4">
         <h2 id="confirmed-heading" className="text-xl font-semibold">Confirmed update</h2>
