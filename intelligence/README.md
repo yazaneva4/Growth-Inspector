@@ -1,7 +1,7 @@
 # Saudi Market Intelligence — GrowthSpace
 
 ## Schedule
-Every Monday, every three hours, Asia/Riyadh (UTC+3). ChatGPT automation handles monitoring and notifications; this document is not itself a GitHub Actions scheduler.
+Every three hours, 24/7, Asia/Riyadh (UTC+3). ChatGPT automation handles monitoring and notifications; this document is not itself a GitHub Actions scheduler.
 
 ## Coverage
 Track consequential Saudi executive education, leadership training, workforce development, upskilling, relevant HR regulations, Human Capability Development Program and Vision 2030 announcements, and competitors relevant to GrowthSpace.
