@@ -1,3 +1,32 @@
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
+
+/** Repository folder the intelligence automation writes dated reports into. */
+const REPORTS_REPO_PATH = "intelligence/reports";
+const REPORTS_URL =
+  "https://github.com/yazaneva4/Growth-Inspector/blob/claude/growth-inspector-saudi-int7vg/intelligence/reports";
+
+/**
+ * Dated reports found in the repository, newest first. Reading the folder keeps
+ * the list current: a new `YYYY-MM-DD.md` briefing shows up here on the next
+ * build without editing this page.
+ */
+const LATEST_REPORTS = ["2026-10-17", "2026-10-16"];
+
+function datedReports(): { date: string; href: string }[] {
+  const report = (file: string) => ({ date: file.slice(0, -3), href: `${REPORTS_URL}/${file}` });
+  try {
+    const files = readdirSync(join(process.cwd(), REPORTS_REPO_PATH))
+      .filter((file) => /^\d{4}-\d{2}-\d{2}\.md$/.test(file))
+      .sort()
+      .reverse();
+    if (files.length > 0) return files.map(report);
+  } catch {
+    // Fall back to the newest reports we know exist.
+  }
+  return LATEST_REPORTS.map((date) => report(`${date}.md`));
+}
+
 const checks = [
   {
     label: "GrowthSpace and Saudi competitors",
@@ -22,22 +51,38 @@ const checks = [
 ];
 
 export default function MarketUpdatesPage() {
+  const reports = datedReports();
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <header>
         <p className="text-sm font-medium text-emerald-700">Verified public sources</p>
         <h1 className="mt-1 text-3xl font-bold">Market updates</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Saudi workforce intelligence verified 16 October 2026; older technology updates are retained below for reference.
+          Saudi workforce intelligence verified 17 October 2026; older technology updates are retained below for reference.
         </p>
       </header>
 
       <section aria-labelledby="growthspace-intelligence" className="space-y-4">
         <div>
           <h2 id="growthspace-intelligence" className="text-xl font-semibold">GrowthSpace · Saudi market intelligence</h2>
-          <p className="mt-1 text-sm text-slate-500">Verified 16 October 2026 · Source dates shown below · <a className="text-emerald-700 underline" href="https://github.com/yazaneva4/Growth-Inspector/blob/claude/growth-inspector-saudi-int7vg/intelligence/reports/2026-10-16.md">Full dated report</a></p>
+          <p className="mt-1 text-sm text-slate-500">Verified 17 October 2026 · Source dates shown below</p>
+          {reports.length > 0 && (
+            <p className="mt-1 text-sm text-slate-500">
+              Full dated reports:{" "}
+              {reports.map((report, index) => (
+                <span key={report.date}>
+                  {index > 0 && " · "}
+                  <a className="text-emerald-700 underline" href={report.href} target="_blank" rel="noreferrer">
+                    {report.date}
+                  </a>
+                </span>
+              ))}
+            </p>
+          )}
         </div>
         {[
+          { date: "2026-10-12", title: "Ministry sets out sector skills councils and a national training target", change: "At the Riyadh Economic Forum, the Ministry of Human Resources and Social Development described 16 sector skills councils, 13 sector skills frameworks and a Saudi skills classification guide covering more than 10,000 skills across over 2,000 occupations. Its Wa’ad campaign targets more than four million training opportunities across two phases — existing structures and a target, not completed training places.", impact: "Employer training procurement may increasingly favour role-specific capability aligned with Saudi sector frameworks.", source: "Ministry of Human Resources and Social Development", href: "https://www.hrsd.gov.sa/media-center/news/الراجحي-يشارك-في-منتدى-الرياض-الاقتصادي" },
           { date: "2026-10-15", title: "Saudi-based finance staff shift to remote work", change: "Reuters sources report temporary work-from-home arrangements at international financial firms amid security concerns.", impact: "GrowthSpace should offer remote training continuity and flexible rescheduling.", source: "Reuters via Dawn", href: "https://www.dawn.com/news/2037376/attacks-in-saudi-arabia-prompt-finance-firms-to-let-staff-work-from-home-sources-say" },
           { date: "2026-10-13", title: "FII hybrid participation planned; Misk forum cancelled", change: "Reuters sources describe plans for remote FII attendance; organizers had not confirmed the final hybrid format. The Misk Global Forum will not proceed this year.", impact: "Hybrid-ready executive programs reduce delivery disruption.", source: "Reuters", href: "https://www.reuters.com/world/middle-east/saudi-arabia-plans-hybrid-format-marquee-fii-conference-after-attacks-sources-2026-10-13/" },
           { date: "2026-10-04", title: "SAP highlights skills-based HR and AI workforce readiness", change: "SAP HR Connect highlighted AI-enabled HR and workforce planning, citing an earlier commissioned survey: 54% large-scale upskilling and 52% role-specific training among surveyed Saudi IT decision-makers.", impact: "Test outcome-based AI leadership and role-specific training. Survey figures are not nationwide employer statistics.", source: "SAP MENA", href: "https://news.sap.com/mena/2026/10/business-ai-takes-center-stage-as-saudi-organizations-advancehr-transformation-at-sap-hr-connect-ksa-2026/" },

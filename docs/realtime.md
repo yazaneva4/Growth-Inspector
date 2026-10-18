@@ -23,7 +23,7 @@ Database write → Supabase Realtime publication → public schema wildcard subs
 
 `src/lib/realtime/tables.ts` inventories tables created in this repository's migrations. It is used by the CI migration inventory check and health response; it is not the runtime subscription allowlist. Externally managed live tables may not appear there.
 
-Migration `20261013120000_realtime_publication_sweep.sql` adds RLS-enabled public tables to the publication with full replica identity and defines `realtime_publication_gaps()`. `/api/health` reports the wildcard subscription scope and the result of that RPC. Until the migration is applied to a database, publication status is **unchecked**. A complete result means the RPC found no missing eligible tables in the database it inspected.
+Migration `20261013120000_realtime_publication_sweep.sql` adds RLS-enabled public tables to the publication with full replica identity and defines `realtime_publication_gaps()`. `20261015123100_enable_chat_participants_realtime.sql` is idempotent, so it tolerates `chat_participants` already being in the publication (the sweep put it there) instead of aborting the migration chain with `duplicate_object`. `/api/health` reports the wildcard subscription scope and the result of that RPC. Until the migration is applied to a database, publication status is **unchecked**. A complete result means the RPC found no missing eligible tables in the database it inspected.
 
 The live project was inspected and its existing RLS tables were present in `supabase_realtime` with full replica identity. The Supabase Preview GitHub check currently fails because the remote database has migration versions that are absent from this repository. Do not infer the migration is applied from a successful application build.
 
@@ -32,7 +32,7 @@ The live project was inspected and its existing RLS tables were present in `supa
 - Data produced only by a schedule or external service changes when that process writes to the database.
 - Email appears after a configured inbound provider webhook writes it. Direct Gmail, Outlook, or iCloud mailbox polling is not implemented.
 - A **Live** connection badge means the channel is subscribed; RLS may still prevent a given user from seeing a row.
-- Internal chat tables are not present in the inspected live database, even though repository migrations describe them. Those features need schema reconciliation before production realtime can be claimed for them.
+- Internal chat tables **are** present in the live database (checked 18 October 2026 with a read-only REST probe: `chat_conversations` and `chat_messages` answer *permission denied* for the publishable key, i.e. they exist and are private to workspace members, and `chat_participants` exists with the composite `(conversation_id, user_id)` key). Earlier revisions of this page reported them as missing; that is no longer accurate.
 
 ## Adding a table
 

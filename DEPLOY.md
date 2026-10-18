@@ -6,7 +6,7 @@ from the agent sandbox — no Vercel auth token here).
 ## Option A — Git integration (recommended, one-time)
 
 1. Go to https://vercel.com/new and **import** the GitHub repo
-   `yazaneva4/growth-inspector-`.
+   `yazaneva4/Growth-Inspector`.
 2. Vercel auto-detects Next.js — no build settings needed.
 3. Add the environment variables below, then **Deploy**.
 4. Every push to the branch then deploys automatically.
@@ -22,13 +22,19 @@ vercel --prod
 
 ## Option C — GitHub Actions (in this repo)
 
-`.github/workflows/deploy.yml` deploys to Vercel on push. To enable it:
+`.github/workflows/deploy.yml` builds a production deployment and stages it
+without moving the live domain. It runs only when you start it by hand
+(**Actions → Stage Vercel rebuild → Run workflow**) — production deploys come
+from the Vercel Git integration in Option A. To enable it:
 
 1. Create a Vercel token: https://vercel.com/account/tokens
 2. Run `vercel link` once locally to generate `.vercel/project.json`, which
    contains `orgId` and `projectId`.
-3. In GitHub → **Settings → Secrets and variables → Actions**, add secrets:
-   - `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
+3. In GitHub → **Settings → Secrets and variables → Actions**, add:
+   - a **secret** `VERCEL_TOKEN`
+   - **variables** `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` and
+     `VERCEL_CLI_VERSION` (an exact version, e.g. what `vercel --version`
+     prints locally). The three may live in secrets instead if you prefer.
 4. Add a repo **variable** `ENABLE_VERCEL_DEPLOY` = `true` (the workflow skips
    cleanly until this is set, so CI stays green meanwhile).
 5. Set the app env vars (below) in the **Vercel project settings**.

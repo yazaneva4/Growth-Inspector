@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
+  // The market-updates page lists the dated intelligence reports it finds in
+  // intelligence/reports/. Ship those files with the function that renders it.
+  outputFileTracingIncludes: {
+    "/dashboard/market-updates": ["./intelligence/reports/**"],
+  },
 };
 
 export default nextConfig;
