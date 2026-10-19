@@ -1,4 +1,6 @@
-# Deploying Growth Inspector to Vercel
+# Deploying GrowthSpace to Vercel
+
+> The existing GitHub repo is `yazaneva4/Growth-Inspector` until the repository is renamed in GitHub Settings. The production site is https://growthspace-ksa.vercel.app.
 
 The app is build-ready. Deployment needs your Vercel account (it can't be done
 from the agent sandbox — no Vercel auth token here).
@@ -6,7 +8,7 @@ from the agent sandbox — no Vercel auth token here).
 ## Option A — Git integration (recommended, one-time)
 
 1. Go to https://vercel.com/new and **import** the GitHub repo
-   `yazaneva4/growth-inspector-`.
+   `yazaneva4/Growth-Inspector`.
 2. Vercel auto-detects Next.js — no build settings needed.
 3. Add the environment variables below, then **Deploy**.
 4. Every push to the branch then deploys automatically.
@@ -155,7 +157,7 @@ a normal, stateless webhook request, which fits serverless cleanly.
 
 1. Buy a Twilio number (or use an existing one) and note it in **E.164**
    format, e.g. `+9665XXXXXXXX`.
-2. Sign in to your Growth Inspector workspace and call:
+2. Sign in to your GrowthSpace workspace and call:
    ```bash
    curl -X POST https://<your-app>/api/voice/register \
      -H "Content-Type: application/json" \

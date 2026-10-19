@@ -1,5 +1,5 @@
 /**
- * Growth Inspector brand mark, traced from the brand reference:
+ * GrowthSpace brand mark, traced from the brand reference:
  * a solid orange "G" drawn as one continuous flat-ended stroke (ring opening
  * at the top right, turning inward as the arm), with a navy glow tile floating
  * in the opening that carries a magnifier (inspector) and a tall four-point

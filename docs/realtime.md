@@ -1,4 +1,4 @@
-# How real time works in Growth Inspector
+# How real time works in GrowthSpace
 
 This page describes the implemented behaviour and its operational limits.
 

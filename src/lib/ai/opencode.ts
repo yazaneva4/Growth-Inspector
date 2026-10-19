@@ -17,7 +17,7 @@ async function request(body: Record<string, unknown>) {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${key}`,
-      "User-Agent": "Growth-Inspector/1.0",
+      "User-Agent": "GrowthSpace/1.0",
     },
     body: JSON.stringify(body),
     cache: "no-store",

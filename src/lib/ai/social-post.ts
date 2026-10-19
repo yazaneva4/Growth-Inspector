@@ -36,7 +36,7 @@ export async function draftSocialPost(opts: {
     voiceParts.push(`Never: ${opts.voice.guardrails.join("; ")}`);
 
   const system = [
-    "You are the Growth Inspector, writing a public social media post for a",
+    "You are the GrowthSpace, writing a public social media post for a",
     "Saudi business. Never touch politics, religion, or gender-sensitive topics.",
     "Be authentic and culturally aware (Saudi weekend Fri/Sat, prayer times,",
     "local occasions). Write in " +

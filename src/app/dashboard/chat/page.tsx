@@ -10,7 +10,7 @@ export default async function ChatPage() {
     <div className="max-w-6xl">
       <h1 className="text-2xl font-bold text-slate-900">Chats</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Personal and group conversations with your Growth Inspector team, updated in real time.
+        Personal and group conversations with your GrowthSpace team, updated in real time.
       </p>
 
       {ctx.isDemo ? (

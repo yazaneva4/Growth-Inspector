@@ -11,7 +11,7 @@ const features = [
     body: "Answers DMs and comments 24/7. Low-confidence or sensitive messages escalate to a human automatically.",
   },
   {
-    title: "The Growth Inspector",
+    title: "The GrowthSpace",
     body: "Always-on analyst: intent scoring, sentiment, lead scoring, and weekly growth insight reports.",
   },
   {
@@ -55,7 +55,7 @@ export default function Home() {
           sleep.
         </h1>
         <p className="mx-auto mt-8 max-w-2xl text-balance text-lg text-slate-600">
-          Growth Inspector autonomously manages customer DMs and comments in
+          GrowthSpace autonomously manages customer DMs and comments in
           Arabic and English, delivering instant, human-like responses while
           continuously tracking customer sentiment, engagement, and growth
           opportunities—all in one intelligent platform.
@@ -103,7 +103,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="mt-3 text-slate-500">
-          Growth Inspector — autonomous social customer engagement for Saudi Arabia.
+          GrowthSpace — autonomous social customer engagement for Saudi Arabia.
         </div>
       </footer>
     </main>

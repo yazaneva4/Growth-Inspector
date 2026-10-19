@@ -19,7 +19,7 @@ const navGroups = [
 
 function AccountFooter({ email }: { email: string | null }) {
   if (email) return <div className="space-y-2"><div className="flex min-w-0 items-center gap-2"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-700">{email.charAt(0).toUpperCase()}</span><span className="truncate text-slate-600" title={email}>{email}</span></div><form action="/auth/signout" method="post"><button className="w-full rounded-xl border border-slate-200 px-3 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-50">Sign out</button></form><Link href="/login?new=1" className="block rounded-xl px-3 py-2 text-center text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900">+ Create another account</Link></div>;
-  return <div className="space-y-2"><div className="rounded-xl bg-slate-50 px-3 py-2 text-slate-500">Viewing Growth Inspector demo</div><Link href="/login" className="block rounded-xl bg-orange-600 px-3 py-2 text-center font-semibold text-white transition-colors hover:bg-orange-700">Sign in / Create account</Link></div>;
+  return <div className="space-y-2"><div className="rounded-xl bg-slate-50 px-3 py-2 text-slate-500">Viewing GrowthSpace demo</div><Link href="/login" className="block rounded-xl bg-orange-600 px-3 py-2 text-center font-semibold text-white transition-colors hover:bg-orange-700">Sign in / Create account</Link></div>;
 }
 
 export function DashboardChrome({ workspaceName, email, children }: { workspaceName: string; email: string | null; children: React.ReactNode }) {
@@ -43,7 +43,7 @@ export function DashboardChrome({ workspaceName, email, children }: { workspaceN
     {mobileOpen && <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close navigation" className="fixed inset-0 z-40 cursor-default bg-slate-950/35 backdrop-blur-[2px] lg:hidden" />}
     <aside className={"fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 flex-col border-r border-slate-200/80 bg-white font-sans shadow-2xl transition-transform duration-200 ease-out lg:static lg:h-full lg:shadow-none lg:transition-[width] " + (mobileOpen ? "translate-x-0" : "-translate-x-full") + " lg:translate-x-0 " + (collapsed ? "lg:w-[76px]" : "lg:w-[272px]")}>
       <div className="flex min-h-[72px] items-center gap-2 border-b border-slate-100 px-3.5">
-        <div className={collapsed ? "min-w-0 lg:hidden" : "min-w-0"}><Link href="/dashboard" aria-label="Growth Inspector home" className="inline-flex items-center rounded-xl outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-orange-300"><Logo variant="light" size={40} /></Link></div>
+        <div className={collapsed ? "min-w-0 lg:hidden" : "min-w-0"}><Link href="/dashboard" aria-label="GrowthSpace home" className="inline-flex items-center rounded-xl outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-orange-300"><Logo variant="light" size={40} /></Link></div>
         {collapsed && <LogoMark size={34} className="hidden lg:mx-auto lg:block" />}
         <div className={"ml-auto flex shrink-0 items-center gap-1 " + (collapsed ? "lg:hidden" : "")}><RealtimeRefresh /></div>
         <button type="button" onClick={toggleCollapsed} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 lg:flex">{collapsed ? "›" : "‹"}</button>

@@ -36,7 +36,7 @@ const REPORT_SCHEMA = {
 } as const;
 
 /**
- * The "Growth Inspector" weekly analyst. Turns aggregated stats into a
+ * The "GrowthSpace" weekly analyst. Turns aggregated stats into a
  * narrative report using Opus (deeper reasoning per SPEC §8).
  */
 export async function generateGrowthReport(
@@ -47,7 +47,7 @@ export async function generateGrowthReport(
   }
 
   const system = [
-    "You are the Growth Inspector — an expert social-media growth analyst for",
+    "You are the GrowthSpace — an expert social-media growth analyst for",
     "Saudi businesses. You read a week of customer-conversation metrics and",
     "produce a sharp, actionable report. Be specific and cite the numbers.",
     "Be aware of the Saudi context: prayer times, weekends (Fri/Sat), Arabic",
@@ -94,7 +94,7 @@ function fallbackReport(summary: AnalyticsSummary): GrowthReport {
   return {
     headline: `${t.conversations} conversations handled, ${(t.autoResolutionRate * 100).toFixed(0)}% auto-resolved.`,
     highlights: [
-      `${t.aiReplies} replies sent autonomously by Growth Inspector.`,
+      `${t.aiReplies} replies sent autonomously by GrowthSpace.`,
       `${t.hotLeads} hot leads identified for follow-up.`,
     ],
     concerns:

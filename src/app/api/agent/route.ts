@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       db,
       orgId: org.id,
       orgSlug: org.slug,
-      orgName: org.name || ctx.orgName || "Growth Inspector",
+      orgName: org.name || ctx.orgName || "GrowthSpace",
     }, {
       provider: provider as "auto" | "openai" | "anthropic" | "zai" | "gemini" | "openrouter" | "opencode",
       model,

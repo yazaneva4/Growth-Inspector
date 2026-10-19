@@ -10,8 +10,10 @@ type Model = { id: string; name: string };
 type ProviderState = { configured: boolean; models: Model[] };
 type Providers = Record<Provider, ProviderState>;
 
-const STORAGE_KEY = "growth-inspector-operator-conversations-v4";
-const MODEL_KEY = "growth-inspector-operator-model-v1";
+const STORAGE_KEY = "growthspace-operator-conversations-v4";
+const LEGACY_STORAGE_KEY = "growth-inspector-operator-conversations-v4";
+const MODEL_KEY = "growthspace-operator-model-v1";
+const LEGACY_MODEL_KEY = "growth-inspector-operator-model-v1";
 const MAX_CONVERSATIONS = 50;
 const providerNames: Record<Provider, string> = { openai: "GPT / OpenAI", anthropic: "Anthropic / Claude", zai: "z.ai / GLM", gemini: "Google / Gemini" };
 const toolLabel: Record<string, string> = { get_analytics_summary: "Analytics", get_competitors: "Competitors", get_trend_radar: "Trend radar" };
@@ -21,7 +23,7 @@ function makeConversation(): Conversation { const now = Date.now(); return { id:
 function titleFrom(text: string) { const clean = text.replace(/\s+/g, " ").trim(); return clean.length > 42 ? `${clean.slice(0, 42)}…` : clean || "New conversation"; }
 function normalizeMessage(value: unknown): ChatMessage | null { if (!value || typeof value !== "object") return null; const m = value as Partial<ChatMessage>; if ((m.role !== "user" && m.role !== "assistant") || typeof m.id !== "string" || typeof m.content !== "string") return null; return { id: m.id, role: m.role, content: m.content, steps: Array.isArray(m.steps) ? m.steps : [], provider: m.provider, model: m.model, createdAt: typeof m.createdAt === "number" ? m.createdAt : Date.now(), status: m.status === "pending" || m.status === "failed" || m.status === "unsaved" ? m.status : undefined }; }
 function normalizeConversation(value: unknown): Conversation | null { if (!value || typeof value !== "object") return null; const c = value as Partial<Conversation>; if (typeof c.id !== "string" || typeof c.title !== "string" || !Array.isArray(c.messages)) return null; return { id: c.id, title: c.title, messages: c.messages.map(normalizeMessage).filter((m): m is ChatMessage => Boolean(m)), createdAt: typeof c.createdAt === "number" ? c.createdAt : Date.now(), updatedAt: typeof c.updatedAt === "number" ? c.updatedAt : Date.now(), archived: Boolean(c.archived) }; }
-function loadConversations(): Conversation[] { if (typeof window === "undefined") return []; try { const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as unknown; return Array.isArray(parsed) ? parsed.map(normalizeConversation).filter((v): v is Conversation => Boolean(v)) : []; } catch { return []; } }
+function loadConversations(): Conversation[] { if (typeof window === "undefined") return []; try { const parsed = JSON.parse((localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY)) || "[]") as unknown; return Array.isArray(parsed) ? parsed.map(normalizeConversation).filter((v): v is Conversation => Boolean(v)) : []; } catch { return []; } }
 function saveConversations(value: Conversation[]) { if (typeof window !== "undefined") { try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...value].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, MAX_CONVERSATIONS))); } catch {} } }
 
 export function GrowthAgent() {
@@ -30,7 +32,7 @@ export function GrowthAgent() {
   const [provider, setProvider] = useState<Provider>("gemini"); const [model, setModel] = useState(""); const [unavailable, setUnavailable] = useState<Record<string, boolean>>({}); const [input, setInput] = useState(""); const [search, setSearch] = useState(""); const [showArchived, setShowArchived] = useState(false); const [renamingId, setRenamingId] = useState<string | null>(null); const [renameValue, setRenameValue] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState<string | null>(null); const [sidebarOpen, setSidebarOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null); const inputRef = useRef<HTMLTextAreaElement>(null);
   const refreshProviders = async () => { try { const res = await fetch("/api/agent", { cache: "no-store" }); const data = await res.json(); if (data?.providers) setProviders(data.providers as Providers); } catch {} };
-  useEffect(() => { const stored = loadConversations(); const initial = stored.length ? stored : [makeConversation()]; setConversations(initial); setActiveId(initial[0].id); const saved = localStorage.getItem(MODEL_KEY); if (saved?.includes(":")) { const [p, ...parts] = saved.split(":"); if (["openai", "anthropic", "zai", "gemini"].includes(p)) { setProvider(p as Provider); setModel(parts.join(":")); } } void refreshProviders(); }, []);
+  useEffect(() => { const stored = loadConversations(); const initial = stored.length ? stored : [makeConversation()]; setConversations(initial); setActiveId(initial[0].id); const saved = (localStorage.getItem(MODEL_KEY) ?? localStorage.getItem(LEGACY_MODEL_KEY)); if (saved?.includes(":")) { const [p, ...parts] = saved.split(":"); if (["openai", "anthropic", "zai", "gemini"].includes(p)) { setProvider(p as Provider); setModel(parts.join(":")); } } void refreshProviders(); }, []);
   useEffect(() => { if (conversations.length) saveConversations(conversations); }, [conversations]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [activeId, conversations, busy]);
   useEffect(() => { const models = providers[provider].models; if (!models.length) return; if (!models.some((m) => m.id === model)) { const first = models.find((m) => !unavailable[`${provider}:${m.id}`]) ?? models[0]; setModel(first.id); } }, [provider, providers, model, unavailable]);

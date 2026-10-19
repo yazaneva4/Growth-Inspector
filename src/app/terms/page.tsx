@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 
-export const metadata = { title: "Terms of Service — Growth Inspector" };
+export const metadata = { title: "Terms of Service — GrowthSpace" };
 
 export default function TermsPage() {
   return (
@@ -22,16 +22,16 @@ export default function TermsPage() {
         <p className="mt-2 text-slate-500">Last updated: July 2026</p>
 
         <p className="mt-8">
-          Growth Inspector is a product operated by <strong>Growth Space</strong>{" "}
+          GrowthSpace is a product operated by <strong>Growth Space</strong>{" "}
           (&ldquo;Growth Space,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
-          &ldquo;our&rdquo;). By creating an account or using Growth Inspector
+          &ldquo;our&rdquo;). By creating an account or using GrowthSpace
           (the &ldquo;Service&rdquo;), you agree to these Terms of Service. If
           you do not agree, do not use the Service.
         </p>
 
         <h2 className="mt-10 text-lg font-semibold text-slate-950">1. The Service</h2>
         <p className="mt-3">
-          Growth Inspector connects to your business&rsquo;s social and
+          GrowthSpace connects to your business&rsquo;s social and
           messaging channels and uses AI to read, classify, and draft or send
           replies to customer messages on your behalf, along with analytics
           and reporting about those conversations. You control the reply mode

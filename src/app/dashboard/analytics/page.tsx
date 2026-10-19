@@ -13,7 +13,7 @@ export default async function AnalyticsPage() {
   if (!a) {
     return (
       <div>
-        <h1 className="text-2xl font-bold">Growth Inspector report</h1>
+        <h1 className="text-2xl font-bold">GrowthSpace report</h1>
         <p className="mt-2 text-sm text-slate-500">No data available.</p>
       </div>
     );
@@ -24,7 +24,7 @@ export default async function AnalyticsPage() {
     <div className="max-w-5xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Growth Inspector report</h1>
+          <h1 className="text-2xl font-bold">GrowthSpace report</h1>
           <p className="mt-1 text-sm text-slate-500">
             {a.orgName} · weekly analyst · last {a.rangeDays} days
           </p>

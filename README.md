@@ -1,4 +1,4 @@
-# Growth Inspector
+# GrowthSpace
 
 AI growth platform for the Saudi market. It autonomously answers customers on
 social media in **native Arabic dialect + English**, with brand-aware
@@ -60,7 +60,7 @@ workspace, rather than using the public demo client for private AI history.
 
 ## What's built
 
-The product currently includes the main **Growth Inspector dashboard**, real
+The product currently includes the main **GrowthSpace dashboard**, real
 authentication, the Growth AI operator, the backend responder pipeline, and
 channel/integration foundations.
 

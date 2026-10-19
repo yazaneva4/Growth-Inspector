@@ -158,7 +158,7 @@ export async function handleInbound(inbound: InboundMessage, client?: SupabaseCl
       const replyTo = inbound.externalMessageId ?? inbound.inReplyTo;
       await sendEmail({
         to: inbound.customerEmail ?? inbound.customerHandle,
-        subject: inbound.subject?.startsWith("Re:") ? inbound.subject : `Re: ${inbound.subject || "Your Growth Inspector conversation"}`,
+        subject: inbound.subject?.startsWith("Re:") ? inbound.subject : `Re: ${inbound.subject || "Your GrowthSpace conversation"}`,
         text: result.reply,
         inReplyTo: replyTo,
         references: replyTo,

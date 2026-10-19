@@ -1,4 +1,4 @@
-# Growth Inspector — Product & Technical Spec
+# GrowthSpace — Product & Technical Spec
 
 > **One-liner:** A multi-tenant Saudi SaaS that connects a business's social
 > accounts, autonomously answers customers in native Arabic dialect + English
@@ -27,7 +27,7 @@ and none combine front-line response with growth intelligence.
 
 ## 3. The Moat
 
-**Native Saudi Arabic dialect data + English.** Growth Inspector understands
+**Native Saudi Arabic dialect data + English.** GrowthSpace understands
 and replies in the same register the customer wrote in — formal Arabic,
 Khaleeji/Najdi dialect, Arabizi (e.g. "3ndk 7aga?"), English, or
 code-switched. This dialect competence is the core differentiator and
@@ -50,7 +50,7 @@ Core capabilities:
 - **Escalation queue** — low-confidence or high-stakes messages routed to a human
 - Intent & lead tagging (price inquiry, complaint, hot lead, spam)
 
-### 4.2 Phase 2 — Growth Inspector Intelligence (retention/upsell)
+### 4.2 Phase 2 — GrowthSpace Intelligence (retention/upsell)
 The "wow" layer that earns the name:
 - Weekly AI growth reports ("Reels at 9pm post-Isha drove 3x engagement;
   delivery complaints up 40% this week")

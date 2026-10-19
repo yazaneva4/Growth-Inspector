@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 /**
  * Models per SPEC §8:
  *  - Sonnet for high-volume customer replies (fast, cheap, capable)
- *  - Opus for the Growth Inspector analytics/reports (deeper reasoning)
+ *  - Opus for the GrowthSpace analytics/reports (deeper reasoning)
  */
 export const MODELS = {
   reply: "claude-sonnet-4-6",

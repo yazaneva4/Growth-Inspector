@@ -7,7 +7,7 @@ const APPS = {
   messages: { label: "Messages", url: "https://messages.google.com/web/" },
   calls: { label: "Calls", url: "https://growthspace.sa/" },
 };
-const POLICY_URL = "https://growth-inspector.vercel.app/api/agent/browser";
+const POLICY_URL = "https://growthspace-ksa.vercel.app/api/agent/browser";
 
 function allowedHost(url) {
   try {
@@ -17,12 +17,12 @@ function allowedHost(url) {
 }
 
 async function policy() {
-  const tabs = await chrome.tabs.query({ url: "https://growth-inspector.vercel.app/*" });
+  const tabs = await chrome.tabs.query({ url: ["https://growthspace-ksa.vercel.app/*", "https://growth-inspector.vercel.app/*"] });
   const tab = tabs[0];
-  if (!tab?.id) throw new Error("Open Growth Inspector and sign in first.");
+  if (!tab?.id) throw new Error("Open GrowthSpace and sign in first.");
   return new Promise((resolve, reject) => {
     chrome.tabs.sendMessage(tab.id, { type: "get-browser-policy" }, (result) => {
-      if (chrome.runtime.lastError) reject(new Error("Refresh the signed-in Growth Inspector tab first."));
+      if (chrome.runtime.lastError) reject(new Error("Refresh the signed-in GrowthSpace tab first."));
       else if (!result?.ok) reject(new Error(result?.error || "Could not read workspace policy."));
       else resolve(result);
     });

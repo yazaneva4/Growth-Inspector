@@ -46,7 +46,7 @@ export default async function SettingsPage() {
     <div className="max-w-3xl">
       <h1 className="text-2xl font-bold">Settings</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Control how Growth Inspector and Growth AI behave for this workspace. Workspace preferences, AI instructions, agent execution, permissions, connected accounts, and safety guardrails live here.
+        Control how GrowthSpace and Growth AI behave for this workspace. Workspace preferences, AI instructions, agent execution, permissions, connected accounts, and safety guardrails live here.
         {ctx.isDemo && <span className="text-amber-400"> Sign in to edit your workspace.</span>}
       </p>
 

@@ -2,7 +2,7 @@
  *
  * Growth AI uses OpenRouter's official Free Models Router (`openrouter/free`)
  * for free-model routing. The router dynamically selects an eligible free
- * model, so Growth Inspector does not hard-code GPT-OSS, Gemma, or another
+ * model, so GrowthSpace does not hard-code GPT-OSS, Gemma, or another
  * individual free-model slug.
  *
  * Free-model responses should not be used for sensitive customer data unless
@@ -27,8 +27,8 @@ export async function openrouterChatJSON<T>(opts: {
     headers: {
       Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://growth-inspector-yazaneva4-3470s-projects.vercel.app",
-      "X-Title": "Growth Inspector",
+      "HTTP-Referer": "https://growthspace-ksa.vercel.app",
+      "X-Title": "GrowthSpace",
     },
     body: JSON.stringify({
       model: opts.model,
@@ -62,8 +62,8 @@ export async function openrouterChatText(opts: {
     headers: {
       Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://growth-inspector-yazaneva4-3470s-projects.vercel.app",
-      "X-Title": "Growth Inspector",
+      "HTTP-Referer": "https://growthspace-ksa.vercel.app",
+      "X-Title": "GrowthSpace",
     },
     body: JSON.stringify({
       model: opts.model,

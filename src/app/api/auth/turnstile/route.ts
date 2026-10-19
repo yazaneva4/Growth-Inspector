@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-const EXPECTED_ACTION = "growth_inspector_auth";
+const EXPECTED_ACTION = "growthspace_auth";
 
 type TurnstileResult = { success?: boolean; action?: string; hostname?: string };
 

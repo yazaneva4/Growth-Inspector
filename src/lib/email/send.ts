@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 
 /**
- * Growth Inspector application email transport.
+ * GrowthSpace application email transport.
  * Customer mailboxes are provider-agnostic; app email uses Resend or Gmail SMTP.
  */
 export interface OutboundEmail {
@@ -24,7 +24,7 @@ function escapeHtml(value: string) {
 
 function plainTextEmail(text: string) {
   const safeBody = escapeHtml(text).replace(/\r?\n/g, "<br>");
-  return '<!doctype html><html><body style="margin:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#172033"><div style="max-width:620px;margin:32px auto;padding:0 16px"><div style="overflow:hidden;border:1px solid #e2e8f0;border-radius:16px;background:#fff"><div style="padding:22px 28px;background:#0f172a;color:#fff;font-size:17px;font-weight:700">Growth Inspector</div><div style="padding:30px 28px;font-size:15px;line-height:1.7">' + safeBody + '</div></div><div style="padding:16px;text-align:center;color:#64748b;font-size:12px">Sent by your Growth Inspector team</div></div></body></html>';
+  return '<!doctype html><html><body style="margin:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#172033"><div style="max-width:620px;margin:32px auto;padding:0 16px"><div style="overflow:hidden;border:1px solid #e2e8f0;border-radius:16px;background:#fff"><div style="padding:22px 28px;background:#0f172a;color:#fff;font-size:17px;font-weight:700">GrowthSpace</div><div style="padding:30px 28px;font-size:15px;line-height:1.7">' + safeBody + '</div></div><div style="padding:16px;text-align:center;color:#64748b;font-size:12px">Sent by your GrowthSpace team</div></div></body></html>';
 }
 
 export function emailTransport(): "resend" | "gmail" | "none" {
@@ -55,7 +55,7 @@ export async function sendEmail(mail: OutboundEmail): Promise<boolean> {
       socketTimeout: 20_000,
     });
     await transporter.sendMail({
-      from: { name: "Growth Inspector", address: user },
+      from: { name: "GrowthSpace", address: user },
       to,
       subject,
       html: mail.html ?? (mail.text ? plainTextEmail(mail.text) : undefined),

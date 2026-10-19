@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   if (!membership) return NextResponse.json({ error: "no organization" }, { status: 404 });
 
   const orgName =
-    (membership.organizations as { name?: string } | null)?.name ?? "Growth Inspector";
+    (membership.organizations as { name?: string } | null)?.name ?? "GrowthSpace";
 
   // Sequential per-org number: INV-<year>-<seq>.
   const { count } = await supabase

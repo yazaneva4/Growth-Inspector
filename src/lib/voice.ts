@@ -3,10 +3,10 @@ import { respondBestAvailable } from "@/lib/ai/responder";
 import type { BrandVoice, Organization } from "@/lib/types";
 import crypto from "node:crypto";
 
-const GREETING_EN = "Hi, thanks for calling! I'm your Growth Inspector assistant. How can I help you today?";
+const GREETING_EN = "Hi, thanks for calling! I'm your GrowthSpace assistant. How can I help you today?";
 const GOODBYE_TIMEOUT = "We did not hear a response - thank you for calling. Goodbye.";
 const GOODBYE_ESCALATE = "Thank you - we will pass your request to our team and they will contact you soon. Goodbye.";
-const NOT_CONFIGURED = "This number is not yet connected to a Growth Inspector workspace. Goodbye.";
+const NOT_CONFIGURED = "This number is not yet connected to a GrowthSpace workspace. Goodbye.";
 const AI_OFF = "This line's AI assistant is currently unavailable. Please try again later. Goodbye.";
 
 export interface VoiceTurn { say: { text: string; lang: "ar" | "en" }[]; hangup: boolean; }

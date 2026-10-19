@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { sendEmail } from "@/lib/email/send";
 
 export const runtime = "nodejs";
-const PRODUCTION_APP_URL = "https://growth-inspector.vercel.app";
+const PRODUCTION_APP_URL = "https://growthspace-ksa.vercel.app";
 
 function secretBytes() {
   const raw = process.env.AUTH_EMAIL_HOOK_SECRET;
@@ -41,16 +41,16 @@ function emailContent(action: string, tokenHash: string) {
     ? `${callback}?token_hash=${encodeURIComponent(tokenHash)}&type=${encodeURIComponent(type)}&next=%2Fdashboard%2Finbox`
     : "";
   const labels: Record<string, string> = {
-    signup: "Confirm your Growth Inspector account",
-    magiclink: "Sign in to Growth Inspector",
-    recovery: "Reset your Growth Inspector password",
-    invite: "Your Growth Inspector invitation",
-    email_change: "Confirm your new Growth Inspector email",
-    reauthentication: "Confirm your Growth Inspector session",
+    signup: "Confirm your GrowthSpace account",
+    magiclink: "Sign in to GrowthSpace",
+    recovery: "Reset your GrowthSpace password",
+    invite: "Your GrowthSpace invitation",
+    email_change: "Confirm your new GrowthSpace email",
+    reauthentication: "Confirm your GrowthSpace session",
   };
-  const subject = labels[action] ?? "Continue with Growth Inspector";
+  const subject = labels[action] ?? "Continue with GrowthSpace";
   const text = `${subject}\n\nUse this secure link to continue:\n${link}\n\nIf you did not request this, you can ignore this email.`;
-  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><div style="font-weight:700;font-size:20px">Growth Inspector</div><h2>${subject}</h2><p>Use the secure button below to continue.</p><p><a href="${link}" style="display:inline-block;padding:12px 18px;background:#10b981;color:#fff;text-decoration:none;border-radius:8px">Continue securely</a></p><p style="color:#64748b;font-size:13px">This email does not contain a sign-in code. If you did not request this, you can ignore it.</p></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><div style="font-weight:700;font-size:20px">GrowthSpace</div><h2>${subject}</h2><p>Use the secure button below to continue.</p><p><a href="${link}" style="display:inline-block;padding:12px 18px;background:#10b981;color:#fff;text-decoration:none;border-radius:8px">Continue securely</a></p><p style="color:#64748b;font-size:13px">This email does not contain a sign-in code. If you did not request this, you can ignore it.</p></div>`;
   return { subject, text, html };
 }
 

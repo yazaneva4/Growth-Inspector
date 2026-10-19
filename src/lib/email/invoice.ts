@@ -107,7 +107,7 @@ export function buildInvoiceHtml(inv: InvoiceData): string {
     </div>
 
     <div style="background:#f8fafc;padding:18px 32px;font-size:12px;color:#64748b;text-align:center;">
-      Sent with Growth Inspector - thank you for your business
+      Sent with GrowthSpace - thank you for your business
     </div>
   </div>
 </body>
@@ -133,7 +133,7 @@ function buildInvoiceText(inv: InvoiceData): string {
     `VAT 15%: ${fmt(inv.vat)} ${inv.currency}`,
     `Total due: ${fmt(inv.total)} ${inv.currency}`,
     "",
-    "Sent with Growth Inspector - thank you for your business",
+    "Sent with GrowthSpace - thank you for your business",
   ].join("\n");
 }
 

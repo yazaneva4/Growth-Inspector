@@ -32,7 +32,7 @@ export default async function AgentPage() {
               and keep your AI history private. Please sign in before using it.
             </p>
             <Link href="/login" className="mt-6 inline-flex rounded-lg bg-emerald-500 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-600">
-              Sign in to Growth Inspector
+              Sign in to GrowthSpace
             </Link>
           </div>
         )}

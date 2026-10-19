@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 
-export const metadata = { title: "Privacy Policy — Growth Inspector" };
+export const metadata = { title: "Privacy Policy — GrowthSpace" };
 
 export default function PrivacyPage() {
   return (
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
         <p className="mt-8">
           This Privacy Policy explains how <strong>Growth Space</strong>{" "}
           (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) collects,
-          uses, and protects information in connection with Growth Inspector
+          uses, and protects information in connection with GrowthSpace
           (the &ldquo;Service&rdquo;).
         </p>
 

@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   try {
     await sendEmail({
       to: recipient,
-      subject: conversation.email_subject?.startsWith("Re:") ? conversation.email_subject : "Re: " + (conversation.email_subject || "Your Growth Inspector conversation"),
+      subject: conversation.email_subject?.startsWith("Re:") ? conversation.email_subject : "Re: " + (conversation.email_subject || "Your GrowthSpace conversation"),
       text,
       inReplyTo: replyTo,
       references: replyTo,

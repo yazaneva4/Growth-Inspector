@@ -25,7 +25,7 @@ export const getCurrentContext = cache(async (): Promise<CurrentContext> => {
       userId: null,
       role: null,
       orgSlug: "demo",
-      orgName: "Growth Inspector",
+      orgName: "GrowthSpace",
       isDemo: true,
       onboarded: true,
     };

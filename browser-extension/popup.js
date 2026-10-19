@@ -13,8 +13,8 @@ for (const [id, label] of apps) {
     if (!result?.ok) status.className = "status error";
   }); root.append(button);
 }
-chrome.tabs.query({ url: "https://growth-inspector.vercel.app/*" }).then(async (tabs) => {
-  if (!tabs[0]?.id) throw new Error("Open Growth Inspector and sign in first.");
+chrome.tabs.query({ url: ["https://growthspace-ksa.vercel.app/*", "https://growth-inspector.vercel.app/*"] }).then(async (tabs) => {
+  if (!tabs[0]?.id) throw new Error("Open GrowthSpace and sign in first.");
   return chrome.tabs.sendMessage(tabs[0].id, { type: "get-browser-policy" });
 })
   .then((data) => {

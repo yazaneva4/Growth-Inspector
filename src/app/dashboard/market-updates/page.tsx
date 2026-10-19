@@ -35,7 +35,7 @@ export default function MarketUpdatesPage() {
       <section aria-labelledby="growthspace-intelligence" className="space-y-4">
         <div>
           <h2 id="growthspace-intelligence" className="text-xl font-semibold">GrowthSpace · Saudi market intelligence</h2>
-          <p className="mt-1 text-sm text-slate-500">Verified 16 October 2026 · Source dates shown below · <a className="text-emerald-700 underline" href="https://github.com/yazaneva4/Growth-Inspector/blob/claude/growth-inspector-saudi-int7vg/intelligence/reports/2026-10-16.md">Full dated report</a></p>
+          <p className="mt-1 text-sm text-slate-500">Verified 16 October 2026 · Source dates shown below · <a className="text-emerald-700 underline" href="https://github.com/yazaneva4/GrowthSpace/blob/claude/growthspace-saudi-int7vg/intelligence/reports/2026-10-16.md">Full dated report</a></p>
         </div>
         {[
           { date: "2026-10-15", title: "Saudi-based finance staff shift to remote work", change: "Reuters sources report temporary work-from-home arrangements at international financial firms amid security concerns.", impact: "GrowthSpace should offer remote training continuity and flexible rescheduling.", source: "Reuters via Dawn", href: "https://www.dawn.com/news/2037376/attacks-in-saudi-arabia-prompt-finance-firms-to-let-staff-work-from-home-sources-say" },
@@ -64,7 +64,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Workflow lockfiles can pin Actions and transitive dependencies</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            GitHub Actions workflow lockfiles are in public preview. They let repositories keep readable tag or branch references while executions use reviewed commit SHAs for actions, reusable workflows, and transitive dependencies. Growth Inspector can evaluate the gh actions-lock extension on its review branch; dependencies still need security review before locking.
+            GitHub Actions workflow lockfiles are in public preview. They let repositories keep readable tag or branch references while executions use reviewed commit SHAs for actions, reusable workflows, and transitive dependencies. GrowthSpace can evaluate the gh actions-lock extension on its review branch; dependencies still need security review before locking.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-14-github-actions-workflow-lockfiles-in-public-preview/" target="_blank" rel="noreferrer">
             Read GitHub’s changelog
@@ -78,7 +78,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Emergency rule blocks an actively exploited RCE pattern</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Cloudflare added a blocking rule to its Managed Ruleset for active exploitation of a critical remote-code-execution pattern involving invalid path sequences. Growth Inspector should confirm the managed rule is enabled and review WAF events for unexpected blocking.
+            Cloudflare added a blocking rule to its Managed Ruleset for active exploitation of a critical remote-code-execution pattern involving invalid path sequences. GrowthSpace should confirm the managed rule is enabled and review WAF events for unexpected blocking.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-14-emergency-waf-release/" target="_blank" rel="noreferrer">
             Read Cloudflare’s emergency notice
@@ -92,7 +92,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Supabase .NET SDK adds native traces and metrics</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            The official Supabase .NET SDK now emits System.Diagnostics traces and metrics for Auth, Postgrest, Storage, and Functions, with Realtime not yet covered. It strips query strings from recorded URLs and does not tag tokens, credentials, or payloads. This is useful only if Growth Inspector has .NET clients; the current web application needs no change.
+            The official Supabase .NET SDK now emits System.Diagnostics traces and metrics for Auth, Postgrest, Storage, and Functions, with Realtime not yet covered. It strips query strings from recorded URLs and does not tag tokens, credentials, or payloads. This is useful only if GrowthSpace has .NET clients; the current web application needs no change.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/changelog/dotnet-opentelemetry-support" target="_blank" rel="noreferrer">
             Read Supabase’s changelog
@@ -134,7 +134,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Declarative Schemas 2.0 captures RLS and grant changes</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Supabase’s CLI now uses the open-source pg-delta diff engine for Declarative Schemas 2.0. Generated migrations can include RLS-policy changes, grants, view settings, partitions, domains, and extension-managed objects that the previous migra-based workflow skipped. New CLI projects use 2.0 by default; existing projects must opt in. Growth Inspector should evaluate the opt-in on a review branch and inspect generated migrations before applying them.
+            Supabase’s CLI now uses the open-source pg-delta diff engine for Declarative Schemas 2.0. Generated migrations can include RLS-policy changes, grants, view settings, partitions, domains, and extension-managed objects that the previous migra-based workflow skipped. New CLI projects use 2.0 by default; existing projects must opt in. GrowthSpace should evaluate the opt-in on a review branch and inspect generated migrations before applying them.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/blog/declarative-schemas-2-0-pg-delta" target="_blank" rel="noreferrer">
             Read Supabase’s announcement
@@ -148,7 +148,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Grok Bot can hand scoped Supabase changes to Cursor</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Supabase joined the SpaceXAI Partner Network and documented a workflow in which a request made to Grok Bot is handed to Cursor, which can query the database, inspect schemas and logs, run code, and deploy Edge Functions through the Supabase MCP server. This is optional agent tooling, not a required Growth Inspector change; teams adopting it should keep requests scoped and run Supabase security and performance advisors after schema changes.
+            Supabase joined the SpaceXAI Partner Network and documented a workflow in which a request made to Grok Bot is handed to Cursor, which can query the database, inspect schemas and logs, run code, and deploy Edge Functions through the Supabase MCP server. This is optional agent tooling, not a required GrowthSpace change; teams adopting it should keep requests scoped and run Supabase security and performance advisors after schema changes.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/blog/ship-changes-to-your-supabase-backend-with-grok-bot" target="_blank" rel="noreferrer">
             Read Supabase’s announcement
@@ -162,7 +162,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Logpush can transform logs before export</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Cloudflare Logpush now supports Transformers: SQL queries that filter records, redact sensitive fields, and reshape output before it reaches a destination. Growth Inspector needs no change unless it exports Cloudflare logs; if it does, this can reduce downstream processing and prevent unnecessary fields from leaving Cloudflare.
+            Cloudflare Logpush now supports Transformers: SQL queries that filter records, redact sensitive fields, and reshape output before it reaches a destination. GrowthSpace needs no change unless it exports Cloudflare logs; if it does, this can reduce downstream processing and prevent unnecessary fields from leaving Cloudflare.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://blog.cloudflare.com/transformers-on-logpush/" target="_blank" rel="noreferrer">
             Read Cloudflare’s announcement
@@ -176,7 +176,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Legacy TLS 1.2 cipher suites will be removed</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Supabase will stop offering four outdated CBC-mode TLS 1.2 cipher suites on project HTTP APIs from 10 November 2026 at the earliest. Auth, Data API, Storage, Realtime, and Edge Functions are affected; TLS 1.3 and database connections are unchanged. Modern Growth Inspector clients should be unaffected, but any legacy or embedded client should be checked before the deadline.
+            Supabase will stop offering four outdated CBC-mode TLS 1.2 cipher suites on project HTTP APIs from 10 November 2026 at the earliest. Auth, Data API, Storage, Realtime, and Edge Functions are affected; TLS 1.3 and database connections are unchanged. Modern GrowthSpace clients should be unaffected, but any legacy or embedded client should be checked before the deadline.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/changelog/cbc-tls-ciphers-deprecated" target="_blank" rel="noreferrer">
             Read Supabase’s notice
@@ -190,7 +190,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Managed rules add TanStack XSS and Atlassian file-access detections</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Cloudflare added blocking detections for CVE-2026-102989, a reflected XSS issue affecting TanStack, and CVE-2026-21589, an arbitrary file-access issue affecting Atlassian products. Growth Inspector needs no application change if it does not use the affected products; Cloudflare Managed Rules users should confirm the new rules are present and monitor for false positives.
+            Cloudflare added blocking detections for CVE-2026-102989, a reflected XSS issue affecting TanStack, and CVE-2026-21589, an arbitrary file-access issue affecting Atlassian products. GrowthSpace needs no application change if it does not use the affected products; Cloudflare Managed Rules users should confirm the new rules are present and monitor for false positives.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-12-waf-release/" target="_blank" rel="noreferrer">
             Read Cloudflare’s changelog
@@ -204,7 +204,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">API Shield schema learning can now run on demand</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Cloudflare now lets API Shield users manually start a zone-wide schema-learning run after sending representative test traffic, instead of waiting for the weekly schedule. The dashboard shows zone and operation-level learning status and results. Growth Inspector needs no change unless it uses API Shield schema validation; if it does, this can shorten testing and rollout checks.
+            Cloudflare now lets API Shield users manually start a zone-wide schema-learning run after sending representative test traffic, instead of waiting for the weekly schedule. The dashboard shows zone and operation-level learning status and results. GrowthSpace needs no change unless it uses API Shield schema validation; if it does, this can shorten testing and rollout checks.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-12-manual-schema-learning/" target="_blank" rel="noreferrer">
             Read Cloudflare’s changelog
@@ -233,7 +233,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">DNS root key rolls over to KSK-2024</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            The DNS root is scheduled to switch its signing key to KSK-2024 today. Cloudflare says websites using Cloudflare DNS, 1.1.1.1, or Gateway DNS require no action because those services already trust the new key. Growth Inspector needs no change unless it operates a separate DNSSEC-validating resolver, which should be checked for the KSK-2024 trust anchor.
+            The DNS root is scheduled to switch its signing key to KSK-2024 today. Cloudflare says websites using Cloudflare DNS, 1.1.1.1, or Gateway DNS require no action because those services already trust the new key. GrowthSpace needs no change unless it operates a separate DNSSEC-validating resolver, which should be checked for the KSK-2024 trust anchor.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://blog.cloudflare.com/root-ksk-2024-rollover/" target="_blank" rel="noreferrer">
             Read Cloudflare’s notice
@@ -247,7 +247,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">JetBrains Copilot adds MCP startup control and drops IDE 2025.1</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            GitHub added a setting that can disable automatic MCP server startup for Copilot and Claude in JetBrains IDEs, plus enterprise-managed default agent models and faster diagnostic fixes. GitHub also ended support for JetBrains IDE 2025.1, so the plugin now requires version 2025.2 or later. Growth Inspector needs no application-code change; JetBrains users should update their IDE before updating the plugin.
+            GitHub added a setting that can disable automatic MCP server startup for Copilot and Claude in JetBrains IDEs, plus enterprise-managed default agent models and faster diagnostic fixes. GitHub also ended support for JetBrains IDE 2025.1, so the plugin now requires version 2025.2 or later. GrowthSpace needs no application-code change; JetBrains users should update their IDE before updating the plugin.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://github.blog/changelog/2026-10-10-new-controls-and-chat-improvements-in-copilot-for-jetbrains/" target="_blank" rel="noreferrer">
             Read GitHub’s changelog
@@ -261,7 +261,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Supabase MCP server moves to a hosted OAuth endpoint</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Supabase now hosts its MCP server at https://mcp.supabase.com/mcp. Compatible clients connect through browser-based OAuth 2, without running the server through npx or supplying a personal access token. This is optional development tooling and does not require a Growth Inspector application change.
+            Supabase now hosts its MCP server at https://mcp.supabase.com/mcp. Compatible clients connect through browser-based OAuth 2, without running the server through npx or supplying a personal access token. This is optional development tooling and does not require a GrowthSpace application change.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://supabase.com/changelog/supabase-mcp-hosted" target="_blank" rel="noreferrer">
             Read Supabase’s changelog
@@ -275,7 +275,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Clef decision models gain multimodal input, lower pricing, and faster serving</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Cloudflare released the open-weight Clef-omni decision model for text, images, audio, and video. It also cut hosted Clef-flash input pricing from $0.09 to $0.038 per million tokens while reducing its hosted context window from 64k to 24k, and reported faster hosted Clef inference. These are optional Workers AI capabilities; Growth Inspector needs no change unless it evaluates decision-model routing or classification.
+            Cloudflare released the open-weight Clef-omni decision model for text, images, audio, and video. It also cut hosted Clef-flash input pricing from $0.09 to $0.038 per million tokens while reducing its hosted context window from 64k to 24k, and reported faster hosted Clef inference. These are optional Workers AI capabilities; GrowthSpace needs no change unless it evaluates decision-model routing or classification.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://blog.cloudflare.com/clef-faster-cheaper-multimodal/" target="_blank" rel="noreferrer">
             Read Cloudflare’s announcement
@@ -289,7 +289,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Cloudflare API MCP server now serves Cloudflare skills</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Cloudflare’s API MCP server now exposes Cloudflare skills through the Skills over MCP extension. Compatible MCP clients can discover them with skills/list and read their files from skill URLs after connecting to https://mcp.cloudflare.com/mcp. This is optional agent tooling and does not require a Growth Inspector application change.
+            Cloudflare’s API MCP server now exposes Cloudflare skills through the Skills over MCP extension. Compatible MCP clients can discover them with skills/list and read their files from skill URLs after connecting to https://mcp.cloudflare.com/mcp. This is optional agent tooling and does not require a GrowthSpace application change.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-10-cloudflare-mcp-skills/" target="_blank" rel="noreferrer">
             Read Cloudflare’s changelog
@@ -303,7 +303,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">Existing Pro teams move to paid deployment storage and 30-day retention</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Vercel says Deployment Storage and Functions Storage billing will begin for all Pro teams at $0.10 per GB-month. Deployments older than 30 days will start being deleted on 23 October unless a team opts out in its retention settings. Deleted deployments cannot be used for rollback. Growth Inspector should review its Vercel retention settings and storage usage before 23 October if it runs on a Pro team.
+            Vercel says Deployment Storage and Functions Storage billing will begin for all Pro teams at $0.10 per GB-month. Deployments older than 30 days will start being deleted on 23 October unless a team opts out in its retention settings. Deleted deployments cannot be used for rollback. GrowthSpace should review its Vercel retention settings and storage usage before 23 October if it runs on a Pro team.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://vercel.com/changelog/deployment-storage-pricing-expands-to-existing-teams" target="_blank" rel="noreferrer">
             Read Vercel’s changelog
@@ -317,7 +317,7 @@ export default function MarketUpdatesPage() {
           </div>
           <h3 className="mt-3 text-lg font-semibold">HTTP/3 client cancellations are reported consistently as 499</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Cloudflare now stops affected HTTP/3 requests sooner when clients cancel them and records those requests as status 499 across all plans. Analytics and logs may therefore show more 499 responses even though client failures have not increased. Growth Inspector needs no code change, but availability metrics should not count client-cancelled 499 responses as server errors.
+            Cloudflare now stops affected HTTP/3 requests sooner when clients cancel them and records those requests as status 499 across all plans. Analytics and logs may therefore show more 499 responses even though client failures have not increased. GrowthSpace needs no code change, but availability metrics should not count client-cancelled 499 responses as server errors.
           </p>
           <a className="mt-3 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-4" href="https://developers.cloudflare.com/changelog/post/2026-10-09-http3-499-reporting-improvement/" target="_blank" rel="noreferrer">
             Read Cloudflare’s changelog

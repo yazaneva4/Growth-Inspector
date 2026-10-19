@@ -8,7 +8,7 @@ const eslintConfig = defineConfig([
   {
     // Keep CI focused on actionable application lint errors. These rules are
     // currently too strict for the existing client-side persistence/realtime
-    // patterns used by the Growth Inspector UI.
+    // patterns used by the GrowthSpace UI.
     rules: {
       "react-hooks/set-state-in-effect": "off",
       "react-hooks/purity": "off",
