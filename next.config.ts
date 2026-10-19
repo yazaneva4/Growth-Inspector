@@ -15,7 +15,23 @@ const securityHeaders = [
   },
 ];
 
+const retiredVercelHosts = [
+  "growthspace-ksa.vercel.app",
+  "growth-inspector.vercel.app",
+  "growthspace-yazaneva4-3470s-projects.vercel.app",
+  "growthspace-git-claude-growth-i-27fd9c-yazaneva4-3470s-projects.vercel.app",
+];
+
 const nextConfig: NextConfig = {
+  // Any old GrowthSpace alias lands on the one canonical public domain.
+  async redirects() {
+    return retiredVercelHosts.map((hostname) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: hostname }],
+      destination: "https://growthspaceksa.vercel.app/:path*",
+      permanent: true,
+    }));
+  },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

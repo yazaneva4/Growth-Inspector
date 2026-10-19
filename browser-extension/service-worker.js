@@ -17,7 +17,7 @@ function allowedHost(url) {
 }
 
 async function policy() {
-  const tabs = await chrome.tabs.query({ url: ["https://growthspaceksa.vercel.app/*", "https://growthspace-ksa.vercel.app/*", "https://growth-inspector.vercel.app/*"] });
+  const tabs = await chrome.tabs.query({ url: ["https://growthspaceksa.vercel.app/*"] });
   const tab = tabs[0];
   if (!tab?.id) throw new Error("Open GrowthSpace and sign in first.");
   return new Promise((resolve, reject) => {

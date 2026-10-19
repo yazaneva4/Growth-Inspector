@@ -10,15 +10,13 @@
   ],
   "host_permissions": [
     "https://growthspaceksa.vercel.app/*",
-    "https://growthspace-ksa.vercel.app/*",
     "https://growthspace.sa/*",
     "https://*.growthspace.sa/*",
     "https://mail.google.com/*",
     "https://outlook.office.com/*",
     "https://outlook.live.com/*",
     "https://web.whatsapp.com/*",
-    "https://messages.google.com/*",
-    "https://growth-inspector.vercel.app/*"
+    "https://messages.google.com/*"
   ],
   "action": {
     "default_title": "GrowthSpace",
@@ -32,15 +30,13 @@
     {
       "matches": [
         "https://growthspaceksa.vercel.app/*",
-        "https://growthspace-ksa.vercel.app/*",
         "https://growthspace.sa/*",
         "https://*.growthspace.sa/*",
         "https://mail.google.com/*",
         "https://outlook.office.com/*",
         "https://outlook.live.com/*",
         "https://web.whatsapp.com/*",
-        "https://messages.google.com/*",
-        "https://growth-inspector.vercel.app/*"
+        "https://messages.google.com/*"
       ],
       "js": [
         "content.js"
