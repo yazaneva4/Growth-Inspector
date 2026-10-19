@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import localFont from "next/font/local";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 import "./globals.css";
@@ -82,10 +83,11 @@ export default function RootLayout({
 }>) {
   return (
     <html
+      data-app-revision={process.env.VERCEL_GIT_COMMIT_SHA || ""}
       lang="en"
       className={`${jakartaSans.variable} ${notoArabic.variable} ${sourceSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">{children}<Script src="/app-updates.js" strategy="afterInteractive" /></body>
     </html>
   );
 }

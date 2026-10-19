@@ -27,12 +27,16 @@ Migration `20261013120000_realtime_publication_sweep.sql` adds RLS-enabled publi
 
 The live project was inspected and its existing RLS tables were present in `supabase_realtime` with full replica identity. The Supabase Preview GitHub check currently fails because the remote database has migration versions that are absent from this repository. Do not infer the migration is applied from a successful application build.
 
+## Deployment and reconciliation updates
+
+The dashboard also reconciles every 30 seconds while visible and online, even with a healthy socket. This picks up time-based changes and checked-in reports that do not emit database events. Disconnected or stalled connections fall back after 15 seconds. Every page checks `/api/version` once per minute and on focus/reconnect, offering a reload when the deployed commit changes; it never discards open forms automatically.
+
 ## What does not update by itself
 
 - Data produced only by a schedule or external service changes when that process writes to the database.
 - Email appears after a configured inbound provider webhook writes it. Direct Gmail, Outlook, or iCloud mailbox polling is not implemented.
 - A **Live** connection badge means the channel is subscribed; RLS may still prevent a given user from seeing a row.
-- Internal chat tables are not present in the inspected live database, even though repository migrations describe them. Those features need schema reconciliation before production realtime can be claimed for them.
+- As of 18 October 2026, the internal chat tables exist in the inspected live project and are in the Realtime publication; authenticated per-user delivery still needs session-level verification.
 
 ## Adding a table
 

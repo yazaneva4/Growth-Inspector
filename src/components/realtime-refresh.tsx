@@ -54,6 +54,7 @@ export function RealtimeRefresh() {
   }, []);
 
   const refreshNow = useCallback(() => {
+    if (document.hidden || !navigator.onLine) return;
     lastRefreshAt.current = Date.now();
     router.refresh();
   }, [router]);
@@ -95,7 +96,7 @@ export function RealtimeRefresh() {
     };
   }, [channelId, refreshNow, setLive]);
 
-  // Backstop polling while the socket is down, and refetch when the user
+  // Periodic reconciliation plus socket fallback, and refetch when the user
   // comes back to the tab or the network returns.
   useEffect(() => {
     const maybeFocusRefresh = () => {
@@ -111,7 +112,10 @@ export function RealtimeRefresh() {
 
     const poll = window.setInterval(() => {
       if (document.visibilityState !== "visible") return;
-      if (stateRef.current === "live" || stateRef.current === "connecting") return;
+      // Reconcile even with a healthy socket: deploys and time-based changes
+      // do not emit database events. Also recover a socket stuck connecting.
+      if (stateRef.current === "live" && Date.now() - lastRefreshAt.current < 30_000) return;
+      if (stateRef.current === "connecting") setLive("polling");
       if (!navigator.onLine) return;
       refreshNow();
     }, POLL_INTERVAL_MS);
