@@ -6,7 +6,7 @@
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL && process.env.NEXT_PUBLIC_SITE_URL.length > 0
     ? process.env.NEXT_PUBLIC_SITE_URL
-    : "https://growthspace-ksa.vercel.app";
+    : "https://growthspaceksa.vercel.app";
 
 export const SITE_NAME = "GrowthSpace";
 export const SITE_DESCRIPTION =
