@@ -52,7 +52,7 @@ export default function CareersPage() {
     <main className="min-h-screen bg-white px-6 py-16 text-slate-900">
       <div className="mx-auto max-w-xl">
         <Link href="/" className="text-lg font-bold">
-          Growth<span className="text-emerald-400"> Inspector</span>
+          Growth<span className="text-emerald-400">Space</span>
         </Link>
         <h1 className="mt-8 font-serif text-4xl font-semibold">Work in the Saudi growth space 🇸🇦</h1>
         <p className="mt-3 text-slate-600">

@@ -33,15 +33,12 @@ export default function OpengraphImage() {
             marginBottom: 32,
           }}
         >
-          {/* G-mark, traced from the brand reference (flat tile fill — the OG
-              renderer has unreliable radial-gradient support) */}
-          <svg width="62" height="64" viewBox="-5 -5 410 425">
-            <path d="M 200 47.5 A 162.5 162.5 0 1 0 360 238.2 L 215 238.2"
-              stroke="#F26522" strokeWidth="75" fill="none" strokeLinecap="butt" strokeLinejoin="round" />
-            <rect x="220" y="0" width="180" height="175" rx="30" fill="#1B2C66" />
-            <circle cx="283" cy="88" r="36" fill="none" stroke="#ffffff" strokeWidth="13" />
-            <line x1="307" y1="112" x2="330" y2="135" stroke="#ffffff" strokeWidth="14" strokeLinecap="round" />
-            <path d="M 365 6 Q 371 30 392 42 Q 371 54 365 78 Q 359 54 338 42 Q 359 30 365 6 Z" fill="#ffffff" />
+          {/* GrowthSpace mark (flat fills: the OG renderer has unreliable gradient support) */}
+          <svg width="62" height="62" viewBox="530 66 940 935">
+            <path d="M 930 101.6 A 439 439 0 1 0 1433.5 604 L 1070 604 L 1070 697 L 1195 697 Q 1236 700 1247 748 A 328 328 0 1 1 930 214.6 Z"
+              fill="#F26B35" stroke="#F26B35" strokeWidth="28" strokeLinejoin="round" />
+            <path d="M 1086 110 H 1423 V 447 H 1332.6 A 344 344 0 0 0 1086 202 Z"
+              fill="#2A3B78" stroke="#2A3B78" strokeWidth="60" strokeLinejoin="round" />
           </svg>
           GrowthSpace
         </div>

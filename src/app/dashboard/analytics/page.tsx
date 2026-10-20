@@ -40,7 +40,7 @@ export default async function AnalyticsPage() {
       {/* AI narrative report */}
       <div className="mt-6 rounded-2xl border border-emerald-500/40 bg-emerald-500/5 p-6">
         <div className="text-xs font-semibold uppercase tracking-wide text-emerald-400">
-          🔎 The Inspector says
+          🔎 GrowthSpace says
         </div>
         <p className="mt-2 text-lg font-medium text-slate-900">
           {report.headline}

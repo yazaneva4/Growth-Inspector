@@ -1,9 +1,10 @@
+import { useId } from "react";
+
 /**
- * GrowthSpace brand mark, traced from the brand reference:
- * a solid orange "G" drawn as one continuous flat-ended stroke (ring opening
- * at the top right, turning inward as the arm), with a navy glow tile floating
- * in the opening that carries a magnifier (inspector) and a tall four-point
- * sparkle (brilliance). Do not restyle — this geometry matches the brand file.
+ * GrowthSpace brand mark (official logo): an orange "G" ring whose arm turns
+ * inward, with a navy tile in its opening. Geometry is traced from the brand
+ * file — do not restyle. Shapes are drawn inset by 14 and stroked 28 wide in
+ * the same fill so every corner gets the logo's soft rounding.
  */
 export function LogoMark({
   size = 36,
@@ -12,38 +13,49 @@ export function LogoMark({
   size?: number;
   className?: string;
 }) {
+  // Unique per instance: this component renders more than once per page and
+  // duplicated gradient ids resolve against the first (possibly hidden) copy.
+  const uid = useId().replace(/:/g, "");
+  const orange = `gs-orange-${uid}`;
+  const navy = `gs-navy-${uid}`;
   return (
     <svg
       width={size}
-      height={size * (425 / 410)}
-      viewBox="-5 -5 410 425"
+      height={size * (935 / 940)}
+      viewBox="530 66 940 935"
       className={`flex-shrink-0 ${className}`}
       aria-hidden
     >
-      {/* Orange G: flat (butt) ends, ring sweeping into the inward arm */}
+      <defs>
+        <linearGradient id={orange} gradientUnits="userSpaceOnUse" x1="880" y1="480" x2="1260" y2="820">
+          <stop offset="0" stopColor="#F38049" />
+          <stop offset="1" stopColor="#EE5122" />
+        </linearGradient>
+        <linearGradient id={navy} gradientUnits="userSpaceOnUse" x1="0" y1="80" x2="0" y2="477">
+          <stop offset="0" stopColor="#18234E" />
+          <stop offset="0.52" stopColor="#3C5399" />
+          <stop offset="1" stopColor="#18234E" />
+        </linearGradient>
+      </defs>
       <path
-        d="M 200 47.5 A 162.5 162.5 0 1 0 360 238.2 L 215 238.2"
-        stroke="#F26522"
-        strokeWidth="75"
-        fill="none"
-        strokeLinecap="butt"
+        d="M 930 101.6 A 439 439 0 1 0 1433.5 604 L 1070 604 L 1070 697 L 1195 697 Q 1236 700 1247 748 A 328 328 0 1 1 930 214.6 Z"
+        fill={`url(#${orange})`}
+        stroke={`url(#${orange})`}
+        strokeWidth="28"
         strokeLinejoin="round"
       />
-      {/* Navy tile in the G's opening. Solid fill on purpose: this component
-          renders more than once per page, and duplicated gradient ids resolve
-          against the first (possibly display:none) copy — which silently
-          drops the fill and made the tile invisible. */}
-      <rect x="220" y="0" width="180" height="175" rx="30" fill="#1B2C66" />
-      {/* Magnifier, lower-left of tile */}
-      <circle cx="283" cy="88" r="36" fill="none" stroke="#ffffff" strokeWidth="13" />
-      <line x1="307" y1="112" x2="330" y2="135" stroke="#ffffff" strokeWidth="14" strokeLinecap="round" />
-      {/* Tall four-point sparkle, upper-right of tile */}
-      <path d="M 365 6 Q 371 30 392 42 Q 371 54 365 78 Q 359 54 338 42 Q 359 30 365 6 Z" fill="#ffffff" />
+      <path
+        d="M 1086 110 H 1423 V 447 H 1332.6 A 344 344 0 0 0 1086 202 Z"
+        fill={`url(#${navy})`}
+        stroke={`url(#${navy})`}
+        strokeWidth="60"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
-/** Full lockup: mark + stacked "Growth / Inspector" wordmark. */
+/** Full lockup: mark + stacked "Growth / Space" wordmark. */
 export function Logo({
   variant = "dark",
   size = 46,
@@ -51,16 +63,13 @@ export function Logo({
   variant?: "dark" | "light";
   size?: number;
 }) {
-  const growth = variant === "dark" ? "text-white" : "text-slate-950";
-  const accent = variant === "dark" ? "text-emerald-400" : "text-slate-600";
+  const text = variant === "dark" ? "text-white" : "text-[#0F2050]";
   return (
     <div className="flex items-center gap-2.5">
       <LogoMark size={size} />
-      <div className="leading-tight">
-        <div className={`text-lg font-extrabold tracking-tight ${growth}`}>Growth</div>
-        <div className={`text-xs font-bold uppercase tracking-wide ${accent}`}>
-          Inspector
-        </div>
+      <div className={`text-[1.05rem] font-extrabold leading-[1.05] tracking-tight ${text}`} style={{ fontFamily: "var(--font-geist-sans), system-ui, sans-serif" }} aria-label="GrowthSpace">
+        <div>Growth</div>
+        <div>Space</div>
       </div>
     </div>
   );

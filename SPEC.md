@@ -99,7 +99,7 @@ Three tiers, two billing levers, white-label for agencies.
 | Tier | Target | Pricing lever | Gating |
 |---|---|---|---|
 | **Starter** | Solo pros, creators | Per managed-account | 1–2 accounts, capped conversations, core responder |
-| **Business** | SMEs & brands | Per managed-account + per-seat | More accounts, Inspector reports, intent scoring, team seats |
+| **Business** | SMEs & brands | Per managed-account + per-seat | More accounts, Growth reports, intent scoring, team seats |
 | **Agency** | Agencies | Per managed-account **and** per-seat + volume tiers | White-label, client sub-workspaces, priority |
 
 - **Per managed-account** = each connected social account the AI manages.
@@ -154,7 +154,7 @@ Social platforms ──webhooks──> Ingestion ──> Unified conversation st
 2. **MVP responder** — connect WhatsApp + Instagram, unified inbox, brand-voice
    config, guardrail pass, autonomous reply with escalation queue.
 3. **Quality loop** — dialect eval set from customer data; shadow → autonomous rollout.
-4. **Inspector intelligence** — intent analytics, weekly reports, trend radar.
+4. **Growth intelligence** — intent analytics, weekly reports, trend radar.
 5. **Expand platforms** — X, then Snapchat/TikTok monitoring.
 6. **Monetization** — tiers, per-account/per-seat billing, SAR/VAT, white-label for agencies.
 

@@ -1,21 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="530 66 940 935">
   <defs>
-    <radialGradient id="tileGlow" cx="0.72" cy="0.22" r="1.1">
-      <stop offset="0" stop-color="#44579E"/>
-      <stop offset="0.45" stop-color="#22326E"/>
-      <stop offset="1" stop-color="#14224F"/>
-    </radialGradient>
+    <linearGradient id="o" gradientUnits="userSpaceOnUse" x1="880" y1="480" x2="1260" y2="820">
+      <stop offset="0" stop-color="#F38049"/>
+      <stop offset="1" stop-color="#EE5122"/>
+    </linearGradient>
+    <linearGradient id="n" gradientUnits="userSpaceOnUse" x1="0" y1="80" x2="0" y2="477">
+      <stop offset="0" stop-color="#18234E"/>
+      <stop offset="0.52" stop-color="#3C5399"/>
+      <stop offset="1" stop-color="#18234E"/>
+    </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="#ffffff"/>
-  <g transform="translate(5.66,5) scale(0.1317)">
-    <!-- Orange G: flat ends, ring sweeping into the inward arm -->
-    <path d="M 200 47.5 A 162.5 162.5 0 1 0 360 238.2 L 215 238.2"
-          stroke="#F26522" stroke-width="75" fill="none"
-          stroke-linecap="butt" stroke-linejoin="round"/>
-    <!-- Navy glow tile: magnifier (inspector) + sparkle (brilliance) -->
-    <rect x="220" y="0" width="180" height="175" rx="30" fill="url(#tileGlow)"/>
-    <circle cx="283" cy="88" r="36" fill="none" stroke="#ffffff" stroke-width="13"/>
-    <line x1="307" y1="112" x2="330" y2="135" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
-    <path d="M 365 6 Q 371 30 392 42 Q 371 54 365 78 Q 359 54 338 42 Q 359 30 365 6 Z" fill="#ffffff"/>
-  </g>
+  <path d="M 930 101.6 A 439 439 0 1 0 1433.5 604 L 1070 604 L 1070 697 L 1195 697 Q 1236 700 1247 748 A 328 328 0 1 1 930 214.6 Z"
+        fill="url(#o)" stroke="url(#o)" stroke-width="28" stroke-linejoin="round"/>
+  <path d="M 1086 110 H 1423 V 447 H 1332.6 A 344 344 0 0 0 1086 202 Z"
+        fill="url(#n)" stroke="url(#n)" stroke-width="60" stroke-linejoin="round"/>
 </svg>
