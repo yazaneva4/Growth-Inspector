@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
 
     // Keep every top-level navigation inside the authenticated GrowthSpace
     // origin, even when a page, form, or redirect attempts to leave it.
-    await page.route("**/*", async (route) => {
+    await context.route("**/*", async (route) => {
       const request = route.request();
       if (request.isNavigationRequest()) {
         try {
