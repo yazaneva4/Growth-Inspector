@@ -2,6 +2,7 @@ import { getCurrentContext } from "@/lib/auth";
 import { createClient, createPublicClient } from "@/lib/supabase/server";
 import { InvoiceForm } from "@/components/invoice-form";
 import { MarkPaidButton } from "@/components/mark-paid-button";
+import { MoveInvoiceToTrashButton } from "@/components/move-invoice-to-trash-button";
 import { formatMoney, exactMoney } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -89,6 +90,7 @@ export default async function InvoicesPage() {
                   {formatMoney(inv.total)} {inv.currency}
                 </span>
                 {!ctx.isDemo && inv.status !== "paid" && <MarkPaidButton id={inv.id} />}
+                {!ctx.isDemo && <MoveInvoiceToTrashButton id={inv.id} number={inv.number} />}
               </div>
             </div>
           ))
