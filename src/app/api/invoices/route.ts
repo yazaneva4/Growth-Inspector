@@ -58,12 +58,32 @@ export async function POST(req: NextRequest) {
   const orgName =
     (membership.organizations as { name?: string } | null)?.name ?? "GrowthSpace";
 
-  // Sequential per-org number: INV-<year>-<seq>.
-  const { count } = await supabase
-    .from("invoices")
-    .select("*", { count: "exact", head: true })
-    .eq("org_id", membership.org_id);
-  const number = `INV-${new Date().getFullYear()}-${String((count ?? 0) + 1).padStart(4, "0")}`;
+  // Pick the next number without colliding with active invoices or invoices
+  // currently in Trash. Deleted invoices remain restorable indefinitely.
+  const [{ data: activeInvoices, error: activeInvoicesError }, { data: trashedInvoices, error: trashedInvoicesError }] = await Promise.all([
+    supabase.from("invoices").select("number").eq("org_id", membership.org_id),
+    supabase.from("trash_items").select("record_data").eq("org_id", membership.org_id).eq("source_table", "invoices"),
+  ]);
+  if (activeInvoicesError || trashedInvoicesError) {
+    return NextResponse.json(
+      { error: activeInvoicesError?.message ?? trashedInvoicesError?.message ?? "Could not prepare invoice number" },
+      { status: 500 },
+    );
+  }
+
+  const year = String(new Date().getFullYear());
+  const trashedNumbers = (trashedInvoices ?? []).flatMap((item) => {
+    const record = item.record_data;
+    return record && typeof record === "object" && "number" in record && typeof record.number === "string"
+      ? [record.number]
+      : [];
+  });
+  const knownNumbers = [...(activeInvoices ?? []).map((invoice) => invoice.number), ...trashedNumbers];
+  const lastSequence = knownNumbers.reduce((max, value) => {
+    const match = /^INV-(\\d{4})-(\\d+)$/.exec(value);
+    return match?.[1] === year ? Math.max(max, Number(match[2])) : max;
+  }, 0);
+  const number = `INV-${year}-${String(lastSequence + 1).padStart(4, "0")}`;
 
   const subtotal = items.reduce((s, it) => s + it.qty * it.unit_price, 0);
   const vat = Math.round(subtotal * VAT_RATE * 100) / 100;
