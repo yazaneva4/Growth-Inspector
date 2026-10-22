@@ -196,6 +196,7 @@ export function GrowthAiChat() {
       if (!window.confirm(detail + " It may change website data.")) return null;
     }
 
+    setBrowserOpen(true);
     setBrowserBusy(true);
     setBrowserError(null);
     try {
@@ -217,7 +218,7 @@ export function GrowthAiChat() {
       setBrowserResult(result);
       setBrowserUrl(result.url);
       setBrowserContext(browserContextFromResult(result));
-      setBrowserOpen(true);
+      if (steps?.length) setBrowserSteps([]);
       return result;
     } catch (err) {
       setBrowserError(err instanceof Error ? err.message : "Headless browser failed.");
