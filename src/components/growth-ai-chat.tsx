@@ -301,21 +301,468 @@ export function GrowthAiChat() {
 
   function submit(e: FormEvent<HTMLFormElement>) { e.preventDefault(); void send(input); }
 
-  return <section className="flex min-h-[70vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-    <aside className="hidden w-80 shrink-0 border-r border-slate-200 md:flex md:flex-col">
-      <div className="border-b border-slate-200 p-3">
-        <div className="flex gap-2"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search conversations" className="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"/><button onClick={() => void createChat()} className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-bold text-white">+</button></div>
-        <div className="mt-2 flex gap-1"><button onClick={() => setShowArchived(false)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${!showArchived ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500"}`}>Chats</button><button onClick={() => setShowArchived(true)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${showArchived ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500"}`}>Archived</button></div>
-      </div>
-      <div className="flex-1 overflow-y-auto p-2">{visible.map((chat) => <button key={chat.id} onClick={() => selectChat(chat.id)} className={`mb-1 w-full rounded-xl p-3 text-left ${chat.id === activeId ? "bg-emerald-50" : "hover:bg-slate-50"}`}><div className="truncate text-sm font-semibold text-slate-900">{chat.title}</div><div className="truncate text-xs text-slate-400">{chat.messages.at(-1)?.content || "New conversation"}</div></button>)}{!visible.length && <p className="p-5 text-center text-sm text-slate-500">No conversations here.</p>}</div>
-    </aside>
-    <main className="flex min-w-0 flex-1 flex-col">
-      <header className="flex items-center gap-2 border-b border-slate-200 px-4 py-3"><div className="flex-1"><h2 className="font-semibold text-slate-900">Growth AI</h2><p className="text-xs text-slate-400">Free AI routing is automatic. No model selection.</p></div>{active && <><button onClick={() => { setRenameId(active.id); setRenameValue(active.title); }} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs">Rename</button><button onClick={() => void archiveChat(active.id, !active.archived)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs">{active.archived ? "Restore" : "Archive"}</button><button onClick={() => void deleteChat(active.id)} className="rounded-lg border border-red-200 px-2 py-1.5 text-xs text-red-600">Delete</button></>}</header>
-      <div className="flex items-center gap-2 border-b border-slate-200 p-2 md:hidden"><select aria-label="Choose conversation" value={activeId ?? ""} onChange={(e) => selectChat(e.target.value || null)} className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm"><option value="">{showArchived ? "No archived chat selected" : "Select a conversation"}</option>{chats.filter((c) => c.archived === showArchived).map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}</select><button type="button" onClick={() => setShowArchived((v) => !v)} className="rounded-lg bg-slate-100 px-2 py-1.5 text-xs font-semibold text-slate-600">{showArchived ? "Chats" : "Archived"}</button><button type="button" aria-label="New conversation" onClick={() => void createChat()} className="rounded-lg bg-emerald-500 px-3 py-1.5 text-sm font-bold text-white">+</button></div>
-      <div className="flex-1 overflow-y-auto p-4">{!active ? <div className="flex h-full items-center justify-center text-sm text-slate-500">Start a new conversation.</div> : active.messages.map((m) => { const parts = splitCitations(m.content); return <div key={m.id} className={"mb-4 flex " + (m.role === "user" ? "justify-end" : "justify-start")}><div className={"max-w-[85%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap " + (m.role === "user" ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-900")} dir="auto"><div>{parts.answer}{m.status === "pending" ? " …" : m.status === "failed" ? "\nMessage failed — send it again." : m.status === "unsaved" ? "\nNot saved to history." : ""}</div>{parts.sources.length > 0 && <div className="mt-3 border-t border-slate-300 pt-2 text-xs"><p className="mb-1 font-semibold">Sources</p><ul className="space-y-1">{parts.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="text-sky-700 underline">{source.title}</a></li>)}</ul></div>}</div></div>; })}<div ref={endRef}/></div>
-      <form onSubmit={submit} className="border-t border-slate-200 p-3"><label className="mb-2 flex w-fit cursor-pointer items-center gap-2 rounded-lg bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-800"><input type="checkbox" checked={liveWeb} onChange={(e) => setLiveWeb(e.target.checked)} className="accent-sky-600"/><span>Live web research</span><span className="font-normal text-sky-700">Search current web with Perplexity</span></label><div className="flex gap-2"><textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void send(input); } }} rows={1} placeholder="Ask Growth AI anything…" className="min-h-11 flex-1 resize-none rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-emerald-500" dir="auto"/><button disabled={busy || !input.trim()} className="self-end rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy ? "…" : "Send"}</button></div><p className="mt-1 text-[10px] text-slate-400">Enter sends · Shift+Enter makes a new line</p></form>
-    </main>
-    {renameId && <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/30 p-4"><div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl"><h3 className="font-semibold">Rename conversation</h3><input autoFocus value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void finishRename(); }} className="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"/><div className="mt-3 flex justify-end gap-2"><button onClick={() => setRenameId(null)} className="rounded-lg px-3 py-2 text-sm">Cancel</button><button onClick={() => void finishRename()} className="rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-white">Save</button></div></div></div>}
-    {error && <div role="alert" className="fixed bottom-4 left-1/2 z-50 flex max-w-[90vw] -translate-x-1/2 items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-xs text-white shadow-lg"><span>{error}</span><button type="button" aria-label="Dismiss" onClick={() => setError(null)} className="text-slate-300 hover:text-white">×</button></div>}
-  </section>;
+  return (
+    <section className="flex min-h-[76vh] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <aside className="hidden w-80 shrink-0 border-r border-slate-200 bg-slate-50/70 md:flex md:flex-col">
+        <div className="border-b border-slate-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-sm">
+              <GrowthAiIcon name="sparkle" size={20} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm font-bold text-slate-900">Growth AI</h2>
+              <p className="text-[11px] text-slate-500">Your growth workspace</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void createChat()}
+              aria-label="New chat"
+              title="New chat"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+            >
+              <GrowthAiIcon name="plus" size={18} />
+            </button>
+          </div>
+
+          <div className="relative mt-4">
+            <GrowthAiIcon name="search" size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search chats"
+              aria-label="Search conversations"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+            />
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-1 rounded-xl bg-slate-200/70 p-1">
+            <button
+              type="button"
+              onClick={() => setShowArchived(false)}
+              className={"rounded-lg px-3 py-2 text-xs font-semibold transition " + (!showArchived ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+            >
+              Chats
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowArchived(true)}
+              className={"rounded-lg px-3 py-2 text-xs font-semibold transition " + (showArchived ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+            >
+              Archived
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 space-y-1 overflow-y-auto p-2.5">
+          {visible.map((chat) => (
+            <div
+              key={chat.id}
+              className={"group flex items-start gap-1 rounded-2xl p-1 transition " + (chat.id === activeId ? "bg-emerald-50 ring-1 ring-emerald-100" : "hover:bg-white")}
+            >
+              <button
+                type="button"
+                onClick={() => selectChat(chat.id)}
+                aria-current={chat.id === activeId ? "true" : undefined}
+                className="min-w-0 flex-1 rounded-xl px-2.5 py-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <span className={"h-1.5 w-1.5 shrink-0 rounded-full " + (chat.id === activeId ? "bg-emerald-500" : "bg-slate-300")} />
+                  <span className="min-w-0 flex-1 truncate text-xs font-semibold text-slate-800">{chat.title}</span>
+                </span>
+                <span className="mt-1.5 block truncate pl-3.5 text-[11px] leading-4 text-slate-500">
+                  {chat.messages.at(-1)?.content || "A new conversation"}
+                </span>
+                <span className="mt-1.5 block pl-3.5 text-[10px] text-slate-400">
+                  {new Date(chat.updatedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                </span>
+              </button>
+              <div className="flex shrink-0 flex-col gap-1 pt-1 opacity-100 transition md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => void archiveChat(chat.id, !chat.archived)}
+                  title={chat.archived ? "Restore chat from archive" : "Archive chat"}
+                  aria-label={chat.archived ? "Restore chat from archive" : "Archive chat"}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                >
+                  <GrowthAiIcon name={chat.archived ? "restore" : "archive"} size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void deleteChat(chat.id)}
+                  title="Move chat to Trash"
+                  aria-label="Move chat to Trash"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                >
+                  <GrowthAiIcon name="trash" size={14} />
+                </button>
+              </div>
+            </div>
+          ))}
+          {!visible.length && (
+            <div className="px-4 py-12 text-center">
+              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-400 ring-1 ring-slate-200">
+                <GrowthAiIcon name="search" size={17} />
+              </div>
+              <p className="mt-3 text-xs font-semibold text-slate-700">No chats found</p>
+              <p className="mt-1 text-[11px] text-slate-500">Try another search or start a new chat.</p>
+            </div>
+          )}
+        </div>
+        <div className="border-t border-slate-200 p-3">
+          <button
+            type="button"
+            onClick={() => setBrowserOpen((open) => !open)}
+            className="flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-left text-xs font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50"
+          >
+            <GrowthAiIcon name="browser" size={16} />
+            <span className="flex-1">Headless browser</span>
+            <span className={"h-1.5 w-1.5 rounded-full " + (browserResult ? "bg-emerald-500" : "bg-slate-300")} />
+          </button>
+          <p className="mt-2 px-1 text-[10px] leading-4 text-slate-400">Chats save automatically. Deleted chats can be restored from Trash.</p>
+        </div>
+      </aside>
+
+      <main className="flex min-w-0 flex-1 flex-col bg-white">
+        <header className="flex items-center gap-2 border-b border-slate-200 px-3 py-3.5 sm:px-5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 md:hidden">
+            <GrowthAiIcon name="sparkle" size={19} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-sm font-bold text-slate-900">{active?.title || "Growth AI"}</h2>
+            <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-slate-500">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Auto model routing
+              {browserContext ? <span className="truncate text-emerald-700">· Website context attached</span> : null}
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setBrowserOpen((open) => !open)}
+              title="Open headless browser"
+              aria-label="Open headless browser"
+              aria-pressed={browserOpen}
+              className={"flex h-9 w-9 items-center justify-center rounded-xl border transition " + (browserOpen ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800")}
+            >
+              <GrowthAiIcon name="browser" size={17} />
+            </button>
+            {active && <>
+              <button
+                type="button"
+                onClick={() => { setRenameId(active.id); setRenameValue(active.title); }}
+                title="Rename chat"
+                aria-label="Rename chat"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-800"
+              >
+                <GrowthAiIcon name="edit" size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => void archiveChat(active.id, !active.archived)}
+                title={active.archived ? "Restore chat from archive" : "Archive chat"}
+                aria-label={active.archived ? "Restore chat from archive" : "Archive chat"}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-800"
+              >
+                <GrowthAiIcon name={active.archived ? "restore" : "archive"} size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => void deleteChat(active.id)}
+                title="Move chat to Trash"
+                aria-label="Move chat to Trash"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 text-rose-600 transition hover:bg-rose-50"
+              >
+                <GrowthAiIcon name="trash" size={16} />
+              </button>
+            </>}
+          </div>
+        </header>
+
+        {browserOpen && (
+          <section aria-label="Headless website browser" className="border-b border-slate-200 bg-slate-50/80 p-3 sm:p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
+                <GrowthAiIcon name="browser" size={16} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-xs font-bold text-slate-900">Headless browser</h3>
+                <p className="text-[10px] text-slate-500">Uses your signed-in GrowthSpace session and stays on this website.</p>
+              </div>
+              <button type="button" onClick={() => setBrowserOpen(false)} aria-label="Close headless browser" title="Close" className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-white hover:text-slate-700">
+                <GrowthAiIcon name="close" size={16} />
+              </button>
+            </div>
+
+            <div className="mt-3 flex gap-2">
+              <input
+                value={browserUrl}
+                onChange={(e) => setBrowserUrl(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") void runBrowserAction("inspect"); }}
+                placeholder="https://your-growthspace-site/dashboard"
+                aria-label="Website URL"
+                className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-800 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+              />
+              <button
+                type="button"
+                disabled={browserBusy}
+                onClick={() => void runBrowserAction("inspect")}
+                className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
+              >
+                <GrowthAiIcon name={browserBusy ? "refresh" : "external"} size={14} />
+                <span>{browserBusy ? "Opening…" : "Open page"}</span>
+              </button>
+            </div>
+
+            <div className="mt-2 grid gap-2 sm:grid-cols-[120px_minmax(0,1fr)]">
+              <select
+                value={browserAction}
+                onChange={(e) => setBrowserAction(e.target.value as typeof browserAction)}
+                aria-label="Action to queue"
+                className="h-10 rounded-xl border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-emerald-400"
+              >
+                <option value="click">Click</option>
+                <option value="fill">Fill field</option>
+                <option value="press">Press key</option>
+                <option value="select">Choose option</option>
+              </select>
+              <input
+                value={browserSelector}
+                onChange={(e) => setBrowserSelector(e.target.value)}
+                placeholder="CSS selector (choose one from page inspection below)"
+                aria-label="Browser element selector"
+                className="h-10 min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-800 outline-none focus:border-emerald-400"
+              />
+            </div>
+            <div className="mt-2 flex gap-2">
+              <input
+                value={browserValue}
+                onChange={(e) => setBrowserValue(e.target.value)}
+                placeholder={browserAction === "press" ? "Key (e.g. Enter)" : browserAction === "select" ? "Option value" : "Text to fill (if needed)"}
+                aria-label="Browser action value"
+                className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-800 outline-none focus:border-emerald-400"
+              />
+              <button
+                type="button"
+                onClick={addBrowserStep}
+                disabled={browserBusy || !browserSelector.trim()}
+                className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
+              >
+                <GrowthAiIcon name="plus" size={14} />
+                Add step
+              </button>
+            </div>
+
+            {browserSteps.length > 0 && (
+              <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-slate-800">{browserSteps.length} queued website action{browserSteps.length === 1 ? "" : "s"}</p>
+                  <button type="button" onClick={() => setBrowserSteps([])} className="text-[11px] font-medium text-slate-500 hover:text-rose-600">Clear</button>
+                </div>
+                <ol className="mt-2 space-y-1.5">
+                  {browserSteps.map((step, index) => (
+                    <li key={step.id} className="flex items-center gap-2 text-[11px] text-slate-600">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-slate-100 text-[10px] font-bold">{index + 1}</span>
+                      <span className="shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 font-semibold">{step.action}</span>
+                      <code className="min-w-0 flex-1 truncate">{step.selector}</code>
+                      <button type="button" onClick={() => setBrowserSteps((items) => items.filter((item) => item.id !== step.id))} title="Remove step" aria-label="Remove step" className="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 hover:bg-rose-50 hover:text-rose-600">
+                        <GrowthAiIcon name="close" size={13} />
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+                <button
+                  type="button"
+                  disabled={browserBusy}
+                  onClick={() => void runBrowserAction("inspect", browserUrl, browserSteps)}
+                  className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
+                >
+                  <GrowthAiIcon name="shield" size={14} />
+                  {browserBusy ? "Running…" : "Confirm and run sequence"}
+                </button>
+                <p className="mt-2 text-[10px] leading-4 text-slate-500">Actions run in order in one headless browser session. Review the steps first; clicking or filling may change saved website data.</p>
+              </div>
+            )}
+
+            {browserError && <p role="alert" className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{browserError}</p>}
+            {browserResult && (
+              <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                <div className="flex items-start gap-2 border-b border-slate-100 px-3 py-2.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-bold text-slate-900">{browserResult.title}</p>
+                    <p className="mt-0.5 truncate text-[10px] text-slate-500">{browserResult.url}</p>
+                  </div>
+                  <button type="button" onClick={() => setBrowserContext(browserContextFromResult(browserResult))} title="Attach this page to Growth AI" aria-label="Attach this page to Growth AI" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                    <GrowthAiIcon name="check" size={15} />
+                  </button>
+                </div>
+                {browserResult.screenshot && <div className="border-b border-slate-100 bg-slate-100 p-2"><img src={browserResult.screenshot} alt="Headless browser screenshot of the current GrowthSpace page" className="max-h-56 w-full rounded-lg border border-slate-200 bg-white object-contain object-top" /></div>}
+                <details className="group">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50">
+                    <span>Rendered page text and controls ({browserResult.elements.length})</span>
+                    <GrowthAiIcon name="chevron-down" size={14} className="transition group-open:rotate-180" />
+                  </summary>
+                  <div className="space-y-3 border-t border-slate-100 p-3">
+                    <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words text-[10px] leading-4 text-slate-600">{browserResult.text.slice(0, 5000)}</pre>
+                    <div className="flex flex-wrap gap-1.5">
+                      {browserResult.elements.slice(0, 30).map((element, index) => (
+                        <button
+                          type="button"
+                          key={element.selector + "-" + index}
+                          disabled={element.disabled}
+                          onClick={() => setBrowserSelector(element.selector)}
+                          title={element.selector + (element.href ? " · " + element.href : "")}
+                          className="max-w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-left text-[10px] text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 disabled:opacity-40"
+                        >
+                          <span className="mr-1 font-bold uppercase text-emerald-700">{element.tag}</span>
+                          <span className="inline-block max-w-48 truncate align-bottom">{element.text || element.selector}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </details>
+              </div>
+            )}
+          </section>
+        )}
+
+        <div className="border-b border-slate-100 p-2 md:hidden">
+          <div className="flex items-center gap-2">
+            <select aria-label="Choose conversation" value={activeId ?? ""} onChange={(e) => selectChat(e.target.value || null)} className="h-9 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-2 text-xs text-slate-700">
+              <option value="">{showArchived ? "No archived chat selected" : "Select a conversation"}</option>
+              {chats.filter((chat) => chat.archived === showArchived).map((chat) => <option key={chat.id} value={chat.id}>{chat.title}</option>)}
+            </select>
+            <button type="button" onClick={() => setShowArchived((value) => !value)} title={showArchived ? "Show chats" : "Show archived"} aria-label={showArchived ? "Show chats" : "Show archived"} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500">
+              <GrowthAiIcon name={showArchived ? "restore" : "archive"} size={15} />
+            </button>
+            <button type="button" onClick={() => void createChat()} title="New chat" aria-label="New chat" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white">
+              <GrowthAiIcon name="plus" size={16} />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto bg-gradient-to-b from-slate-50/80 to-white p-4 sm:p-6">
+          <div className="mx-auto w-full max-w-3xl">
+            {!active ? (
+              <div className="flex min-h-[48vh] flex-col items-center justify-center text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
+                  <GrowthAiIcon name="sparkle" size={28} />
+                </div>
+                <h3 className="mt-5 text-lg font-bold tracking-tight text-slate-900">What are we growing today?</h3>
+                <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">Ask about your workspace, review your website in the headless browser, or turn a rough idea into a practical plan.</p>
+                <div className="mt-6 grid w-full max-w-xl gap-2 sm:grid-cols-2">
+                  {[
+                    ["Review my website", "Open and inspect my GrowthSpace website, then summarize what you see."],
+                    ["Find growth opportunities", "Analyze recent workspace growth metrics and suggest three useful improvements."],
+                    ["Plan the next step", "Help me make a practical, prioritized growth plan for this workspace."],
+                    ["Explore competitors", "Summarize my tracked competitors and recommend a few next steps."],
+                  ].map(([label, prompt]) => (
+                    <button key={label} type="button" onClick={() => { setInput(prompt); requestAnimationFrame(() => inputRef.current?.focus()); }} className="rounded-2xl border border-slate-200 bg-white p-4 text-left text-xs font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50/60">
+                      <span className="block">{label}</span>
+                      <span className="mt-1.5 block text-[11px] font-normal leading-4 text-slate-500">{prompt}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                {active.messages.length === 0 && (
+                  <div className="py-12 text-center">
+                    <p className="text-sm font-semibold text-slate-800">A fresh start</p>
+                    <p className="mt-1 text-xs text-slate-500">Ask a question or use the browser icon to inspect your website.</p>
+                  </div>
+                )}
+                {active.messages.map((message) => {
+                  const parts = splitCitations(message.content);
+                  const isUser = message.role === "user";
+                  return (
+                    <div key={message.id} className={"mb-5 flex gap-2.5 sm:gap-3 " + (isUser ? "justify-end" : "justify-start")}>
+                      {!isUser && (
+                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200">
+                          <GrowthAiIcon name="sparkle" size={16} />
+                        </div>
+                      )}
+                      <div className={"min-w-0 max-w-[88%] sm:max-w-[82%] " + (isUser ? "items-end" : "items-start")}>
+                        <div className={"mb-1.5 flex items-center gap-2 px-1 text-[10px] " + (isUser ? "justify-end text-slate-400" : "text-slate-500")}>
+                          <span className="font-semibold">{isUser ? "You" : "Growth AI"}</span>
+                          {message.provider && !isUser && <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-slate-500">{message.provider}{message.model ? " · " + message.model : ""}</span>}
+                          <span>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                        </div>
+                        <div className={"rounded-2xl px-4 py-3.5 text-sm leading-6 shadow-sm " + (isUser ? "rounded-tr-md bg-emerald-600 text-white" : "rounded-tl-md border border-slate-200 bg-white text-slate-800")} dir="auto">
+                          <div className="whitespace-pre-wrap break-words">{parts.answer}{message.status === "pending" ? "\nThinking…" : message.status === "failed" ? "\nMessage failed — send it again." : message.status === "unsaved" ? "\nNot saved to history." : ""}</div>
+                          {parts.sources.length > 0 && <div className={"mt-3 border-t pt-2 text-xs " + (isUser ? "border-white/20" : "border-slate-200")}><p className="mb-1 font-semibold">Sources</p><ul className="space-y-1">{parts.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className={isUser ? "underline text-white" : "underline text-sky-700"}>{source.title}</a></li>)}</ul></div>}
+                        </div>
+                      </div>
+                      {isUser && <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-200 text-[10px] font-bold text-slate-600">YOU</div>}
+                    </div>
+                  );
+                })}
+                {busy && <div className="ml-11 mb-4 flex items-center gap-2 text-xs text-slate-500"><span className="flex gap-1"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 [animation-delay:150ms]" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 [animation-delay:300ms]" /></span> Growth AI is working</div>}
+                <div ref={endRef} />
+              </>
+            )}
+          </div>
+        </div>
+
+        <form onSubmit={submit} className="border-t border-slate-200 bg-white p-3 sm:p-4">
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-semibold text-slate-700 transition hover:bg-slate-100">
+                <input type="checkbox" checked={liveWeb} onChange={(e) => setLiveWeb(e.target.checked)} className="accent-emerald-600" />
+                <span>Live web research</span>
+              </label>
+              <button type="button" onClick={() => setBrowserOpen((open) => !open)} className={"flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-semibold transition " + (browserOpen ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-slate-200 text-slate-600 hover:bg-slate-50")}>
+                <GrowthAiIcon name="browser" size={14} />
+                Headless browser
+              </button>
+              {browserContext && <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-700"><GrowthAiIcon name="check" size={12} />Website page attached</span>}
+            </div>
+            <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm transition focus-within:border-emerald-300 focus-within:ring-4 focus-within:ring-emerald-50">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void send(input); } }}
+                rows={2}
+                placeholder="Message Growth AI…"
+                aria-label="Message Growth AI"
+                className="min-h-12 min-w-0 flex-1 resize-y bg-transparent px-2 py-2 text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400"
+                dir="auto"
+              />
+              <button
+                type="submit"
+                disabled={busy || !input.trim()}
+                title="Send message"
+                aria-label="Send message"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <GrowthAiIcon name="send" size={17} />
+              </button>
+            </div>
+            <p className="mt-2 flex items-center justify-between gap-2 px-1 text-[10px] text-slate-400">
+              <span>Enter to send · Shift+Enter for a new line</span>
+              <span className="hidden sm:inline">Saved to your workspace</span>
+            </p>
+          </div>
+        </form>
+      </main>
+
+      {renameId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/30 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><GrowthAiIcon name="edit" size={16} /></div>
+              <div><h3 className="text-sm font-bold text-slate-900">Rename conversation</h3><p className="text-xs text-slate-500">Give this chat a useful name.</p></div>
+            </div>
+            <input autoFocus value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void finishRename(); }} className="mt-4 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" />
+            <div className="mt-4 flex justify-end gap-2">
+              <button type="button" onClick={() => setRenameId(null)} className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+              <button type="button" onClick={() => void finishRename()} className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700">Save name</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {error && <div role="alert" className="fixed bottom-4 left-1/2 z-[60] flex max-w-[90vw] -translate-x-1/2 items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-xs text-white shadow-xl"><span>{error}</span><button type="button" aria-label="Dismiss" onClick={() => setError(null)} className="text-slate-300 hover:text-white"><GrowthAiIcon name="close" size={14} /></button></div>}
+    </section>
+  );
 }
