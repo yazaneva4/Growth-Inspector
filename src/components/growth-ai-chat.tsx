@@ -19,7 +19,7 @@ function titleFrom(text: string) { const value = text.replace(/\s+/g, " ").trim(
 function fromApi(value: ApiConversation): Conversation { return { id: value.id, title: value.title || "New conversation", archived: value.archived, updatedAt: Date.parse(value.updated_at) || Date.now(), messages: (value.ai_operator_messages ?? []).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)).map((m) => ({ id: m.id, role: m.role, content: typeof m.content === "string" ? m.content : "", provider: m.provider ?? undefined, model: m.model ?? undefined, createdAt: Date.parse(m.created_at) || Date.now() })) }; }
 function requestsBrowserAction(value: string): boolean {
   const text = value.toLowerCase();
-  const direct = /\b(click|fill|type|enter|submit|press|select|choose|toggle|upload|navigate|scroll)\b/i.test(text);
+  const direct = /\b(click|fill|type|enter|submit|press|select|choose|toggle|upload|navigate|scroll|open)\b/i.test(text);
   const checkbox = /\b(check|uncheck)\b.{0,40}\b(box|checkbox|option)\b/i.test(text);
   const recordAction = /\b(create|add|update|edit|delete|remove|save|restore|archive|change|set)\b.{0,80}\b(client|contact|invoice|lead|competitor|quote|product|task|job|customer|setting|record|form|field|status|member|team|dashboard|website|CRM)\b/i.test(text);
   const websiteScope = /\b(on|in|through|using|from)\s+(?:the\s+)?(?:website|webpage|page|dashboard|GrowthSpace|CRM)\b/i.test(text)
