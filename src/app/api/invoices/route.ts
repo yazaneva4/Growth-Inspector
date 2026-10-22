@@ -127,3 +127,24 @@ export async function PATCH(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ ok: true });
 }
+
+/** Move an invoice to Trash so it can be restored later. */
+export async function DELETE(req: NextRequest) {
+  const body = await req.json().catch(() => null);
+  const id = typeof body?.id === "string" ? body.id : "";
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "sign in required" }, { status: 401 });
+
+  const { data: trashId, error } = await supabase.rpc("move_to_trash", {
+    p_source_table: "invoices",
+    p_record_id: id,
+  });
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+
+  return NextResponse.json({ ok: true, trashId });
+}
