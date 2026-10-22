@@ -218,18 +218,15 @@ export async function POST(req: NextRequest) {
       const body = document.body;
       const elements = Array.from(document.querySelectorAll("a,button,input,textarea,select,[role='button'],[role='link']"))
         .slice(0, 100)
-        .map((element) => {
+        .map((element, index) => {
           const node = element as HTMLAnchorElement | HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
           const tag = node.tagName.toLowerCase();
           const text = (node.getAttribute("aria-label") || node.getAttribute("placeholder") || node.getAttribute("title") || node.innerText || node.getAttribute("name") || "").trim().replace(/\s+/g, " ").slice(0, 120);
-          const siblings = node.parentElement ? Array.from(node.parentElement.children).filter((item) => item.tagName === node.tagName) : [];
-          const safeId = /^[A-Za-z0-9_-]+$/.test(node.id) ? node.id : "";
-          const safeName = node.getAttribute("name") || "";
-          const selector = safeId
-            ? "#" + safeId
-            : safeName && /^[A-Za-z0-9_.:-]+$/.test(safeName)
-              ? tag + '[name="' + safeName + '"]'
-              : tag + ":nth-of-type(" + Math.max(1, siblings.indexOf(node) + 1) + ")";
+          // Stamp a per-inspection selector: bare nth-of-type selectors can
+          // point to a different button when similar controls repeat.
+          const marker = "growth-ai-target-" + index;
+          node.setAttribute("data-growth-ai-target", marker);
+          const selector = '[data-growth-ai-target="' + marker + '"]';
           return {
             tag,
             selector,
