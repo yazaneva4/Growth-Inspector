@@ -221,13 +221,15 @@ export async function POST(req: NextRequest) {
         .map((element) => {
           const node = element as HTMLAnchorElement | HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
           const tag = node.tagName.toLowerCase();
-          const text = (node.getAttribute("aria-label") || node.getAttribute("placeholder") || node.getAttribute("title") || node.innerText || node.getAttribute("name") || "").trim().replace(/\\s+/g, " ").slice(0, 120);
+          const text = (node.getAttribute("aria-label") || node.getAttribute("placeholder") || node.getAttribute("title") || node.innerText || node.getAttribute("name") || "").trim().replace(/\s+/g, " ").slice(0, 120);
           const siblings = node.parentElement ? Array.from(node.parentElement.children).filter((item) => item.tagName === node.tagName) : [];
-          const selector = node.id
-            ? `#${node.id.replace(/[^a-zA-Z0-9_-]/g, "\\\\$&")}`
-            : node.getAttribute("name")
-              ? `${tag}[name="${(node.getAttribute("name") || "").replace(/"/g, "\\\\"")}"]`
-              : `${tag}:nth-of-type(${Math.max(1, siblings.indexOf(node) + 1)})`;
+          const safeId = /^[A-Za-z0-9_-]+$/.test(node.id) ? node.id : "";
+          const safeName = node.getAttribute("name") || "";
+          const selector = safeId
+            ? "#" + safeId
+            : safeName && /^[A-Za-z0-9_.:-]+$/.test(safeName)
+              ? tag + '[name="' + safeName + '"]'
+              : tag + ":nth-of-type(" + Math.max(1, siblings.indexOf(node) + 1) + ")";
           return {
             tag,
             selector,
