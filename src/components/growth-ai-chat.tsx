@@ -336,69 +336,107 @@ export function GrowthAiChat() {
       let finalAgentGoal = agentGoal;
       const controlIntent = requestsBrowserAction(value);
       if (controlIntent && pageResultForTurn) {
-        const visibleControls = pageResultForTurn.elements
-          .filter((element) => !element.disabled)
-          .slice(0, 60)
-          .map((element) => ({
-            tag: element.tag,
-            selector: element.selector,
-            text: element.text,
-            placeholder: element.placeholder || "",
-            type: element.type || "",
-            href: element.href || "",
-          }));
+        let actionRound = 0;
+        let actionExecuted = false;
+        let actionDeclined = false;
+        let actionFailed = false;
+        const executedSignatures = new Set<string>();
 
-        const plannerPrompt = [
-          "You are Growth AI's browser action planner. Plan concrete UI actions for the user's request using only the visible elements from the current signed-in GrowthSpace page.",
-          "Return only valid JSON with this exact shape: {\"steps\":[{\"action\":\"click|fill|press|select\",\"selector\":\"exact selector from the supplied elements\",\"value\":\"text or key, or empty string\"}]}",
-          "Use 1 to 8 steps only when the user's request clearly asks you to interact with the website. Otherwise return {\"steps\":[]}.",
-          "Every selector must exactly match one selector in the supplied elements. Never invent a selector. For fill actions, use input or textarea elements; for select actions, use select elements.",
-          "Do not claim to have performed an action. The UI will ask the user to confirm the complete action sequence before anything runs.",
-          "Do not navigate off the current GrowthSpace website. If the request cannot be completed with the visible controls, return {\"steps\":[]}.",
-          "User request: " + value,
-          "Current page: " + pageResultForTurn.title + " (" + pageResultForTurn.url + ")",
-          "Visible page text: " + pageResultForTurn.text.slice(0, 6500),
-          "Available interactive elements: " + JSON.stringify(visibleControls),
-        ].join("\n\n");
+        // Allow a few confirmed rounds so the AI can navigate to a section first,
+        // then inspect that page and fill/submit its form in a later round.
+        while (actionRound < 3) {
+          const visibleControls = pageResultForTurn.elements
+            .filter((element) => !element.disabled)
+            .slice(0, 60)
+            .map((element) => ({
+              tag: element.tag,
+              selector: element.selector,
+              text: element.text,
+              placeholder: element.placeholder || "",
+              type: element.type || "",
+              href: element.href || "",
+            }));
 
-        try {
-          const planResponse = await fetch("/api/agent", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ goal: plannerPrompt, provider: "auto", model: "auto", history: [] }),
-          });
-          const planData = await planResponse.json().catch(() => null);
-          const plannedSteps = planResponse.ok && typeof planData?.answer === "string"
-            ? parseBrowserPlan(planData.answer, pageResultForTurn.elements)
-            : [];
+          const plannerPrompt = [
+            "You are Growth AI's browser action planner. Plan the next concrete UI actions for the user's request using only the visible elements from the current signed-in GrowthSpace page.",
+            "Return only valid JSON with this exact shape: {\"steps\":[{\"action\":\"click|fill|press|select\",\"selector\":\"exact selector from the supplied elements\",\"value\":\"text or key, or empty string\"}]}",
+            "Use 1 to 8 steps only when the user's request clearly asks you to interact with the website. If the task is complete, the request is vague, or this page has no suitable controls, return {\"steps\":[]}.",
+            "Every selector must exactly match one selector in the supplied elements. Never invent a selector. For fill actions, use input or textarea elements; for select actions, use select elements.",
+            "Plan only the next steps possible on this page. After these steps the page will be inspected again, so you can continue from the next page. Do not repeat an action already listed in the executed actions unless there is a clear reason.",
+            "Do not claim to have performed an action. The UI asks the user to confirm every action sequence before anything runs.",
+            "Do not navigate off the current GrowthSpace website. If the request cannot be completed with visible controls, return {\"steps\":[]}.",
+            "User request: " + value,
+            "Actions already executed: " + JSON.stringify(Array.from(executedSignatures)),
+            "Current page: " + pageResultForTurn.title + " (" + pageResultForTurn.url + ")",
+            "Visible page text: " + pageResultForTurn.text.slice(0, 6500),
+            "Available interactive elements: " + JSON.stringify(visibleControls),
+          ].join("\n\n");
 
-          if (plannedSteps.length) {
-            const preview = plannedSteps.map((step, index) =>
-              (index + 1) + ". " + step.action.toUpperCase() + " " + step.selector +
-              (step.action === "click" ? "" : " → " + (step.value || "(empty)"))
-            ).join("\n");
-            const approved = window.confirm(
-              "Growth AI proposes these website actions:\n\n" + preview +
-              "\n\nThey may change saved website data. Run this sequence?"
-            );
-
-            if (approved) {
-              const updatedPage = await runBrowserAction("inspect", pageResultForTurn.url, plannedSteps, false);
-              if (updatedPage) {
-                pageResultForTurn = updatedPage;
-                pageContextForTurn = browserContextFromResult(updatedPage);
-                finalAgentGoal = value + "\n\nBrowser actions were executed on the signed-in GrowthSpace website. Here is the refreshed page state; use it to report what actually changed, and do not claim changes that are not reflected here:\n" + pageContextForTurn.slice(0, 14000);
-              } else {
-                finalAgentGoal = value + "\n\nGrowth AI proposed website actions but the browser did not complete them. Do not claim the changes succeeded. The user can review the browser panel error and try again.";
-              }
-            } else {
-              finalAgentGoal = value + "\n\nThe user declined confirmation for the proposed website actions. No website actions were run. Do not claim any change succeeded; explain that nothing was changed.";
-            }
-          } else {
-            setBrowserError("Growth AI couldn't map this request to a safe sequence of visible website controls. No website changes were made.");
+          let plannedSteps: BrowserStep[] = [];
+          try {
+            const planResponse = await fetch("/api/agent", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ goal: plannerPrompt, provider: "auto", model: "auto", history: [] }),
+            });
+            const planData = await planResponse.json().catch(() => null);
+            plannedSteps = planResponse.ok && typeof planData?.answer === "string"
+              ? parseBrowserPlan(planData.answer, pageResultForTurn.elements)
+              : [];
+          } catch {
+            actionFailed = true;
+            setBrowserError("Growth AI could not prepare browser actions just now. No unconfirmed website changes were made.");
+            break;
           }
-        } catch {
-          setBrowserError("Growth AI could not prepare browser actions just now. No website changes were made.");
+
+          if (!plannedSteps.length) {
+            if (actionRound === 0 && !actionExecuted) {
+              setBrowserError("Growth AI couldn't map this request to a safe sequence of visible website controls. No website changes were made.");
+            }
+            break;
+          }
+
+          const signatureFor = (step: BrowserStep) => [step.action, step.selector, step.value].join("|");
+          if (plannedSteps.every((step) => executedSignatures.has(signatureFor(step)))) break;
+
+          const preview = plannedSteps.map((step, index) =>
+            (index + 1) + ". " + step.action.toUpperCase() + " " + step.selector +
+            (step.action === "click" ? "" : " → " + (step.value || "(empty)"))
+          ).join("\n");
+          const approved = window.confirm(
+            "Growth AI proposes this website action sequence (round " + (actionRound + 1) + " of 3):\n\n" + preview +
+            "\n\nThese actions may change saved website data. Run this sequence?"
+          );
+
+          if (!approved) {
+            actionDeclined = true;
+            break;
+          }
+
+          const beforeUrl = pageResultForTurn.url;
+          const updatedPage = await runBrowserAction("inspect", beforeUrl, plannedSteps, false);
+          if (!updatedPage) {
+            actionFailed = true;
+            break;
+          }
+
+          actionExecuted = true;
+          for (const step of plannedSteps) executedSignatures.add(signatureFor(step));
+          pageResultForTurn = updatedPage;
+          pageContextForTurn = browserContextFromResult(updatedPage);
+          actionRound += 1;
+        }
+
+        if (actionExecuted) {
+          finalAgentGoal = value +
+            "\n\nBrowser actions were executed on the signed-in GrowthSpace website. Here is the latest page state; use it to report what actually changed, and do not claim changes that are not reflected here:\n" +
+            pageContextForTurn.slice(0, 14000) +
+            (actionFailed ? "\n\nThe browser encountered an error after some actions. Be precise about what can be verified and mention that the sequence may be incomplete." : "") +
+            (actionDeclined ? "\n\nThe user declined a later action sequence. Report any verified partial progress and do not claim the remaining actions completed." : "");
+        } else if (actionDeclined) {
+          finalAgentGoal = value + "\n\nThe user declined confirmation for the proposed website actions. No website actions were run. Do not claim any change succeeded; explain that nothing was changed.";
+        } else if (actionFailed) {
+          finalAgentGoal = value + "\n\nThe browser could not prepare or execute a website action sequence. Do not claim any website changes succeeded. Explain the browser error shown in the browser panel.";
         }
       }
 
