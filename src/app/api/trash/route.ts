@@ -6,6 +6,7 @@ const SOURCE_TABLES = new Set([
   "competitors",
   "invoices",
   "ai_operator_conversations",
+  "backup_contacts",
 ]);
 
 async function getWorkspace() {
