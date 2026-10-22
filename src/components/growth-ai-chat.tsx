@@ -17,6 +17,16 @@ type RefreshOptions = { selectFirst?: boolean; allowWhileBusy?: boolean };
 function makeId() { return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
 function titleFrom(text: string) { const value = text.replace(/\s+/g, " ").trim(); return value.length > 60 ? `${value.slice(0, 60)}…` : value || "New conversation"; }
 function fromApi(value: ApiConversation): Conversation { return { id: value.id, title: value.title || "New conversation", archived: value.archived, updatedAt: Date.parse(value.updated_at) || Date.now(), messages: (value.ai_operator_messages ?? []).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)).map((m) => ({ id: m.id, role: m.role, content: typeof m.content === "string" ? m.content : "", provider: m.provider ?? undefined, model: m.model ?? undefined, createdAt: Date.parse(m.created_at) || Date.now() })) }; }
+function requestsBrowserAction(value: string): boolean {
+  const text = value.toLowerCase();
+  const direct = /\b(click|fill|type|enter|submit|press|select|choose|toggle|upload|navigate|scroll)\b/i.test(text);
+  const checkbox = /\b(check|uncheck)\b.{0,40}\b(box|checkbox|option)\b/i.test(text);
+  const recordAction = /\b(create|add|update|edit|delete|remove|save|restore|archive|change|set)\b.{0,80}\b(client|contact|invoice|lead|competitor|quote|product|task|job|customer|setting|record|form|field|status|member|team|dashboard|website|CRM)\b/i.test(text);
+  const websiteScope = /\b(on|in|through|using|from)\s+(?:the\s+)?(?:website|webpage|page|dashboard|GrowthSpace|CRM)\b/i.test(text)
+    && /\b(create|add|update|edit|delete|remove|save|restore|archive|change|set|send|click|fill|submit)\b/i.test(text);
+  return direct || checkbox || recordAction || websiteScope;
+}
+
 function parseBrowserPlan(answer: string, elements: BrowserElement[]): BrowserStep[] {
   const start = answer.indexOf("{");
   const end = answer.lastIndexOf("}");
@@ -294,7 +304,7 @@ export function GrowthAiChat() {
     let pageContextForTurn = browserContext;
     let pageResultForTurn: BrowserResult | null = browserResult;
     const explicitUrl = value.match(/https?:\/\/[^\s<>"')]+/i)?.[0]?.replace(/[.,!?]+$/, "");
-    const browserIntent = /\b(open|visit|browse|inspect|read|check|look at|website|webpage|page|dashboard|click|fill|type|submit|save|create|update|edit|delete|remove|choose|select|press|navigate|upload|restore)\b/i.test(value);
+    const browserIntent = requestsBrowserAction(value) || /\b(visit|browse|inspect|read|look at|website|webpage|page|dashboard)\b/i.test(value);
     if (browserIntent && (explicitUrl || !pageContextForTurn || !pageResultForTurn)) {
       const targetUrl = explicitUrl || (window.location.origin + "/dashboard");
       const page = await runBrowserAction("inspect", targetUrl, undefined, false);
@@ -324,7 +334,7 @@ export function GrowthAiChat() {
       userSaved = true;
 
       let finalAgentGoal = agentGoal;
-      const controlIntent = /\b(click|fill|type|enter|submit|save|create|update|edit|delete|remove|choose|select|press|check|uncheck|toggle|upload|restore|navigate|open|add|change)\b/i.test(value);
+      const controlIntent = requestsBrowserAction(value);
       if (controlIntent && pageResultForTurn) {
         const visibleControls = pageResultForTurn.elements
           .filter((element) => !element.disabled)
