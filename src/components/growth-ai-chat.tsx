@@ -250,8 +250,10 @@ export function GrowthAiChat() {
 
     let pageContextForTurn = browserContext;
     const explicitUrl = value.match(/https?:\/\/[^\s<>"')]+/i)?.[0]?.replace(/[.,!?]+$/, "");
-    if (explicitUrl && /\b(open|visit|browse|inspect|read|check|look at|website|webpage|page)\b/i.test(value)) {
-      const page = await runBrowserAction("inspect", explicitUrl, undefined, false);
+    const browserIntent = /\b(open|visit|browse|inspect|read|check|look at|website|webpage|page|dashboard)\b/i.test(value);
+    if (browserIntent && (explicitUrl || !pageContextForTurn)) {
+      const targetUrl = explicitUrl || (window.location.origin + "/dashboard");
+      const page = await runBrowserAction("inspect", targetUrl, undefined, false);
       if (page) pageContextForTurn = browserContextFromResult(page);
     }
     const agentGoal = pageContextForTurn
