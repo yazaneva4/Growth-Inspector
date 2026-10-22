@@ -107,25 +107,14 @@ export async function POST(req: NextRequest) {
     const conversationId = typeof body?.conversationId === "string" ? body.conversationId : "";
     if (!conversationId) return NextResponse.json({ error: "invalid conversation" }, { status: 400 });
 
-    // Delete child messages explicitly first. This keeps Delete reliable even
-    // if the production database was created with an older FK definition.
-    const { error: messagesError } = await db
-      .from("ai_operator_messages")
-      .delete()
-      .eq("conversation_id", conversationId)
-      .eq("org_id", org.id);
-    if (messagesError) return NextResponse.json({ error: messagesError.message }, { status: 500 });
-
-    const { data: deleted, error } = await db
-      .from("ai_operator_conversations")
-      .delete()
-      .eq("id", conversationId)
-      .eq("org_id", org.id)
-      .select("id")
-      .maybeSingle();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    if (!deleted) return NextResponse.json({ error: "conversation not found" }, { status: 404 });
-    return NextResponse.json({ ok: true, deletedId: conversationId });
+    // The database function stores the conversation plus all saved messages
+    // together before removing the active rows, so the whole history is restorable.
+    const { data: trashId, error } = await db.rpc("move_to_trash", {
+      p_source_table: "ai_operator_conversations",
+      p_record_id: conversationId,
+    });
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ ok: true, trashId });
   }
 
   return NextResponse.json({ error: "unknown action" }, { status: 400 });
