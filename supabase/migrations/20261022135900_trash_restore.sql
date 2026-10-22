@@ -41,7 +41,7 @@ create or replace function public.move_to_trash(p_source_table text, p_record_id
 returns uuid
 language plpgsql
 security invoker
-set search_path = '' as $
+set search_path = '' as $fn$
 declare
   v_user_id uuid := auth.uid();
   v_org_id uuid;
@@ -137,7 +137,7 @@ begin
 
   return v_trash_id;
 end;
-$$;
+$fn$;
 
 revoke all on function public.move_to_trash(text, uuid) from public, anon;
 grant execute on function public.move_to_trash(text, uuid) to authenticated;
@@ -148,7 +148,7 @@ create or replace function public.restore_trash_item(p_trash_id uuid)
 returns text
 language plpgsql
 security invoker
-set search_path = '' as $
+set search_path = '' as $fn$
 declare
   v_user_id uuid := auth.uid();
   v_org_id uuid;
@@ -200,7 +200,7 @@ begin
   delete from public.trash_items where id = v_item.id and org_id = v_org_id;
   return v_item.source_table;
 end;
-$$;
+$fn$;
 
 revoke all on function public.restore_trash_item(uuid) from public, anon;
 grant execute on function public.restore_trash_item(uuid) to authenticated;
