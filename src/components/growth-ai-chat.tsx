@@ -17,6 +17,48 @@ type RefreshOptions = { selectFirst?: boolean; allowWhileBusy?: boolean };
 function makeId() { return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
 function titleFrom(text: string) { const value = text.replace(/\s+/g, " ").trim(); return value.length > 60 ? `${value.slice(0, 60)}…` : value || "New conversation"; }
 function fromApi(value: ApiConversation): Conversation { return { id: value.id, title: value.title || "New conversation", archived: value.archived, updatedAt: Date.parse(value.updated_at) || Date.now(), messages: (value.ai_operator_messages ?? []).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)).map((m) => ({ id: m.id, role: m.role, content: typeof m.content === "string" ? m.content : "", provider: m.provider ?? undefined, model: m.model ?? undefined, createdAt: Date.parse(m.created_at) || Date.now() })) }; }
+function parseBrowserPlan(answer: string, elements: BrowserElement[]): BrowserStep[] {
+  const start = answer.indexOf("{");
+  const end = answer.lastIndexOf("}");
+  if (start < 0 || end <= start) return [];
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(answer.slice(start, end + 1));
+  } catch {
+    return [];
+  }
+  if (!parsed || typeof parsed !== "object" || !Array.isArray((parsed as { steps?: unknown }).steps)) return [];
+
+  const rawSteps = (parsed as { steps: unknown[] }).steps;
+  if (rawSteps.length === 0 || rawSteps.length > 8) return [];
+  const valid: BrowserStep[] = [];
+
+  for (const raw of rawSteps) {
+    if (!raw || typeof raw !== "object") return [];
+    const item = raw as { action?: unknown; selector?: unknown; value?: unknown };
+    const action = item.action;
+    const selector = typeof item.selector === "string" ? item.selector : "";
+    const value = typeof item.value === "string" ? item.value.slice(0, 4000) : "";
+    if (!["click", "fill", "press", "select"].includes(String(action)) || !selector) return [];
+
+    const element = elements.find((candidate) => candidate.selector === selector);
+    if (!element || element.disabled) return [];
+    if (action === "fill" && !["input", "textarea"].includes(element.tag)) return [];
+    if (action === "select" && element.tag !== "select") return [];
+    if (action === "press" && !["input", "textarea", "button", "a"].includes(element.tag)) return [];
+
+    valid.push({
+      id: `${Date.now()}-${valid.length}-${Math.random().toString(36).slice(2)}`,
+      action: action as BrowserStep["action"],
+      selector,
+      value,
+    });
+  }
+
+  return valid;
+}
+
 function splitCitations(content: string) {
   const marker = "\n\nSources:\n";
   const start = content.lastIndexOf(marker);
@@ -250,12 +292,16 @@ export function GrowthAiChat() {
     gate.startSend(); setBusy(true);
 
     let pageContextForTurn = browserContext;
+    let pageResultForTurn: BrowserResult | null = browserResult;
     const explicitUrl = value.match(/https?:\/\/[^\s<>"')]+/i)?.[0]?.replace(/[.,!?]+$/, "");
-    const browserIntent = /\b(open|visit|browse|inspect|read|check|look at|website|webpage|page|dashboard)\b/i.test(value);
-    if (browserIntent && (explicitUrl || !pageContextForTurn)) {
+    const browserIntent = /\b(open|visit|browse|inspect|read|check|look at|website|webpage|page|dashboard|click|fill|type|submit|save|create|update|edit|delete|remove|choose|select|press|navigate|upload|restore)\b/i.test(value);
+    if (browserIntent && (explicitUrl || !pageContextForTurn || !pageResultForTurn)) {
       const targetUrl = explicitUrl || (window.location.origin + "/dashboard");
       const page = await runBrowserAction("inspect", targetUrl, undefined, false);
-      if (page) pageContextForTurn = browserContextFromResult(page);
+      if (page) {
+        pageResultForTurn = page;
+        pageContextForTurn = browserContextFromResult(page);
+      }
     }
     const agentGoal = pageContextForTurn
       ? value + "\n\nHeadless browser context from the user's signed-in GrowthSpace website:\n" + pageContextForTurn.slice(0, 14000)
@@ -276,7 +322,77 @@ export function GrowthAiChat() {
     try {
       await api({ action: "message", conversationId: current.id, role: "user", content: value });
       userSaved = true;
-      const res = await fetch(liveWeb ? "/api/agent/research" : "/api/agent", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(liveWeb ? { goal: agentGoal, history } : { goal: agentGoal, provider: "auto", model: "auto", history }) });
+
+      let finalAgentGoal = agentGoal;
+      const controlIntent = /\b(click|fill|type|enter|submit|save|create|update|edit|delete|remove|choose|select|press|check|uncheck|toggle|upload|restore|navigate|open|add|change)\b/i.test(value);
+      if (controlIntent && pageResultForTurn) {
+        const visibleControls = pageResultForTurn.elements
+          .filter((element) => !element.disabled)
+          .slice(0, 60)
+          .map((element) => ({
+            tag: element.tag,
+            selector: element.selector,
+            text: element.text,
+            placeholder: element.placeholder || "",
+            type: element.type || "",
+            href: element.href || "",
+          }));
+
+        const plannerPrompt = [
+          "You are Growth AI's browser action planner. Plan concrete UI actions for the user's request using only the visible elements from the current signed-in GrowthSpace page.",
+          "Return only valid JSON with this exact shape: {\"steps\":[{\"action\":\"click|fill|press|select\",\"selector\":\"exact selector from the supplied elements\",\"value\":\"text or key, or empty string\"}]}",
+          "Use 1 to 8 steps only when the user's request clearly asks you to interact with the website. Otherwise return {\"steps\":[]}.",
+          "Every selector must exactly match one selector in the supplied elements. Never invent a selector. For fill actions, use input or textarea elements; for select actions, use select elements.",
+          "Do not claim to have performed an action. The UI will ask the user to confirm the complete action sequence before anything runs.",
+          "Do not navigate off the current GrowthSpace website. If the request cannot be completed with the visible controls, return {\"steps\":[]}.",
+          "User request: " + value,
+          "Current page: " + pageResultForTurn.title + " (" + pageResultForTurn.url + ")",
+          "Visible page text: " + pageResultForTurn.text.slice(0, 6500),
+          "Available interactive elements: " + JSON.stringify(visibleControls),
+        ].join("\n\n");
+
+        try {
+          const planResponse = await fetch("/api/agent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ goal: plannerPrompt, provider: "auto", model: "auto", history: [] }),
+          });
+          const planData = await planResponse.json().catch(() => null);
+          const plannedSteps = planResponse.ok && typeof planData?.answer === "string"
+            ? parseBrowserPlan(planData.answer, pageResultForTurn.elements)
+            : [];
+
+          if (plannedSteps.length) {
+            const preview = plannedSteps.map((step, index) =>
+              (index + 1) + ". " + step.action.toUpperCase() + " " + step.selector +
+              (step.action === "click" ? "" : " → " + (step.value || "(empty)"))
+            ).join("\n");
+            const approved = window.confirm(
+              "Growth AI proposes these website actions:\n\n" + preview +
+              "\n\nThey may change saved website data. Run this sequence?"
+            );
+
+            if (approved) {
+              const updatedPage = await runBrowserAction("inspect", pageResultForTurn.url, plannedSteps, false);
+              if (updatedPage) {
+                pageResultForTurn = updatedPage;
+                pageContextForTurn = browserContextFromResult(updatedPage);
+                finalAgentGoal = value + "\n\nBrowser actions were executed on the signed-in GrowthSpace website. Here is the refreshed page state; use it to report what actually changed, and do not claim changes that are not reflected here:\n" + pageContextForTurn.slice(0, 14000);
+              } else {
+                finalAgentGoal = value + "\n\nGrowth AI proposed website actions but the browser did not complete them. Do not claim the changes succeeded. The user can review the browser panel error and try again.";
+              }
+            } else {
+              finalAgentGoal = value + "\n\nThe user declined confirmation for the proposed website actions. No website actions were run. Do not claim any change succeeded; explain that nothing was changed.";
+            }
+          } else {
+            setBrowserError("Growth AI couldn't map this request to a safe sequence of visible website controls. No website changes were made.");
+          }
+        } catch {
+          setBrowserError("Growth AI could not prepare browser actions just now. No website changes were made.");
+        }
+      }
+
+      const res = await fetch(liveWeb ? "/api/agent/research" : "/api/agent", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(liveWeb ? { goal: finalAgentGoal, history } : { goal: finalAgentGoal, provider: "auto", model: "auto", history }) });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error || "Growth AI could not answer.");
       const answer = typeof data?.answer === "string" ? data.answer : "No answer returned.";
