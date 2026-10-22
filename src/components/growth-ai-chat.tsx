@@ -2,11 +2,15 @@
 
 import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { GrowthAiIcon } from "@/components/growth-ai-icon";
 import { historyForModel, mergeUnsaved, RefreshGate } from "@/lib/growth-ai-chat-state";
 
 type Message = { id: string; role: "user" | "assistant"; content: string; provider?: string; model?: string; createdAt: number; status?: "pending" | "failed" | "unsaved" };
 type Conversation = { id: string; title: string; messages: Message[]; archived: boolean; updatedAt: number };
 type ApiConversation = { id: string; title: string; archived: boolean; updated_at: string; ai_operator_messages?: Array<{ id: string; role: "user" | "assistant"; content: string; provider?: string | null; model?: string | null; created_at: string }> };
+type BrowserAction = "inspect" | "screenshot" | "click" | "fill" | "press" | "select";
+type BrowserElement = { tag: string; selector: string; text: string; type?: string; placeholder?: string; href?: string; disabled?: boolean };
+type BrowserResult = { ok: true; action: string; url: string; title: string; text: string; elements: BrowserElement[]; screenshot?: string; controlsEnabled: boolean; hostScoped: true };
 
 type RefreshOptions = { selectFirst?: boolean; allowWhileBusy?: boolean };
 function makeId() { return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
@@ -39,6 +43,15 @@ export function GrowthAiChat() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
+  const [browserOpen, setBrowserOpen] = useState(false);
+  const [browserUrl, setBrowserUrl] = useState("");
+  const [browserAction, setBrowserAction] = useState<"click" | "fill" | "press" | "select">("click");
+  const [browserSelector, setBrowserSelector] = useState("");
+  const [browserValue, setBrowserValue] = useState("");
+  const [browserBusy, setBrowserBusy] = useState(false);
+  const [browserError, setBrowserError] = useState<string | null>(null);
+  const [browserResult, setBrowserResult] = useState<BrowserResult | null>(null);
+  const [browserContext, setBrowserContext] = useState("");
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
@@ -138,6 +151,7 @@ export function GrowthAiChat() {
 
   useEffect(() => { void refreshChats({ selectFirst: true }); }, [refreshChats]);
   useEffect(() => { activeIdRef.current = activeId; }, [activeId]);
+  useEffect(() => { setBrowserUrl(`${window.location.origin}/dashboard`); }, []);
   useEffect(() => {
     if (!error) return;
     const timer = setTimeout(() => setError(null), 8000);
