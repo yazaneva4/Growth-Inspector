@@ -42,7 +42,7 @@ export async function DELETE(req: NextRequest) {
 
   const ctx = await requireOrg();
   if ("error" in ctx) return ctx.error;
-  const { supabase, orgId } = ctx;
+  const { supabase } = ctx;
 
   const { data: trashId, error } = await supabase.rpc("move_to_trash", {
     p_source_table: "backup_contacts",
