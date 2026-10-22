@@ -47,7 +47,10 @@ export async function DELETE(req: NextRequest) {
   if ("error" in ctx) return ctx.error;
   const { supabase, orgId } = ctx;
 
-  const { error } = await supabase.from("clients").delete().eq("id", id).eq("org_id", orgId);
+  const { data: trashId, error } = await supabase.rpc("move_to_trash", {
+    p_source_table: "clients",
+    p_record_id: id,
+  });
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, trashId });
 }
