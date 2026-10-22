@@ -27,6 +27,7 @@ export const REALTIME_TABLES = [
   "organizations",
   "team_invites",
   "team_messages",
+  "trash_items",
 ] as const;
 
 export type RealtimeTable = (typeof REALTIME_TABLES)[number];
