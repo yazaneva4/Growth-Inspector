@@ -23,20 +23,25 @@ create policy trash_items_select on public.trash_items
   for select to authenticated
   using (org_id in (select private.auth_org_ids()));
 
+drop policy if exists trash_items_insert on public.trash_items;
+create policy trash_items_insert on public.trash_items
+  for insert to authenticated
+  with check (org_id in (select private.auth_org_ids()));
+
 drop policy if exists trash_items_delete on public.trash_items;
 create policy trash_items_delete on public.trash_items
   for delete to authenticated
   using (org_id in (select private.auth_org_ids()));
 
-grant select, delete on public.trash_items to authenticated;
+grant select, insert, delete on public.trash_items to authenticated;
 
 -- Atomic, tenant-scoped move: preserve the source row (and child messages for
 -- Growth AI conversations) before removing it from the active table.
 create or replace function public.move_to_trash(p_source_table text, p_record_id uuid)
 returns uuid
 language plpgsql
-security definer
-set search_path = public, private as $$
+security invoker
+set search_path = '' as $
 declare
   v_user_id uuid := auth.uid();
   v_org_id uuid;
@@ -166,7 +171,7 @@ begin
   select * into v_item
   from public.trash_items
   where id = p_trash_id and org_id = v_org_id
-  for update;
+  ;
 
   if not found then
     raise exception 'trash item not found';
