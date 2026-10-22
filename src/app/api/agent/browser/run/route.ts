@@ -195,6 +195,16 @@ export async function POST(req: NextRequest) {
 
     await page.goto(target.toString(), { waitUntil: "domcontentloaded" });
 
+    // Recreate the same stable selectors returned by inspection. Every
+    // request gets a fresh browser context, so markers must be rehydrated.
+    await page.evaluate(() => {
+      Array.from(document.querySelectorAll("a,button,input,textarea,select,[role='button'],[role='link']"))
+        .slice(0, 100)
+        .forEach((element, index) => {
+          element.setAttribute("data-growth-ai-target", "growth-ai-target-" + index);
+        });
+    });
+
     const actionQueue = steps.length
       ? steps
       : ["click", "fill", "press", "select"].includes(action)
