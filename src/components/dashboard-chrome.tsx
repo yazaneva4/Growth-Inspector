@@ -101,6 +101,6 @@ export function DashboardChrome({ workspaceName, email, children }: { workspaceN
       </nav>
       <div className={"border-t border-slate-100 p-3 text-xs " + (collapsed ? "lg:hidden" : "")}><AccountFooter email={email} /></div>
     </aside>
-    <main className="flex min-w-0 flex-1 flex-col lg:h-full lg:overflow-hidden"><TopBar workspaceName={workspaceName} email={email} onMenuClick={() => setMobileOpen(true)} /><div className="flex-1 p-4 sm:p-6 lg:overflow-y-auto lg:p-8">{children}</div></main>
+    <main className="flex min-w-0 flex-1 flex-col lg:h-full lg:overflow-hidden"><TopBar workspaceName={workspaceName} onMenuClick={() => setMobileOpen(true)} /><div className="flex-1 p-4 sm:p-6 lg:overflow-y-auto lg:p-8">{children}</div></main>
   </div>;
 }
