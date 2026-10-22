@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/coming-soon";
+import { redirect } from "next/navigation";
 
 export default function ReportsPage() {
-  return <ComingSoon title="Reports" description="Custom reports across your business will appear here." />;
+  redirect("/dashboard/analytics");
 }

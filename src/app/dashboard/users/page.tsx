@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/coming-soon";
+import { redirect } from "next/navigation";
 
 export default function UsersPage() {
-  return <ComingSoon title="Users" description="Manage GrowthSpace employee accounts here." />;
+  redirect("/dashboard/team");
 }
