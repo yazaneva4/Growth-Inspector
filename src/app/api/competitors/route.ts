@@ -44,7 +44,10 @@ export async function DELETE(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "sign in required" }, { status: 401 });
-  const { error } = await supabase.from("competitors").delete().eq("id", id);
+  const { data: trashId, error } = await supabase.rpc("move_to_trash", {
+    p_source_table: "competitors",
+    p_record_id: id,
+  });
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, trashId });
 }

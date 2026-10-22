@@ -43,6 +43,7 @@ const navGroups = [
     label: "WORKSPACE",
     items: [
       { href: "/dashboard/team", label: "Team", icon: "👥" },
+      { href: "/dashboard/trash", label: "Trash", icon: "🗑" },
       { href: "/dashboard/settings", label: "Settings", icon: "⚙" },
     ],
   },
