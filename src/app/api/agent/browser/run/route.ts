@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
       name,
       value: cookieValue,
       url: requestOrigin,
-      httpOnly: true,
+      httpOnly: false,
       secure: target.protocol === "https:",
       sameSite: "Lax" as const,
     }));
