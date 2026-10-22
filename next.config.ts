@@ -23,6 +23,12 @@ const retiredVercelHosts = [
 ];
 
 const nextConfig: NextConfig = {
+  // Chromium is a native server binary; keep it out of the webpack bundle and
+  // explicitly trace its compressed runtime assets into the browser function.
+  serverExternalPackages: ["@sparticuz/chromium", "playwright-core"],
+  outputFileTracingIncludes: {
+    "/api/agent/browser/run": ["./node_modules/@sparticuz/chromium/bin/**"],
+  },
   // Any old GrowthSpace alias lands on the one canonical public domain.
   async redirects() {
     return retiredVercelHosts.map((hostname) => ({
