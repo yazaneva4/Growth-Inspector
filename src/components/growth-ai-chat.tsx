@@ -9,6 +9,7 @@ type Message = { id: string; role: "user" | "assistant"; content: string; provid
 type Conversation = { id: string; title: string; messages: Message[]; archived: boolean; updatedAt: number };
 type ApiConversation = { id: string; title: string; archived: boolean; updated_at: string; ai_operator_messages?: Array<{ id: string; role: "user" | "assistant"; content: string; provider?: string | null; model?: string | null; created_at: string }> };
 type BrowserAction = "inspect" | "screenshot" | "click" | "fill" | "press" | "select";
+type BrowserStep = { id: string; action: "click" | "fill" | "press" | "select"; selector: string; value: string };
 type BrowserElement = { tag: string; selector: string; text: string; type?: string; placeholder?: string; href?: string; disabled?: boolean };
 type BrowserResult = { ok: true; action: string; url: string; title: string; text: string; elements: BrowserElement[]; screenshot?: string; controlsEnabled: boolean; hostScoped: true };
 
@@ -48,6 +49,7 @@ export function GrowthAiChat() {
   const [browserAction, setBrowserAction] = useState<"click" | "fill" | "press" | "select">("click");
   const [browserSelector, setBrowserSelector] = useState("");
   const [browserValue, setBrowserValue] = useState("");
+  const [browserSteps, setBrowserSteps] = useState<BrowserStep[]>([]);
   const [browserBusy, setBrowserBusy] = useState(false);
   const [browserError, setBrowserError] = useState<string | null>(null);
   const [browserResult, setBrowserResult] = useState<BrowserResult | null>(null);
@@ -170,12 +172,92 @@ export function GrowthAiChat() {
   async function archiveChat(id: string, archived: boolean) { try { await api({ action: "update", conversationId: id, archived }); await refreshChats({ allowWhileBusy: true }); if (archived && id === activeId) await createChat(); } catch (err) { setError(err instanceof Error ? err.message : "Could not update conversation."); } }
   async function deleteChat(id: string) { if (!window.confirm("Move this conversation and all its messages to Trash? You can restore them at any time.")) return; try { await api({ action: "delete", conversationId: id }); await refreshChats({ selectFirst: true, allowWhileBusy: true }); } catch (err) { setError(err instanceof Error ? err.message : "Could not move conversation to Trash."); } }
 
+  function browserContextFromResult(result: BrowserResult) {
+    const controls = result.elements.slice(0, 60).map((item) =>
+      "- " + item.tag + " " + item.selector + (item.text ? " — " + item.text : "") +
+      (item.placeholder ? " (placeholder: " + item.placeholder + ")" : "") +
+      (item.disabled ? " [disabled]" : "")
+    ).join("\n");
+    return "Current GrowthSpace website page\nURL: " + result.url + "\nTitle: " + result.title +
+      "\n\nRendered page text:\n" + result.text + "\n\nInteractive elements:\n" + controls;
+  }
+
+  async function runBrowserAction(
+    action: BrowserAction,
+    requestedUrl?: string,
+    steps?: BrowserStep[],
+    askConfirmation = true,
+  ): Promise<BrowserResult | null> {
+    const mutating = ["click", "fill", "press", "select"].includes(action) || Boolean(steps?.length);
+    if (mutating && askConfirmation) {
+      const detail = steps?.length
+        ? "Run " + steps.length + " website action(s) on the signed-in GrowthSpace site?"
+        : "Run the browser action “" + action + "” on the signed-in GrowthSpace site?";
+      if (!window.confirm(detail + " It may change website data.")) return null;
+    }
+
+    setBrowserBusy(true);
+    setBrowserError(null);
+    try {
+      const response = await fetch("/api/agent/browser/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: steps?.length ? "inspect" : action,
+          url: (requestedUrl || browserUrl).trim(),
+          selector: browserSelector.trim(),
+          value: browserValue,
+          steps: steps?.map(({ action: stepAction, selector, value }) => ({ action: stepAction, selector, value })),
+          confirmed: mutating,
+        }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(data?.error ?? "Headless browser failed.");
+      const result = data as BrowserResult;
+      setBrowserResult(result);
+      setBrowserUrl(result.url);
+      setBrowserContext(browserContextFromResult(result));
+      setBrowserOpen(true);
+      return result;
+    } catch (err) {
+      setBrowserError(err instanceof Error ? err.message : "Headless browser failed.");
+      return null;
+    } finally {
+      setBrowserBusy(false);
+    }
+  }
+
+  function addBrowserStep() {
+    const selector = browserSelector.trim();
+    if (!selector) {
+      setBrowserError("Choose a selector from the page inspection first.");
+      return;
+    }
+    setBrowserSteps((current) => [...current, {
+      id: makeId(),
+      action: browserAction,
+      selector,
+      value: browserValue,
+    }]);
+  }
+
   async function send(text: string) {
     const value = text.trim();
     // Synchronous guard (state would lag a double submit) and start of the send
     // window: older in-flight refreshes are voided before the first await.
     if (!value || gate.busy) return;
     gate.startSend(); setBusy(true);
+
+    let pageContextForTurn = browserContext;
+    const explicitUrl = value.match(/https?:\/\/[^\s<>"')]+/i)?.[0]?.replace(/[.,!?]+$/, "");
+    if (explicitUrl && /\b(open|visit|browse|inspect|read|check|look at|website|webpage|page)\b/i.test(value)) {
+      const page = await runBrowserAction("inspect", explicitUrl, undefined, false);
+      if (page) pageContextForTurn = browserContextFromResult(page);
+    }
+    const agentGoal = pageContextForTurn
+      ? value + "\n\nHeadless browser context from the user's signed-in GrowthSpace website:\n" + pageContextForTurn.slice(0, 14000)
+      : value;
+
     let current = active;
     if (!current) {
       try { const created = await api({ action: "create" }); if (!created?.conversation?.id) throw new Error("Could not create a conversation."); current = fromApi({ ...created.conversation, ai_operator_messages: [] }); activeIdRef.current = current.id; setActiveId(current.id); setChats((all) => [current!, ...all.filter((c) => c.id !== current!.id)]); }
@@ -191,7 +273,7 @@ export function GrowthAiChat() {
     try {
       await api({ action: "message", conversationId: current.id, role: "user", content: value });
       userSaved = true;
-      const res = await fetch(liveWeb ? "/api/agent/research" : "/api/agent", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(liveWeb ? { goal: value, history } : { goal: value, provider: "auto", model: "auto", history }) });
+      const res = await fetch(liveWeb ? "/api/agent/research" : "/api/agent", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(liveWeb ? { goal: agentGoal, history } : { goal: agentGoal, provider: "auto", model: "auto", history }) });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error || "Growth AI could not answer.");
       const answer = typeof data?.answer === "string" ? data.answer : "No answer returned.";
