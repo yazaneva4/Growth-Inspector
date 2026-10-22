@@ -147,8 +147,8 @@ grant execute on function public.move_to_trash(text, uuid) to authenticated;
 create or replace function public.restore_trash_item(p_trash_id uuid)
 returns text
 language plpgsql
-security definer
-set search_path = public, private as $$
+security invoker
+set search_path = '' as $
 declare
   v_user_id uuid := auth.uid();
   v_org_id uuid;
