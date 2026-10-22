@@ -17,6 +17,58 @@ type RefreshOptions = { selectFirst?: boolean; allowWhileBusy?: boolean };
 function makeId() { return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
 function titleFrom(text: string) { const value = text.replace(/\s+/g, " ").trim(); return value.length > 60 ? `${value.slice(0, 60)}…` : value || "New conversation"; }
 function fromApi(value: ApiConversation): Conversation { return { id: value.id, title: value.title || "New conversation", archived: value.archived, updatedAt: Date.parse(value.updated_at) || Date.now(), messages: (value.ai_operator_messages ?? []).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)).map((m) => ({ id: m.id, role: m.role, content: typeof m.content === "string" ? m.content : "", provider: m.provider ?? undefined, model: m.model ?? undefined, createdAt: Date.parse(m.created_at) || Date.now() })) }; }
+function requestsBrowserAction(value: string): boolean {
+  const text = value.toLowerCase();
+  const direct = /\b(click|fill|type|enter|submit|press|select|choose|toggle|upload|navigate|scroll|open)\b/i.test(text);
+  const checkbox = /\b(check|uncheck)\b.{0,40}\b(box|checkbox|option)\b/i.test(text);
+  const recordAction = /\b(create|add|update|edit|delete|remove|save|restore|archive|change|set)\b.{0,80}\b(client|contact|invoice|lead|competitor|quote|product|task|job|customer|setting|record|form|field|status|member|team|dashboard|website|CRM)\b/i.test(text);
+  const websiteScope = /\b(on|in|through|using|from)\s+(?:the\s+)?(?:website|webpage|page|dashboard|GrowthSpace|CRM)\b/i.test(text)
+    && /\b(create|add|update|edit|delete|remove|save|restore|archive|change|set|send|click|fill|submit)\b/i.test(text);
+  return direct || checkbox || recordAction || websiteScope;
+}
+
+function parseBrowserPlan(answer: string, elements: BrowserElement[]): BrowserStep[] {
+  const start = answer.indexOf("{");
+  const end = answer.lastIndexOf("}");
+  if (start < 0 || end <= start) return [];
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(answer.slice(start, end + 1));
+  } catch {
+    return [];
+  }
+  if (!parsed || typeof parsed !== "object" || !Array.isArray((parsed as { steps?: unknown }).steps)) return [];
+
+  const rawSteps = (parsed as { steps: unknown[] }).steps;
+  if (rawSteps.length === 0 || rawSteps.length > 8) return [];
+  const valid: BrowserStep[] = [];
+
+  for (const raw of rawSteps) {
+    if (!raw || typeof raw !== "object") return [];
+    const item = raw as { action?: unknown; selector?: unknown; value?: unknown };
+    const action = item.action;
+    const selector = typeof item.selector === "string" ? item.selector : "";
+    const value = typeof item.value === "string" ? item.value.slice(0, 4000) : "";
+    if (!["click", "fill", "press", "select"].includes(String(action)) || !selector) return [];
+
+    const element = elements.find((candidate) => candidate.selector === selector);
+    if (!element || element.disabled) return [];
+    if (action === "fill" && !["input", "textarea"].includes(element.tag)) return [];
+    if (action === "select" && element.tag !== "select") return [];
+    if (action === "press" && !["input", "textarea", "button", "a"].includes(element.tag)) return [];
+
+    valid.push({
+      id: `${Date.now()}-${valid.length}-${Math.random().toString(36).slice(2)}`,
+      action: action as BrowserStep["action"],
+      selector,
+      value,
+    });
+  }
+
+  return valid;
+}
+
 function splitCitations(content: string) {
   const marker = "\n\nSources:\n";
   const start = content.lastIndexOf(marker);
@@ -250,12 +302,16 @@ export function GrowthAiChat() {
     gate.startSend(); setBusy(true);
 
     let pageContextForTurn = browserContext;
+    let pageResultForTurn: BrowserResult | null = browserResult;
     const explicitUrl = value.match(/https?:\/\/[^\s<>"')]+/i)?.[0]?.replace(/[.,!?]+$/, "");
-    const browserIntent = /\b(open|visit|browse|inspect|read|check|look at|website|webpage|page|dashboard)\b/i.test(value);
-    if (browserIntent && (explicitUrl || !pageContextForTurn)) {
+    const browserIntent = requestsBrowserAction(value) || /\b(visit|browse|inspect|read|look at|website|webpage|page|dashboard)\b/i.test(value);
+    if (browserIntent && (explicitUrl || !pageContextForTurn || !pageResultForTurn)) {
       const targetUrl = explicitUrl || (window.location.origin + "/dashboard");
       const page = await runBrowserAction("inspect", targetUrl, undefined, false);
-      if (page) pageContextForTurn = browserContextFromResult(page);
+      if (page) {
+        pageResultForTurn = page;
+        pageContextForTurn = browserContextFromResult(page);
+      }
     }
     const agentGoal = pageContextForTurn
       ? value + "\n\nHeadless browser context from the user's signed-in GrowthSpace website:\n" + pageContextForTurn.slice(0, 14000)
@@ -276,7 +332,115 @@ export function GrowthAiChat() {
     try {
       await api({ action: "message", conversationId: current.id, role: "user", content: value });
       userSaved = true;
-      const res = await fetch(liveWeb ? "/api/agent/research" : "/api/agent", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(liveWeb ? { goal: agentGoal, history } : { goal: agentGoal, provider: "auto", model: "auto", history }) });
+
+      let finalAgentGoal = agentGoal;
+      const controlIntent = requestsBrowserAction(value);
+      if (controlIntent && pageResultForTurn) {
+        let actionRound = 0;
+        let actionExecuted = false;
+        let actionDeclined = false;
+        let actionFailed = false;
+        const executedSignatures = new Set<string>();
+
+        // Allow a few confirmed rounds so the AI can navigate to a section first,
+        // then inspect that page and fill/submit its form in a later round.
+        while (actionRound < 3) {
+          const visibleControls = pageResultForTurn.elements
+            .filter((element) => !element.disabled)
+            .slice(0, 60)
+            .map((element) => ({
+              tag: element.tag,
+              selector: element.selector,
+              text: element.text,
+              placeholder: element.placeholder || "",
+              type: element.type || "",
+              href: element.href || "",
+            }));
+
+          const plannerPrompt = [
+            "You are Growth AI's browser action planner. Plan the next concrete UI actions for the user's request using only the visible elements from the current signed-in GrowthSpace page.",
+            "Return only valid JSON with this exact shape: {\"steps\":[{\"action\":\"click|fill|press|select\",\"selector\":\"exact selector from the supplied elements\",\"value\":\"text or key, or empty string\"}]}",
+            "Use 1 to 8 steps only when the user's request clearly asks you to interact with the website. If the task is complete, the request is vague, or this page has no suitable controls, return {\"steps\":[]}.",
+            "Every selector must exactly match one selector in the supplied elements. Never invent a selector. For fill actions, use input or textarea elements; for select actions, use select elements.",
+            "Plan only the next steps possible on this page. After these steps the page will be inspected again, so you can continue from the next page. Do not repeat an action already listed in the executed actions unless there is a clear reason.",
+            "Do not claim to have performed an action. The UI asks the user to confirm every action sequence before anything runs.",
+            "Do not navigate off the current GrowthSpace website. If the request cannot be completed with visible controls, return {\"steps\":[]}.",
+            "User request: " + value,
+            "Actions already executed: " + JSON.stringify(Array.from(executedSignatures)),
+            "Current page: " + pageResultForTurn.title + " (" + pageResultForTurn.url + ")",
+            "Visible page text: " + pageResultForTurn.text.slice(0, 6500),
+            "Available interactive elements: " + JSON.stringify(visibleControls),
+          ].join("\n\n");
+
+          let plannedSteps: BrowserStep[] = [];
+          try {
+            const planResponse = await fetch("/api/agent", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ goal: plannerPrompt, provider: "auto", model: "auto", history: [] }),
+            });
+            const planData = await planResponse.json().catch(() => null);
+            plannedSteps = planResponse.ok && typeof planData?.answer === "string"
+              ? parseBrowserPlan(planData.answer, pageResultForTurn.elements)
+              : [];
+          } catch {
+            actionFailed = true;
+            setBrowserError("Growth AI could not prepare browser actions just now. No unconfirmed website changes were made.");
+            break;
+          }
+
+          if (!plannedSteps.length) {
+            if (actionRound === 0 && !actionExecuted) {
+              setBrowserError("Growth AI couldn't map this request to a safe sequence of visible website controls. No website changes were made.");
+            }
+            break;
+          }
+
+          const signatureFor = (step: BrowserStep) => [step.action, step.selector, step.value].join("|");
+          if (plannedSteps.every((step) => executedSignatures.has(signatureFor(step)))) break;
+
+          const preview = plannedSteps.map((step, index) =>
+            (index + 1) + ". " + step.action.toUpperCase() + " " + step.selector +
+            (step.action === "click" ? "" : " → " + (step.value || "(empty)"))
+          ).join("\n");
+          const approved = window.confirm(
+            "Growth AI proposes this website action sequence (round " + (actionRound + 1) + " of 3):\n\n" + preview +
+            "\n\nThese actions may change saved website data. Run this sequence?"
+          );
+
+          if (!approved) {
+            actionDeclined = true;
+            break;
+          }
+
+          const beforeUrl = pageResultForTurn.url;
+          const updatedPage = await runBrowserAction("inspect", beforeUrl, plannedSteps, false);
+          if (!updatedPage) {
+            actionFailed = true;
+            break;
+          }
+
+          actionExecuted = true;
+          for (const step of plannedSteps) executedSignatures.add(signatureFor(step));
+          pageResultForTurn = updatedPage;
+          pageContextForTurn = browserContextFromResult(updatedPage);
+          actionRound += 1;
+        }
+
+        if (actionExecuted) {
+          finalAgentGoal = value +
+            "\n\nBrowser actions were executed on the signed-in GrowthSpace website. Here is the latest page state; use it to report what actually changed, and do not claim changes that are not reflected here:\n" +
+            pageContextForTurn.slice(0, 14000) +
+            (actionFailed ? "\n\nThe browser encountered an error after some actions. Be precise about what can be verified and mention that the sequence may be incomplete." : "") +
+            (actionDeclined ? "\n\nThe user declined a later action sequence. Report any verified partial progress and do not claim the remaining actions completed." : "");
+        } else if (actionDeclined) {
+          finalAgentGoal = value + "\n\nThe user declined confirmation for the proposed website actions. No website actions were run. Do not claim any change succeeded; explain that nothing was changed.";
+        } else if (actionFailed) {
+          finalAgentGoal = value + "\n\nThe browser could not prepare or execute a website action sequence. Do not claim any website changes succeeded. Explain the browser error shown in the browser panel.";
+        }
+      }
+
+      const res = await fetch(liveWeb ? "/api/agent/research" : "/api/agent", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(liveWeb ? { goal: finalAgentGoal, history } : { goal: finalAgentGoal, provider: "auto", model: "auto", history }) });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error || "Growth AI could not answer.");
       const answer = typeof data?.answer === "string" ? data.answer : "No answer returned.";
