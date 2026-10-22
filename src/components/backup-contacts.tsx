@@ -45,13 +45,18 @@ export function BackupContacts({ contacts }: { contacts: Contact[] }) {
 
   async function remove(id: string) {
     setBusy(true);
+    setError(null);
     try {
-      await fetch("/api/settings/contacts", {
+      const res = await fetch("/api/settings/contacts", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error ?? "Failed to move contact to Trash");
       router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to move contact to Trash");
     } finally {
       setBusy(false);
     }
@@ -88,7 +93,7 @@ export function BackupContacts({ contacts }: { contacts: Contact[] }) {
                   disabled={busy}
                   className="rounded-lg border border-rose-500/40 px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-500/10 disabled:opacity-50"
                 >
-                  Remove
+                  Move to Trash
                 </button>
               </div>
             </div>
