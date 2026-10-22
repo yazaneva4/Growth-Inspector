@@ -16,6 +16,7 @@ const typeLabels: Record<string, string> = {
   competitors: "Competitor",
   invoices: "Invoice",
   ai_operator_conversations: "Growth AI conversation",
+  backup_contacts: "Backup contact",
 };
 
 export function TrashManager({ items }: { items: TrashItem[] }) {
@@ -91,7 +92,7 @@ export function TrashManager({ items }: { items: TrashItem[] }) {
             return (
               <article key={item.id} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-lg" aria-hidden="true">
-                  {item.source_table === "clients" ? "♙" : item.source_table === "invoices" ? "▤" : item.source_table === "competitors" ? "◎" : "✦"}
+                  {item.source_table === "clients" ? "♙" : item.source_table === "invoices" ? "▤" : item.source_table === "competitors" ? "◎" : item.source_table === "backup_contacts" ? "☎" : "✦"}
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="truncate text-sm font-semibold text-slate-900">{item.record_label}</h2>
