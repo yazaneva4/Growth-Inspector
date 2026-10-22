@@ -32,9 +32,9 @@ function ClientRow({ client }: { client: Client }) {
     try {
       const res = await fetch("/api/clients", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: client.id }) });
       const data = await res.json().catch(() => null);
-      if (!res.ok) throw new Error(data?.error ?? "Failed to remove client");
+      if (!res.ok) throw new Error(data?.error ?? "Failed to move client to Trash");
       router.refresh();
-    } catch (err) { setError(err instanceof Error ? err.message : "Failed to remove client"); }
+    } catch (err) { setError(err instanceof Error ? err.message : "Failed to move client to Trash"); }
     finally { setBusy(false); }
   }
 
@@ -43,7 +43,7 @@ function ClientRow({ client }: { client: Client }) {
       <div className="flex items-center justify-between gap-2"><div className="min-w-0"><span className="font-medium" dir="auto">{client.name}</span>{client.company && <span className="ml-2 text-slate-500" dir="auto">· {client.company}</span>}<span className="ml-2 text-slate-500">{client.phone}</span></div>
         <div className="flex shrink-0 items-center gap-2">
           <button onClick={generate} disabled={busy} title="Generate an AI thank-you and send on WhatsApp" className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 px-2.5 py-1 text-xs text-emerald-600 hover:bg-emerald-500/10 disabled:opacity-50">{busy ? "…" : "Thank you"}</button>
-          <button onClick={remove} disabled={busy} className="rounded-lg border border-rose-500/40 px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-500/10 disabled:opacity-50">Remove</button>
+          <button onClick={remove} disabled={busy} className="rounded-lg border border-rose-500/40 px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-500/10 disabled:opacity-50">{busy ? "Moving…" : "Move to Trash"}</button>
         </div>
       </div>
       {error && <p className="mt-2 text-xs text-rose-600">{error}</p>}
