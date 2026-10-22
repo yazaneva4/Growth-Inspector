@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     browser = await playwright.launch({
       args: chromiumBinary.args,
       executablePath: await chromiumBinary.executablePath(),
-      headless: chromiumBinary.headless,
+      headless: true,
       timeout: 20_000,
     });
 
