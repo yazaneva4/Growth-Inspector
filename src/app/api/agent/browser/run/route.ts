@@ -8,7 +8,7 @@ import { isAllowedBrowserApp, normalizeBrowserPolicy } from "@/lib/ai/browser-po
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-type BrowserAction = "navigate" | "inspect" | "screenshot" | "click" | "fill" | "press" | "select" | "back";
+type BrowserAction = "navigate" | "inspect" | "screenshot" | "click" | "fill" | "press" | "select";
 
 function allowedOrigins(requestOrigin: string): Set<string> {
   const values = [
@@ -34,15 +34,6 @@ function allowedOrigins(requestOrigin: string): Set<string> {
   }
   if (origins.has(requestOrigin)) return origins;
   return origins;
-}
-
-function cssSelectorFor(element: Element): string {
-  if (element.id) return `#${CSS.escape(element.id)}`;
-  const named = element.getAttribute("name");
-  if (named) return `${element.tagName.toLowerCase()}[name="${named.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}"]`;
-  const tag = element.tagName.toLowerCase();
-  const siblings = element.parentElement ? Array.from(element.parentElement.children).filter((item) => item.tagName === element.tagName) : [];
-  return `${tag}:nth-of-type(${Math.max(1, siblings.indexOf(element) + 1)})`;
 }
 
 async function getWorkspace() {
@@ -87,7 +78,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => null);
   const action = (typeof body?.action === "string" ? body.action : "inspect") as BrowserAction;
-  const validActions: BrowserAction[] = ["navigate", "inspect", "screenshot", "click", "fill", "press", "select", "back"];
+  const validActions: BrowserAction[] = ["navigate", "inspect", "screenshot", "click", "fill", "press", "select"];
   if (!validActions.includes(action)) {
     return NextResponse.json({ error: "Unsupported browser action." }, { status: 400 });
   }
@@ -99,7 +90,22 @@ export async function POST(req: NextRequest) {
     }, { status: 403 });
   }
 
-  const mutatingAction = ["click", "fill", "press", "select", "back"].includes(action);
+  type RequestedStep = { action: "click" | "fill" | "press" | "select"; selector: string; value: string };
+  const steps: RequestedStep[] = [];
+  if (body?.steps !== undefined && !Array.isArray(body.steps)) {
+    return NextResponse.json({ error: "Browser steps must be a list." }, { status: 400 });
+  }
+  for (const candidate of (Array.isArray(body?.steps) ? body.steps : []).slice(0, 12)) {
+    const stepAction = candidate && typeof candidate.action === "string" ? candidate.action : "";
+    const stepSelector = candidate && typeof candidate.selector === "string" ? candidate.selector.trim() : "";
+    const stepValue = candidate && typeof candidate.value === "string" ? candidate.value.slice(0, 4000) : "";
+    if (!["click", "fill", "press", "select"].includes(stepAction) || !stepSelector || stepSelector.length > 500) {
+      return NextResponse.json({ error: "Every browser step needs a supported action and a valid selector." }, { status: 400 });
+    }
+    steps.push({ action: stepAction as RequestedStep["action"], selector: stepSelector, value: stepValue });
+  }
+
+  const mutatingAction = steps.length > 0 || ["click", "fill", "press", "select"].includes(action);
   if (mutatingAction && !workspace.policy.computer_access_enabled) {
     return NextResponse.json({
       error: "Website controls are disabled. A workspace owner or admin must enable computer-level actions in Settings.",
@@ -187,22 +193,24 @@ export async function POST(req: NextRequest) {
       await route.continue();
     });
 
-    if (action === "navigate" || action === "inspect" || action === "screenshot") {
-      await page.goto(target.toString(), { waitUntil: "domcontentloaded" });
-    } else if (action === "back") {
-      await page.goto(target.toString(), { waitUntil: "domcontentloaded" });
-      await page.goBack({ waitUntil: "domcontentloaded" }).catch(() => null);
-    } else {
-      await page.goto(target.toString(), { waitUntil: "domcontentloaded" });
-      if (!selector) {
+    await page.goto(target.toString(), { waitUntil: "domcontentloaded" });
+
+    const actionQueue = steps.length
+      ? steps
+      : ["click", "fill", "press", "select"].includes(action)
+        ? [{ action: action as RequestedStep["action"], selector, value }]
+        : [];
+
+    for (const step of actionQueue) {
+      if (!step.selector) {
         return NextResponse.json({ error: "Provide the CSS selector shown in the page inspection before running this action." }, { status: 400 });
       }
-      const locator = page.locator(selector).first();
-      if (action === "click") await locator.click();
-      if (action === "fill") await locator.fill(value);
-      if (action === "press") await locator.press(value || "Enter");
-      if (action === "select") await locator.selectOption(value);
-      await page.waitForLoadState("domcontentloaded", { timeout: 5000 }).catch(() => null);
+      const locator = page.locator(step.selector).first();
+      if (step.action === "click") await locator.click();
+      if (step.action === "fill") await locator.fill(step.value);
+      if (step.action === "press") await locator.press(step.value || "Enter");
+      if (step.action === "select") await locator.selectOption(step.value);
+      await page.waitForLoadState("domcontentloaded", { timeout: 3000 }).catch(() => null);
     }
 
     await page.waitForTimeout(150);
