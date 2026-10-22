@@ -1,6 +1,7 @@
 import { getCurrentContext } from "@/lib/auth";
 import { createClient, createPublicClient } from "@/lib/supabase/server";
 import { CompetitorForm } from "@/components/competitor-form";
+import { CompetitorRow } from "@/components/competitor-row";
 
 export const dynamic = "force-dynamic";
 
@@ -53,17 +54,14 @@ export default async function CompetitorsPage() {
           </div>
         ) : (
           rows.map((c) => (
-            <div key={c.id} className="rounded-2xl border border-slate-200 bg-white p-5">
-              <div className="flex items-center gap-2">
-                <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase ${badge[c.platform] ?? "bg-slate-500/20 text-slate-600"}`}>
-                  {c.platform}
-                </span>
-                <span className="font-medium" dir="auto">{c.handle}</span>
-              </div>
-              {c.notes && (
-                <p className="mt-2 text-sm text-slate-500" dir="auto">{c.notes}</p>
-              )}
-            </div>
+            <CompetitorRow
+              key={c.id}
+              id={c.id}
+              handle={c.handle}
+              platform={c.platform}
+              notes={c.notes}
+              badgeClass={badge[c.platform] ?? "bg-slate-500/20 text-slate-600"}
+            />
           ))
         )}
       </div>
