@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCurrentContext } from "@/lib/auth";
 import { GrowthAiChat } from "@/components/growth-ai-chat";
-import { SparkleIcon } from "@/components/sparkle-icon";
+import { PulseOrb } from "@/components/pulse-orb";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,8 @@ export default async function AgentPage() {
   return (
     <div className="growth-ai-page max-w-6xl">
       <h1 className="flex items-center gap-2 text-2xl font-bold">
-        Growth AI <SparkleIcon className="text-2xl" />
+        <PulseOrb state="ready" size={32} label="Growth AI orb" />
+        Growth AI
       </h1>
       <p className="mt-1 text-sm text-slate-500">
         A free AI growth teammate with saved conversations, durable conversation memory,
@@ -23,8 +24,8 @@ export default async function AgentPage() {
           <GrowthAiChat />
         ) : (
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-              <SparkleIcon className="text-2xl" />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center overflow-visible">
+              <PulseOrb state="ready" size={44} label="Growth AI orb" />
             </div>
             <h2 className="mt-4 text-lg font-semibold">Sign in to use Growth AI</h2>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
