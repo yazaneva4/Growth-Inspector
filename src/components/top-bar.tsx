@@ -3,7 +3,6 @@
 import { NotificationBell } from "@/components/notification-bell";
 
 export function TopBar({
-  workspaceName,
   onMenuClick,
 }: {
   workspaceName: string;
