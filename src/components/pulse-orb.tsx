@@ -27,6 +27,7 @@ export function PulseOrb({
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
+    const orbHost: HTMLSpanElement = host;
 
     let cancelled = false;
     let root: ShadowRoot | null = null;
@@ -53,7 +54,7 @@ export function PulseOrb({
           throw new Error("The uploaded orb HTML is missing its original style, canvas, or script.");
         }
 
-        root = host.attachShadow({ mode: "open" });
+        root = orbHost.attachShadow({ mode: "open" });
 
         // :root is the document root in the uploaded standalone file.
         // :host is its Shadow-DOM equivalent; all declarations stay original.
@@ -105,10 +106,10 @@ export function PulseOrb({
   });`,
         );
 
-        new Function("root", "host", runnableScript)(root, host);
+        new Function("root", "host", runnableScript)(root, orbHost);
 
         // State might have changed while the original HTML was loading.
-        host.dispatchEvent(
+        orbHost.dispatchEvent(
           new CustomEvent("growthspace-orb-mode", {
             detail: latestState.current,
           }),
