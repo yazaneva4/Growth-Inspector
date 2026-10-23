@@ -4,7 +4,6 @@ import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } f
 import { createClient } from "@/lib/supabase/client";
 import { GrowthAiIcon } from "@/components/growth-ai-icon";
 import { PulseOrb } from "@/components/pulse-orb";
-import { LogoMark } from "@/components/logo";
 import { historyForModel, mergeUnsaved, RefreshGate } from "@/lib/growth-ai-chat-state";
 
 type Message = { id: string; role: "user" | "assistant"; content: string; provider?: string; model?: string; createdAt: number; status?: "pending" | "failed" | "unsaved" };
@@ -475,8 +474,8 @@ export function GrowthAiChat() {
       <aside className="hidden w-80 shrink-0 border-r border-slate-200 bg-slate-50/70 md:flex md:flex-col">
         <div className="border-b border-slate-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-              <LogoMark size={38} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-visible">
+              <PulseOrb state="ready" size={40} label="Growth AI orb" />
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="text-sm font-bold text-slate-900">Growth AI</h2>
@@ -593,8 +592,8 @@ export function GrowthAiChat() {
 
       <main className="flex min-w-0 flex-1 flex-col bg-white">
         <header className="flex items-center gap-2 border-b border-slate-200 px-3 py-3.5 sm:px-5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 md:hidden">
-            <LogoMark size={38} />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-visible md:hidden">
+            <PulseOrb state="ready" size={40} label="Growth AI orb" />
           </div>
           <div className="min-w-0 flex-1">
             <h2 className="truncate text-sm font-bold text-slate-900">{active?.title || "Growth AI"}</h2>
@@ -817,8 +816,8 @@ export function GrowthAiChat() {
           <div className="mx-auto w-full max-w-3xl">
             {!active ? (
               <div className="flex min-h-[48vh] flex-col items-center justify-center text-center">
-                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-3xl bg-white ring-1 ring-slate-200">
-                  <LogoMark size={60} />
+                <div className="flex h-16 w-16 items-center justify-center overflow-visible">
+                  <PulseOrb state="ready" size={64} label="Growth AI ready orb" />
                 </div>
                 <h3 className="mt-5 text-lg font-bold tracking-tight text-slate-900">What are we growing today?</h3>
                 <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">Ask about your workspace, review your website in the headless browser, or turn a rough idea into a practical plan.</p>
@@ -850,8 +849,8 @@ export function GrowthAiChat() {
                   return (
                     <div key={message.id} className={"mb-5 flex gap-2.5 sm:gap-3 " + (isUser ? "justify-end" : "justify-start")}>
                       {!isUser && (
-                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-slate-200">
-                          <LogoMark size={30} />
+                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-visible">
+                          <PulseOrb state="ready" size={32} label="Growth AI orb" />
                         </div>
                       )}
                       <div className={"min-w-0 max-w-[88%] sm:max-w-[82%] " + (isUser ? "items-end" : "items-start")}>
