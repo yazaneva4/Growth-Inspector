@@ -54,7 +54,7 @@ export function PulseOrb({
           throw new Error("The uploaded orb HTML is missing its original style, canvas, or script.");
         }
 
-        root = orbHost.attachShadow({ mode: "open" });
+        root = orbHost.shadowRoot ?? orbHost.attachShadow({ mode: "open" });
 
         // :root is the document root in the uploaded standalone file.
         // :host is its Shadow-DOM equivalent; all declarations stay original.
@@ -139,6 +139,10 @@ export function PulseOrb({
   host.addEventListener("growthspace-orb-mode", (event) => {
     const nextMode = event.detail;
     if (modeOrder.includes(nextMode)) setMode(nextMode);
+  });
+  host.addEventListener("growthspace-orb-dispose", () => {
+    paused = true;
+    cancelAnimationFrame(raf);
   });`,
         );
 
@@ -159,6 +163,7 @@ export function PulseOrb({
 
     return () => {
       cancelled = true;
+      orbHost.dispatchEvent(new CustomEvent("growthspace-orb-dispose"));
       root?.replaceChildren();
     };
   }, []);
