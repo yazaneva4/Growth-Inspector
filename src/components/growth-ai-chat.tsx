@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { GrowthAiIcon } from "@/components/growth-ai-icon";
-import { ThinkingOrb } from "thinking-orbs";
+import { PulseOrb } from "@/components/pulse-orb";
 import { LogoMark } from "@/components/logo";
 import { historyForModel, mergeUnsaved, RefreshGate } from "@/lib/growth-ai-chat-state";
 
@@ -678,7 +678,7 @@ export function GrowthAiChat() {
                 className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
               >
                 {browserBusy
-                  ? <ThinkingOrb state="working" size={20} theme="dark" aria-label="Opening website" className="shrink-0" />
+                  ? <PulseOrb state="working" size={20} label="Opening website" className="shrink-0" />
                   : <GrowthAiIcon name="external" size={14} />}
                 <span>{browserBusy ? "Opening…" : "Open page"}</span>
               </button>
@@ -748,7 +748,7 @@ export function GrowthAiChat() {
                   className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
                 >
                   {browserBusy
-                    ? <ThinkingOrb state="working" size={20} theme="dark" aria-label="Running website actions" className="shrink-0" />
+                    ? <PulseOrb state="working" size={20} label="Running website actions" className="shrink-0" />
                     : <GrowthAiIcon name="shield" size={14} />}
                   {browserBusy ? "Running…" : "Confirm and run sequence"}
                 </button>
@@ -871,12 +871,10 @@ export function GrowthAiChat() {
                 })}
                 {busy && (
                   <div role="status" aria-live="polite" className="ml-11 mb-4 flex items-center gap-2.5 text-xs text-slate-500">
-                    <ThinkingOrb
-                      state={browserBusy ? "working" : "solving"}
-                      size={20}
-                      theme="light"
-                      color="#f97316"
-                      aria-label={browserBusy ? "Growth AI is working" : "Growth AI is thinking"}
+                    <PulseOrb
+                      state={browserBusy ? "working" : "thinking"}
+                      size={28}
+                      label={browserBusy ? "Growth AI is working" : "Growth AI is thinking"}
                       className="shrink-0"
                     />
                     <span>{browserBusy ? "Growth AI is working" : "Growth AI is thinking"}</span>
