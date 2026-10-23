@@ -77,6 +77,42 @@ export function PulseOrb({
               min-height: 0 !important;
               aspect-ratio: 1;
             }
+            /* Tiny nav/chat versions keep the orb visible without its glow
+               washing over labels, text, or neighbouring buttons. */
+            :host([data-orb-size="icon"]) .orb-stage {
+              width: 72% !important;
+              height: 72% !important;
+              filter: none !important;
+            }
+            :host([data-orb-size="icon"]) .aura {
+              filter: blur(2px) !important;
+              opacity: .45 !important;
+            }
+            :host([data-orb-size="icon"]) .energy-ring {
+              opacity: .45 !important;
+              box-shadow: none !important;
+            }
+            :host([data-orb-size="icon"]) .orb-shell {
+              box-shadow: 0 0 4px rgba(255, 96, 0, .18) !important;
+            }
+            :host([data-orb-size="compact"]) .orb-stage {
+              width: 84% !important;
+              height: 84% !important;
+            }
+            :host([data-orb-size="compact"]) .aura {
+              filter: blur(5px) !important;
+              opacity: .58 !important;
+            }
+            :host([data-orb-size="compact"]) .energy-ring {
+              opacity: .6 !important;
+            }
+            :host([data-orb-size="display"]) .aura {
+              filter: blur(10px) !important;
+              opacity: .72 !important;
+            }
+            :host([data-orb-size="display"]) .energy-ring {
+              opacity: .8 !important;
+            }
             .eyebrow, .brand, .subtitle, .status, .hint, .controls {
               display: none !important;
             }
@@ -138,6 +174,7 @@ export function PulseOrb({
       ref={hostRef}
       role="img"
       aria-label={label}
+      data-orb-size={size <= 24 ? "icon" : size <= 44 ? "compact" : size <= 72 ? "display" : "full"}
       className={`inline-flex shrink-0 items-center justify-center overflow-visible ${className}`}
       style={{ width: size, height: size, position: "relative" }}
     />
