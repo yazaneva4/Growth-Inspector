@@ -8,6 +8,7 @@ import { BackupContacts } from "@/components/backup-contacts";
 import { ProfileNameForm } from "@/components/profile-name-form";
 import { BrowserAccessControls } from "@/components/browser-access-controls";
 import { normalizeBrowserPolicy } from "@/lib/ai/browser-policy";
+import { WorkspaceManager } from "@/components/workspace-manager";
 import type { BrandVoice, ReplyMode } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,29 @@ export default async function SettingsPage() {
     reply_mode: (org?.reply_mode as ReplyMode) ?? "approval",
     confidence_threshold: Number(org?.confidence_threshold ?? 0.75),
   };
+
+  const canManageWorkspaces = ctx.role === "owner" || ctx.role === "admin";
+  type WorkspaceMembership = {
+    org_id: string;
+    role: "owner" | "admin" | "agent";
+    organizations: { id: string; name: string; slug: string; onboarded: boolean } | null;
+  };
+  const workspaceMembershipsResult = !ctx.isDemo && ctx.userId && canManageWorkspaces
+    ? await db.from("memberships")
+        .select("org_id, role, organizations(id, name, slug, onboarded)")
+        .eq("user_id", ctx.userId)
+        .order("created_at", { ascending: true })
+    : { data: [] };
+  const workspaces = ((workspaceMembershipsResult.data ?? []) as unknown as WorkspaceMembership[])
+    .flatMap((membership) => membership.organizations
+      ? [{
+          id: membership.organizations.id,
+          name: membership.organizations.name,
+          slug: membership.organizations.slug,
+          onboarded: membership.organizations.onboarded,
+          role: membership.role,
+        }]
+      : []);
 
   const host = (await headers()).get("host");
   const webhookBase = `https://${host}/api/webhooks`;
@@ -58,7 +82,11 @@ export default async function SettingsPage() {
         </div>
       )}
 
-      {!ctx.isDemo && <div className="mt-6"><BrowserAccessControls initial={normalizeBrowserPolicy(org?.browser_policy)} canManage={ctx.role === "owner" || ctx.role === "admin"} /></div>}
+      {!ctx.isDemo && canManageWorkspaces && (
+        <WorkspaceManager workspaces={workspaces} activeWorkspaceId={org?.id ?? null} />
+      )}
+
+      {!ctx.isDemo && <div className="mt-6"><BrowserAccessControls initial={normalizeBrowserPolicy(org?.browser_policy)} canManage={canManageWorkspaces} /></div>}
 
       <div className="mt-6">
         <SettingsForm initial={initial} canSave={!ctx.isDemo} />
