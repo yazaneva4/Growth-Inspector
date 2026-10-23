@@ -13,14 +13,13 @@ export function TopBar({
     <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur sm:px-8">
       <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-          Workspace
+          GrowthSpace CRM
         </p>
         <p
           className="max-w-[220px] truncate text-sm font-semibold text-slate-900 sm:max-w-sm"
-          dir="auto"
-          title={workspaceName}
+          title="GrowthSpace"
         >
-          {workspaceName}
+          GrowthSpace
         </p>
       </div>
 
