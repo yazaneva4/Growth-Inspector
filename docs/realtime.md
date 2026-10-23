@@ -23,9 +23,9 @@ Database write → Supabase Realtime publication → public schema wildcard subs
 
 `src/lib/realtime/tables.ts` inventories tables created in this repository's migrations. It is used by the CI migration inventory check and health response; it is not the runtime subscription allowlist. Externally managed live tables may not appear there.
 
-Migration `20261013120000_realtime_publication_sweep.sql` adds RLS-enabled public tables to the publication with full replica identity and defines `realtime_publication_gaps()`. `/api/health` reports the wildcard subscription scope and the result of that RPC. Until the migration is applied to a database, publication status is **unchecked**. A complete result means the RPC found no missing eligible tables in the database it inspected.
+Migration `20261023114759_realtime_publication_sweep.sql` adds RLS-enabled public tables to the publication with full replica identity and defines `realtime_publication_gaps()`. On 23 October 2026, the live database was verified to have all 21 RLS-enabled public tables in `supabase_realtime`, zero tables missing `FULL` replica identity, and the gap-check RPC installed. `/api/health` can report the RPC result only when the server-only `SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY` is configured. Without that key, it correctly reports `publication: unchecked` with reason `server-verification-key-not-configured`; this does not prevent signed-in browser clients from receiving their RLS-authorized realtime events.
 
-The live project was inspected and its existing RLS tables were present in `supabase_realtime` with full replica identity. The Supabase Preview GitHub check currently fails because the remote database has migration versions that are absent from this repository. Do not infer the migration is applied from a successful application build.
+The app build and the database migration state are separate checks. The live publication was audited directly after applying the sweep migration; continue reconciling any other remote migration-history differences before running a bulk database push. A successful application build alone does not prove the database schema is up to date.
 
 ## Deployment and reconciliation updates
 
@@ -51,5 +51,5 @@ The dashboard also reconciles every 30 seconds while visible and online, even wi
 |---|---|
 | Badge remains on Polling | WebSocket blocked by a proxy/VPN/network, or the Realtime service is unavailable. Visible tabs continue refreshing every 15 seconds. |
 | Badge says Live but a row does not appear | The current user may be excluded by RLS, the database write may not have occurred, or its table may not be in the publication. |
-| Health reports unchecked | The service role is not configured or the publication-gap RPC is not installed/available. |
+| Health reports unchecked | Check `integrations.supabase_service_role` and `realtime.reason`; if the server-only key is missing, the live DB may still stream correctly but health cannot verify publication completeness. |
 | Supabase Preview check fails on migration history | Remote migration versions are missing from the repository's migration directory; reconcile migration history before applying further migrations. |
