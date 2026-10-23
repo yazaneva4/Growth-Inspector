@@ -78,10 +78,12 @@ export function RealtimeRefresh() {
       .on("postgres_changes", { event: "*", schema: "public", table: "*" }, onChange)
       .subscribe((status) => {
       if (status === "SUBSCRIBED") {
-        const wasDown = stateRef.current !== "connecting" && stateRef.current !== "live";
+        // Capture the previous state before setLive updates the ref. A repeat
+        // SUBSCRIBED notification while already live should not cause another
+        // server refresh; the initial subscribe and every reconnect still do.
+        const needsReconcile = stateRef.current !== "live";
         setLive(typeof navigator !== "undefined" && !navigator.onLine ? "offline" : "live");
-        // Reconcile after (re)connect: closes the gap while we were away.
-        if (wasDown || stateRef.current === "live") refreshNow();
+        if (needsReconcile) refreshNow();
       } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
         setLive(navigator.onLine ? "polling" : "offline");
       } else if (status === "CLOSED") {
