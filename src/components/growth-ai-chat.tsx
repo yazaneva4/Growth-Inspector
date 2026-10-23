@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { GrowthAiIcon } from "@/components/growth-ai-icon";
+import { ThinkingOrb } from "thinking-orbs";
 import { LogoMark } from "@/components/logo";
 import { historyForModel, mergeUnsaved, RefreshGate } from "@/lib/growth-ai-chat-state";
 
@@ -676,7 +677,9 @@ export function GrowthAiChat() {
                 onClick={() => void runBrowserAction("inspect")}
                 className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
               >
-                <GrowthAiIcon name={browserBusy ? "refresh" : "external"} size={14} />
+                {browserBusy
+                  ? <ThinkingOrb state="working" size={20} theme="dark" aria-label="Opening website" className="shrink-0" />
+                  : <GrowthAiIcon name="external" size={14} />}
                 <span>{browserBusy ? "Opening…" : "Open page"}</span>
               </button>
             </div>
@@ -744,7 +747,9 @@ export function GrowthAiChat() {
                   onClick={() => void runBrowserAction("inspect", browserUrl, browserSteps)}
                   className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
                 >
-                  <GrowthAiIcon name="shield" size={14} />
+                  {browserBusy
+                    ? <ThinkingOrb state="working" size={20} theme="dark" aria-label="Running website actions" className="shrink-0" />
+                    : <GrowthAiIcon name="shield" size={14} />}
                   {browserBusy ? "Running…" : "Confirm and run sequence"}
                 </button>
                 <p className="mt-2 text-[10px] leading-4 text-slate-500">Actions run in order in one headless browser session. Review the steps first; clicking or filling may change saved website data.</p>
@@ -856,7 +861,7 @@ export function GrowthAiChat() {
                           <span>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                         </div>
                         <div className={"rounded-2xl px-4 py-3.5 text-sm leading-6 shadow-sm " + (isUser ? "rounded-tr-md bg-emerald-600 text-white" : "rounded-tl-md border border-slate-200 bg-white text-slate-800")} dir="auto">
-                          <div className="whitespace-pre-wrap break-words">{parts.answer}{message.status === "pending" ? "\nThinking…" : message.status === "failed" ? "\nMessage failed — send it again." : message.status === "unsaved" ? "\nNot saved to history." : ""}</div>
+                          <div className="whitespace-pre-wrap break-words">{parts.answer}{message.status === "failed" ? "\nMessage failed — send it again." : message.status === "unsaved" ? "\nNot saved to history." : ""}</div>
                           {parts.sources.length > 0 && <div className={"mt-3 border-t pt-2 text-xs " + (isUser ? "border-white/20" : "border-slate-200")}><p className="mb-1 font-semibold">Sources</p><ul className="space-y-1">{parts.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className={isUser ? "underline text-white" : "underline text-sky-700"}>{source.title}</a></li>)}</ul></div>}
                         </div>
                       </div>
@@ -864,7 +869,19 @@ export function GrowthAiChat() {
                     </div>
                   );
                 })}
-                {busy && <div className="ml-11 mb-4 flex items-center gap-2 text-xs text-slate-500"><span className="flex gap-1"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 [animation-delay:150ms]" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 [animation-delay:300ms]" /></span> Growth AI is working</div>}
+                {busy && (
+                  <div role="status" aria-live="polite" className="ml-11 mb-4 flex items-center gap-2.5 text-xs text-slate-500">
+                    <ThinkingOrb
+                      state={browserBusy ? "working" : "solving"}
+                      size={20}
+                      theme="light"
+                      color="#f97316"
+                      aria-label={browserBusy ? "Growth AI is working" : "Growth AI is thinking"}
+                      className="shrink-0"
+                    />
+                    <span>{browserBusy ? "Growth AI is working" : "Growth AI is thinking"}</span>
+                  </div>
+                )}
                 <div ref={endRef} />
               </>
             )}
