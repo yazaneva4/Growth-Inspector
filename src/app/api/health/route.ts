@@ -46,7 +46,11 @@ async function realtimeHealth() {
     subscription_scope: "public-schema-wildcard" as const,
     local_schema_table_count: REALTIME_TABLES.length,
   };
-  if (!serviceKeyConfigured()) return { ...base, publication: "unchecked" as const };
+  if (!serviceKeyConfigured()) return {
+    ...base,
+    publication: "unchecked" as const,
+    reason: "server-verification-key-not-configured" as const,
+  };
   try {
     const { data, error } = await createServiceClient().rpc("realtime_publication_gaps");
     if (error) return { ...base, publication: "unchecked" as const, error: "publication-gap-check-unavailable" };
