@@ -7,7 +7,7 @@
   overflow: visible;
   border-radius: 50%;
   contain: layout paint;
-  filter: drop-shadow(0 0 8px rgba(255, 104, 10, .22));
+  filter: none;
   --orb-rate: 1;
 }
 .pulse-orb__aura, .pulse-orb__aura::before {
@@ -19,14 +19,14 @@
 }
 .pulse-orb__aura {
   background: conic-gradient(from 0deg, transparent 0 7%, rgba(255,85,0,.45) 15%, transparent 27%, rgba(255,185,55,.38) 41%, transparent 57%, rgba(255,64,0,.34) 70%, transparent 84%, rgba(255,166,30,.34) 94%, transparent);
-  filter: blur(7px);
-  opacity: .78;
+  filter: none;
+  opacity: .28;
   animation: pulse-orb-aura calc(13s / var(--orb-rate)) linear infinite;
 }
 .pulse-orb__aura::before {
   inset: 11%;
   background: conic-gradient(from 180deg, rgba(255,176,44,.27), transparent 24%, rgba(255,70,0,.42) 48%, transparent 70%, rgba(255,207,93,.30));
-  filter: blur(5px);
+  filter: none;
   animation: pulse-orb-aura calc(8s / var(--orb-rate)) linear infinite reverse;
 }
 .pulse-orb__core {
@@ -34,7 +34,7 @@
   inset: 0;
   overflow: hidden;
   border-radius: 50%;
-  box-shadow: 0 0 14px rgba(255,96,0,.25), inset -4px -5px 9px rgba(24,5,0,.5), inset 2px 2px 5px rgba(255,255,255,.13);
+  box-shadow: none;
   animation: pulse-orb-breathe calc(4.6s / var(--orb-rate)) ease-in-out infinite;
 }
 .pulse-orb__core::after {
@@ -52,12 +52,12 @@
   border: 1px solid rgba(255,173,74,.32);
   border-radius: 50%;
   pointer-events: none;
-  box-shadow: 0 0 4px rgba(255,114,12,.08), inset 0 0 3px rgba(255,187,70,.05);
+  box-shadow: none;
 }
 .pulse-orb__ring--one { transform: rotate(-28deg) scaleY(.33); animation: pulse-orb-drift calc(9s / var(--orb-rate)) ease-in-out infinite; }
 .pulse-orb__ring--two { inset: -3%; border-color: rgba(255,104,28,.27); transform: rotate(52deg) scaleY(.43); animation: pulse-orb-drift-two calc(11s / var(--orb-rate)) ease-in-out infinite; }
 .pulse-orb__ring--three { inset: -13%; border-color: rgba(255,204,109,.14); transform: rotate(77deg) scaleY(.27); animation: pulse-orb-drift calc(17s / var(--orb-rate)) ease-in-out infinite reverse; }
-.pulse-orb__spark { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff0be; box-shadow: 0 0 5px 2px rgba(255,162,49,.75), 0 0 10px 3px rgba(255,77,0,.25); pointer-events: none; animation: pulse-orb-spark calc(2.7s / var(--orb-rate)) ease-in-out infinite; }
+.pulse-orb__spark { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff0be; box-shadow: none; pointer-events: none; animation: pulse-orb-spark calc(2.7s / var(--orb-rate)) ease-in-out infinite; }
 .pulse-orb__spark--one { top: 14%; right: 12%; }
 .pulse-orb__spark--two { width: 2px; height: 2px; top: 72%; right: 1%; animation-delay: -1.1s; animation-duration: calc(3.2s / var(--orb-rate)); }
 .pulse-orb__spark--three { top: 82%; left: 11%; animation-delay: -.6s; }
