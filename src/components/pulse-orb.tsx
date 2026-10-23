@@ -85,30 +85,39 @@ export function PulseOrb({
               filter: none !important;
             }
             :host([data-orb-size="icon"]) .aura {
-              filter: blur(2px) !important;
-              opacity: .45 !important;
+              filter: none !important;
+              opacity: .22 !important;
             }
             :host([data-orb-size="icon"]) .energy-ring {
               opacity: .45 !important;
               box-shadow: none !important;
             }
             :host([data-orb-size="icon"]) .orb-shell {
-              box-shadow: 0 0 4px rgba(255, 96, 0, .18) !important;
+              box-shadow: none !important;
+            }
+            .orb-shell, .energy-ring, .spark, .status-dot {
+              box-shadow: none !important;
+            }
+            .orb-stage, .aura, .aura::before, .aura::after {
+              filter: none !important;
+            }
+            .orb-shell::before {
+              box-shadow: none !important;
             }
             :host([data-orb-size="compact"]) .orb-stage {
               width: 84% !important;
               height: 84% !important;
             }
             :host([data-orb-size="compact"]) .aura {
-              filter: blur(5px) !important;
-              opacity: .58 !important;
+              filter: none !important;
+              opacity: .28 !important;
             }
             :host([data-orb-size="compact"]) .energy-ring {
               opacity: .6 !important;
             }
             :host([data-orb-size="display"]) .aura {
-              filter: blur(10px) !important;
-              opacity: .72 !important;
+              filter: none !important;
+              opacity: .34 !important;
             }
             :host([data-orb-size="display"]) .energy-ring {
               opacity: .8 !important;
