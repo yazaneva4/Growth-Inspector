@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { Logo, LogoMark } from "@/components/logo";
+import { PulseOrb } from "@/components/pulse-orb";
 import { TopBar } from "@/components/top-bar";
 
 const navGroups = [
@@ -93,7 +94,7 @@ export function DashboardChrome({ workspaceName, email, children }: { workspaceN
           <div className="space-y-0.5">{group.items.map((item) => {
             const active = pathname === item.href;
             return <Link key={item.href} href={item.href} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined} onClick={() => setMobileOpen(false)} aria-current={active ? "page" : undefined} className={"flex min-h-9 items-center gap-3 rounded-xl px-3 py-1.5 text-[13px] font-medium transition-colors " + (collapsed ? "lg:justify-center lg:px-0" : "") + " " + (active ? "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-100" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950")}>
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center text-xs opacity-80">{item.icon === "sparkle" ? <LogoMark size={17} className="rounded-sm" /> : item.icon}</span>
+              <span className={"flex shrink-0 items-center justify-center text-xs opacity-90 " + (item.icon === "sparkle" ? "h-6 w-6 overflow-visible" : "h-5 w-5")}>{item.icon === "sparkle" ? <PulseOrb state={active ? "thinking" : "ready"} size={22} label="Growth AI animated orb" /> : item.icon}</span>
               <span className={"min-w-0 truncate " + (collapsed ? "lg:hidden" : "")}>{item.label}</span>
             </Link>;
           })}</div>
