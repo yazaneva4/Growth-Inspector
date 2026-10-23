@@ -48,8 +48,8 @@ export default async function SettingsPage() {
     <div className="max-w-3xl">
       <h1 className="text-2xl font-bold">Settings</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Control how GrowthSpace and Growth AI behave for this workspace. Workspace preferences, AI instructions, agent execution, permissions, connected accounts, and safety guardrails live here.
-        {ctx.isDemo && <span className="text-amber-400"> Sign in to edit your workspace.</span>}
+        Control how GrowthSpace and Growth AI behave for your account. AI instructions, agent execution, permissions, connected accounts, and safety guardrails live here.
+        {ctx.isDemo && <span className="text-amber-400"> Sign in to edit GrowthSpace.</span>}
       </p>
 
       {!ctx.isDemo && (
@@ -60,7 +60,7 @@ export default async function SettingsPage() {
         </div>
       )}
 
-      {!ctx.isDemo && <div className="mt-6"><BrowserAccessControls initial={normalizeBrowserPolicy(org?.browser_policy)} canManage={canManageWorkspaces} /></div>}
+      {!ctx.isDemo && <div className="mt-6"><BrowserAccessControls initial={normalizeBrowserPolicy(org?.browser_policy)} canManage={ctx.role === "owner" || ctx.role === "admin"} /></div>}
 
       <div className="mt-6">
         <SettingsForm initial={initial} canSave={!ctx.isDemo} />
