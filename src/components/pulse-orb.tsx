@@ -22,7 +22,9 @@ export function PulseOrb({
 }: PulseOrbProps) {
   const hostRef = useRef<HTMLSpanElement>(null);
   const latestState = useRef(state);
-  latestState.current = state;
+  useEffect(() => {
+    latestState.current = state;
+  }, [state]);
 
   useEffect(() => {
     const host = hostRef.current;
